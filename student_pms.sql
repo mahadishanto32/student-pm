@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 20, 2026 at 09:58 AM
+-- Generation Time: Sep 20, 2026 at 07:43 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -32,13 +32,6 @@ CREATE TABLE `cache` (
   `value` mediumtext NOT NULL,
   `expiration` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `cache`
---
-
-INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('laravel-cache-test@example.com|127.0.0.1:timer', 'i:1789887206;', 1789887206);
 
 -- --------------------------------------------------------
 
@@ -123,7 +116,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (1, '0001_01_01_000000_create_users_table', 1),
 (2, '0001_01_01_000001_create_cache_table', 1),
 (3, '0001_01_01_000002_create_jobs_table', 1),
-(4, '2026_09_20_065420_fix_users_password_column', 2);
+(4, '2026_09_20_065420_fix_users_password_column', 2),
+(5, '2026_09_20_162938_add_role_to_users_table', 3);
 
 -- --------------------------------------------------------
 
@@ -157,7 +151,8 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('APcJJWlJyUotgIJhl82hTgNdrw17X5pbcjGw8nzl', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiWVR5cUc2cDJralNQblhhRGlZdWtac3J2U3JxWTNkblN1ZTB3ZVJOMyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9kYXNoYm9hcmQiO3M6NToicm91dGUiO3M6OToiZGFzaGJvYXJkIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Mjt9', 1789890262);
+('APcJJWlJyUotgIJhl82hTgNdrw17X5pbcjGw8nzl', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiWVR5cUc2cDJralNQblhhRGlZdWtac3J2U3JxWTNkblN1ZTB3ZVJOMyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9kYXNoYm9hcmQiO3M6NToicm91dGUiO3M6OToiZGFzaGJvYXJkIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Mjt9', 1789890262),
+('s5yDJyQ83I07aqWOLo2YqZCbGeGSlYrZvyXeLc0U', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiVHNsVndBaklZc1IwRzJJYmpFa3hmSGR4UnYwVjIwWHlsNFRpdGdPOCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9kYXNoYm9hcmQiO3M6NToicm91dGUiO3M6MTU6ImFkbWluLmRhc2hib2FyZCI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7fQ==', 1789922681);
 
 -- --------------------------------------------------------
 
@@ -169,6 +164,7 @@ CREATE TABLE `users` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
+  `role` enum('admin','teacher','student') NOT NULL DEFAULT 'student',
   `email_verified_at` timestamp NULL DEFAULT NULL,
   `password` varchar(255) NOT NULL,
   `remember_token` varchar(100) DEFAULT NULL,
@@ -180,9 +176,10 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, 'Test User', 'test@example.com', '2026-09-20 00:48:37', '\\$2y\\$12\\$rOZtmtJXpHc13JUnTOLsJeWrnqYhYsdajioMPuq6VDov8N6QopS8.', 'LplDCaBhFy', '2026-09-20 00:48:37', '2026-09-20 00:48:37'),
-(2, 'Test user', 'admin@spms.com', NULL, '$2y$12$e22O6bscG9sOmK1I4J2rT.MmT68gWcClXmPkncMloX2WseJKIPLnW', NULL, '2026-09-20 00:57:15', '2026-09-20 00:57:15');
+INSERT INTO `users` (`id`, `name`, `email`, `role`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
+(2, 'Test user', 'admin@spms.com', 'admin', NULL, '$2y$12$e22O6bscG9sOmK1I4J2rT.MmT68gWcClXmPkncMloX2WseJKIPLnW', NULL, '2026-09-20 00:57:15', '2026-09-20 00:57:15'),
+(3, 'Test Teacher', 'teacher@spms.com', 'teacher', NULL, '$2y$12$cBdiyuIyGxE7X/qbYRmmG.PJb.m9rj/X.7cmNYJPBdgcrBwAaC2A.', NULL, '2026-09-20 10:40:17', '2026-09-20 10:40:17'),
+(4, 'Test Student', 'student@spms.com', 'student', NULL, '$2y$12$hTfNoZ5xy4LnUkJj1OjVXuu27gygQo3NASvUozKZkA1mYiaKElQ5C', NULL, '2026-09-20 10:42:37', '2026-09-20 10:42:37');
 
 --
 -- Indexes for dumped tables
@@ -269,13 +266,13 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

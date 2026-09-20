@@ -28,7 +28,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Role-based redirect
+        return redirect()->intended($this->redirectPathFor(Auth::user()));
     }
 
     /**
@@ -43,5 +44,18 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    /**
+     * Determine the post-login redirect path based on user role.
+     */
+    protected function redirectPathFor($user): string
+    {
+        return match ($user->role) {
+            'admin'   => route('admin.dashboard',   absolute: false),
+            'teacher' => route('teachers.dashboard', absolute: false),
+            'student' => route('dashboard',         absolute: false),
+            default   => route('dashboard',         absolute: false),
+        };
     }
 }

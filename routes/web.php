@@ -7,17 +7,32 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// ---------- Student / default dashboard ----------
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-<<<<<<< HEAD
-=======
-Route::view('/table', 'table.table')
-    ->middleware(['auth', 'verified'])
-    ->name('table');
+// ---------- Admin dashboard ----------
+Route::middleware(['auth', 'verified', 'role:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/dashboard', function () {
+            return view('admin.dashboard');
+        })->name('dashboard');
+    });
 
->>>>>>> 27e906a (Initial office changes)
+// ---------- Teacher dashboard ----------
+Route::middleware(['auth', 'verified', 'role:teacher'])
+    ->prefix('teachers')
+    ->name('teachers.')
+    ->group(function () {
+        Route::get('/dashboard', function () {
+            return view('teachers.dashboard');
+        })->name('dashboard');
+    });
+
+// ---------- Profile ----------
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

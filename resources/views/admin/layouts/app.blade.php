@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- site metas -->
-    <title>@yield('title', 'Dashboard') - {{ config('app.name', 'Student PMS') }}</title>
+    <title>@yield('title', 'Admin Dashboard') - {{ config('app.name', 'Student PMS') }}</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -46,13 +46,13 @@
         <div class="inner_container">
 
             {{-- Sidebar --}}
-            @include('layouts.partial.sidebar')
+            @include('admin.layouts.partial.sidebar')
 
             {{-- Right content --}}
             <div id="content">
 
                 {{-- Topbar --}}
-                @include('layouts.partial.header')
+                @include('admin.layouts.partial.header')
 
                 <div class="midde_cont">
                     <div class="container-fluid">
