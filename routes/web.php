@@ -11,6 +11,13 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+<<<<<<< HEAD
+=======
+Route::view('/table', 'table.table')
+    ->middleware(['auth', 'verified'])
+    ->name('table');
+
+>>>>>>> 27e906a (Initial office changes)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
