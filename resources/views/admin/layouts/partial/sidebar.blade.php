@@ -2,7 +2,7 @@
     <div class="sidebar_blog_1">
         <div class="sidebar-header">
             <div class="logo_section">
-                <a href="{{ route('dashboard') }}"><img class="logo_icon img-responsive" src="{{ asset('images/logo/logo_icon.png') }}" alt="#" /></a>
+                <a href="{{ route('admin.dashboard') }}"><img class="logo_icon img-responsive" src="{{ asset('images/logo/logo_icon.png') }}" alt="#" /></a>
             </div>
         </div>
         <div class="sidebar_user_info">
@@ -19,14 +19,25 @@
     <div class="sidebar_blog_2">
         <h4>General</h4>
         <ul class="list-unstyled components">
-            <li class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
+            <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <a href="#dashboard" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="fa fa-dashboard yellow_color"></i> <span>Dashboard</span></a>
-                <ul class="collapse list-unstyled {{ request()->routeIs('dashboard') ? 'show' : '' }}" id="dashboard">
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.dashboard') ? 'show' : '' }}" id="dashboard">
                     <li>
-                        <a href="{{ route('dashboard') }}">&gt; <span>Default Dashboard</span></a>
+                        <a href="{{ route('admin.dashboard') }}">&gt; <span>Default Dashboard</span></a>
                     </li>
                     <li>
                         <a href="#">&gt; <span>Dashboard style 2</span></a>
+                    </li>
+                </ul>
+            </li>
+            <li class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                <a href="#users_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i class="fa fa-users green_color"></i> <span>Users</span></a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.users.*') ? 'show' : '' }}" id="users_menu">
+                    <li class="{{ request()->routeIs('admin.users.index') ? 'active' : '' }}">
+                        <a href="{{ route('admin.users.index') }}">&gt; <span>All Users</span></a>
+                    </li>
+                    <li class="{{ request()->routeIs('admin.users.create') ? 'active' : '' }}">
+                        <a href="{{ route('admin.users.create') }}">&gt; <span>Add New User</span></a>
                     </li>
                 </ul>
             </li>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 20, 2026 at 07:43 PM
+-- Generation Time: Sep 21, 2026 at 07:17 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -32,6 +32,14 @@ CREATE TABLE `cache` (
   `value` mediumtext NOT NULL,
   `expiration` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `cache`
+--
+
+INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
+('laravel-cache-user@gmail.com|127.0.0.1', 'i:1;', 1790006015),
+('laravel-cache-user@gmail.com|127.0.0.1:timer', 'i:1790006014;', 1790006014);
 
 -- --------------------------------------------------------
 
@@ -151,8 +159,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('APcJJWlJyUotgIJhl82hTgNdrw17X5pbcjGw8nzl', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiWVR5cUc2cDJralNQblhhRGlZdWtac3J2U3JxWTNkblN1ZTB3ZVJOMyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9kYXNoYm9hcmQiO3M6NToicm91dGUiO3M6OToiZGFzaGJvYXJkIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Mjt9', 1789890262),
-('s5yDJyQ83I07aqWOLo2YqZCbGeGSlYrZvyXeLc0U', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiVHNsVndBaklZc1IwRzJJYmpFa3hmSGR4UnYwVjIwWHlsNFRpdGdPOCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9kYXNoYm9hcmQiO3M6NToicm91dGUiO3M6MTU6ImFkbWluLmRhc2hib2FyZCI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7fQ==', 1789922681);
+('MT1oAU1RPbO4u0tXoEBKaTyZEfffvWXP5LuHUEo7', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiUlBxOEZVZGNnRTc2MHo3anNJV2w5b0FFRDMxYWdJR1pZbndNd3FUNyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi91c2VycyI7czo1OiJyb3V0ZSI7czoxNzoiYWRtaW4udXNlcnMuaW5kZXgiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToyO30=', 1790007434);
 
 -- --------------------------------------------------------
 
@@ -177,9 +184,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `role`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
-(2, 'Test user', 'admin@spms.com', 'admin', NULL, '$2y$12$e22O6bscG9sOmK1I4J2rT.MmT68gWcClXmPkncMloX2WseJKIPLnW', NULL, '2026-09-20 00:57:15', '2026-09-20 00:57:15'),
-(3, 'Test Teacher', 'teacher@spms.com', 'teacher', NULL, '$2y$12$cBdiyuIyGxE7X/qbYRmmG.PJb.m9rj/X.7cmNYJPBdgcrBwAaC2A.', NULL, '2026-09-20 10:40:17', '2026-09-20 10:40:17'),
-(4, 'Test Student', 'student@spms.com', 'student', NULL, '$2y$12$hTfNoZ5xy4LnUkJj1OjVXuu27gygQo3NASvUozKZkA1mYiaKElQ5C', NULL, '2026-09-20 10:42:37', '2026-09-20 10:42:37');
+(2, 'Test user', 'admin@spms.com', 'admin', '2026-09-21 10:15:48', '$2y$12$e22O6bscG9sOmK1I4J2rT.MmT68gWcClXmPkncMloX2WseJKIPLnW', NULL, '2026-09-20 00:57:15', '2026-09-21 10:15:48'),
+(3, 'Test Teacher', 'teacher@spms.com', 'teacher', '2026-09-21 10:15:38', '$2y$12$cBdiyuIyGxE7X/qbYRmmG.PJb.m9rj/X.7cmNYJPBdgcrBwAaC2A.', NULL, '2026-09-20 10:40:17', '2026-09-21 10:15:38'),
+(4, 'Test Student', 'student1@spms.com', 'student', '2026-09-21 10:15:30', '$2y$12$hTfNoZ5xy4LnUkJj1OjVXuu27gygQo3NASvUozKZkA1mYiaKElQ5C', NULL, '2026-09-20 10:42:37', '2026-09-21 10:15:58'),
+(5, 'Student 2', 'student2@spms.com', 'student', '2026-09-21 10:17:13', '$2y$12$jpuBy/.9sp/Ac2nPnA.qu.Ck8S0K9/QvmUoayr9jFssqYa4GQomVS', NULL, '2026-09-21 10:16:39', '2026-09-21 10:17:13');
 
 --
 -- Indexes for dumped tables
@@ -272,7 +280,7 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
