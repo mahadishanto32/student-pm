@@ -56,6 +56,19 @@
                 </ul>
             </li>
 
+            {{-- ---------- My Projects Book (student) ---------- --}}
+            <li class="{{ request()->routeIs('student.project-books.*') ? 'active' : '' }}">
+                <a href="#student_project_books_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-book blue1_color"></i> <span>My Project Books</span>
+                </a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('student.project-books.*') ? 'show' : '' }}"
+                    id="student_project_books_menu">
+                    <li class="{{ request()->routeIs('student.project-books.index') ? 'active' : '' }}">
+                        <a href="{{ route('student.project-books.index') }}">&gt; <span>All My Project Books</span></a>
+                    </li>
+                </ul>
+            </li>
+
             {{-- ---------- Profile ---------- --}}
             <li class="{{ request()->routeIs('profile.*') ? 'active' : '' }}">
                 <a href="{{ route('profile.edit') }}">

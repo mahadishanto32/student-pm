@@ -42,8 +42,8 @@ class Project extends Model
      */
     public function teamMembers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'project_user')
-                    ->withTimestamps();
+        return $this->belongsToMany(User::class, 'project_user', 'project_id', 'user_id')
+                ->withTimestamps();
     }
 
     /**
@@ -52,5 +52,10 @@ class Project extends Model
     public function scopeStatus($query, string $status)
     {
         return $query->where('status', $status);
+    }
+
+    public function projectBook()
+    {
+        return $this->hasOne(ProjectBook::class);
     }
 }

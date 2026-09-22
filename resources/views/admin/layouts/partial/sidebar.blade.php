@@ -75,6 +75,22 @@
                 </ul>
             </li>
 
+            {{-- ---------- Project Book ---------- --}}
+            <li class="{{ request()->routeIs('admin.project-book.*') ? 'active' : '' }}">
+                <a href="#project_books_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-book blue1_color"></i> <span>Project Books</span>
+                </a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.project-books.*') ? 'show' : '' }}"
+                    id="project_books_menu">
+                    <li class="{{ request()->routeIs('admin.project-books.index') ? 'active' : '' }}">
+                        <a href="{{ route('admin.project-books.index') }}">&gt; <span>All Project Book</span></a>
+                    </li>
+                    <li class="{{ request()->routeIs('admin.project-books.create') ? 'active' : '' }}">
+                        <a href="{{ route('admin.project-books.create') }}">&gt; <span>Add New Project Book</span></a>
+                    </li>
+                </ul>
+            </li>
+
             {{-- ---------- Widgets ---------- --}}
             <li><a href="#"><i class="fa fa-clock-o orange_color"></i> <span>Widgets</span></a></li>
 

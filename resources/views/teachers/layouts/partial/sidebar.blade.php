@@ -40,59 +40,30 @@
             </li>
 
             {{-- ---------- Projects (role-aware) ---------- --}}
-            @auth
-                @if (auth()->user()->role === 'admin')
-                    {{-- Admin: full project management --}}
-                    <li class="{{ request()->routeIs('admin.projects.*') ? 'active' : '' }}">
-                        <a href="#projects_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                            <i class="fa fa-briefcase blue1_color"></i> <span>Projects</span>
-                        </a>
-                        <ul class="collapse list-unstyled {{ request()->routeIs('admin.projects.*') ? 'show' : '' }}"
-                            id="projects_menu">
-                            <li class="{{ request()->routeIs('admin.projects.index') ? 'active' : '' }}">
-                                <a href="{{ route('admin.projects.index') }}">&gt; <span>All Projects</span></a>
-                            </li>
-                            <li class="{{ request()->routeIs('admin.projects.create') ? 'active' : '' }}">
-                                <a href="{{ route('admin.projects.create') }}">&gt; <span>Add New Project</span></a>
-                            </li>
-                        </ul>
+            <li class="{{ request()->routeIs('teachers.projects.*') ? 'active' : '' }}">
+                <a href="#teacher_projects_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-briefcase blue1_color"></i> <span>My Projects</span>
+                </a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('teachers.projects.*') ? 'show' : '' }}"
+                    id="teacher_projects_menu">
+                    <li class="{{ request()->routeIs('teachers.projects.index') ? 'active' : '' }}">
+                        <a href="{{ route('teachers.projects.index') }}">&gt; <span>All My Projects</span></a>
                     </li>
+                </ul>
+            </li>
 
-                @elseif (auth()->user()->role === 'teacher')
-                    {{-- Teacher: only their assigned projects --}}
-                    <li class="{{ request()->routeIs('teachers.projects.*') ? 'active' : '' }}">
-                        <a href="#teacher_projects_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                            <i class="fa fa-briefcase blue1_color"></i> <span>My Projects</span>
-                        </a>
-                        <ul class="collapse list-unstyled {{ request()->routeIs('teachers.projects.*') ? 'show' : '' }}"
-                            id="teacher_projects_menu">
-                            <li class="{{ request()->routeIs('teachers.projects.index') ? 'active' : '' }}">
-                                <a href="{{ route('teachers.projects.index') }}">&gt; <span>All My Projects</span></a>
-                            </li>
-                        </ul>
+            {{-- ---------- Project Books (role-aware) ---------- --}}
+            <li class="{{ request()->routeIs('teachers.project-books.*') ? 'active' : '' }}">
+                <a href="#teacher_project_books_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-book blue1_color"></i> <span>My Project Books</span>
+                </a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('teachers.project-books.*') ? 'show' : '' }}"
+                    id="teacher_project_books_menu">
+                    <li class="{{ request()->routeIs('teachers.projects.index') ? 'active' : '' }}">
+                        <a href="{{ route('teachers.project-books.index') }}">&gt; <span>All My Projects Books</span></a>
                     </li>
-                @endif
-            @endauth
-
-            {{-- ---------- Users (admin only) ---------- --}}
-            @auth
-                @if (auth()->user()->role === 'admin')
-                    <li class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                        <a href="#users_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                            <i class="fa fa-users green_color"></i> <span>Users</span>
-                        </a>
-                        <ul class="collapse list-unstyled {{ request()->routeIs('admin.users.*') ? 'show' : '' }}"
-                            id="users_menu">
-                            <li class="{{ request()->routeIs('admin.users.index') ? 'active' : '' }}">
-                                <a href="{{ route('admin.users.index') }}">&gt; <span>All Users</span></a>
-                            </li>
-                            <li class="{{ request()->routeIs('admin.users.create') ? 'active' : '' }}">
-                                <a href="{{ route('admin.users.create') }}">&gt; <span>Add New User</span></a>
-                            </li>
-                        </ul>
-                    </li>
-                @endif
-            @endauth
+                </ul>
+            </li>
 
             {{-- ---------- Widgets ---------- --}}
             <li><a href="#"><i class="fa fa-clock-o orange_color"></i> <span>Widgets</span></a></li>

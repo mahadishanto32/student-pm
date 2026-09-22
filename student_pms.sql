@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 22, 2026 at 12:12 PM
+-- Generation Time: Sep 22, 2026 at 04:12 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -120,7 +120,9 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (5, '2026_09_20_162938_add_role_to_users_table', 3),
 (6, '2026_09_22_072615_create_projects_table', 4),
 (7, '2026_09_22_073229_create_project_user_table', 5),
-(8, '2026_09_22_073643_create_projects_table', 6);
+(8, '2026_09_22_073643_create_projects_table', 6),
+(9, '2026_09_22_125423_create_project_books_table', 7),
+(10, '2026_09_22_125434_create_project_book_chapters_table', 7);
 
 -- --------------------------------------------------------
 
@@ -161,6 +163,51 @@ CREATE TABLE `projects` (
 INSERT INTO `projects` (`id`, `group_number`, `project_name`, `project_topic`, `short_overview`, `assigned_teacher`, `start_date`, `tentative_end_date`, `status`, `created_at`, `updated_at`) VALUES
 (1, '01', 'Student Project Management', 'PM', 'Student Project Management System', 8, '2026-09-22', '2026-12-11', 'pending', '2026-09-22 03:01:38', '2026-09-22 03:52:22'),
 (2, '02', NULL, NULL, NULL, 3, '2026-09-21', NULL, 'pending', '2026-09-22 03:20:19', '2026-09-22 03:20:19');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `project_books`
+--
+
+CREATE TABLE `project_books` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `project_id` bigint(20) UNSIGNED NOT NULL,
+  `status` enum('approved','pending','working','completed','rejected','cancelled') NOT NULL DEFAULT 'pending',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `project_books`
+--
+
+INSERT INTO `project_books` (`id`, `project_id`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 'pending', '2026-09-22 07:16:27', '2026-09-22 07:16:27');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `project_book_chapters`
+--
+
+CREATE TABLE `project_book_chapters` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `project_book_id` bigint(20) UNSIGNED NOT NULL,
+  `chapter_no` int(10) UNSIGNED NOT NULL,
+  `chapter_title` varchar(255) NOT NULL,
+  `chapter_description` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `project_book_chapters`
+--
+
+INSERT INTO `project_book_chapters` (`id`, `project_book_id`, `chapter_no`, `chapter_title`, `chapter_description`, `created_at`, `updated_at`) VALUES
+(2, 1, 1, 'Introduction', 'Intro', '2026-09-22 07:17:57', '2026-09-22 07:17:57'),
+(3, 1, 2, 'Literature Review', 'Literature Review Chapter', '2026-09-22 07:17:57', '2026-09-22 07:17:57');
 
 -- --------------------------------------------------------
 
@@ -206,8 +253,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('dZ753bCuX9RaGkTQaM2sNmylp8AEBStNrynBfp3l', 6, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiczh2NHpIb1l1UjVKVGZId2JzcXFTVlJaQ2Q0M3J6UzFpRmVkYU1wYSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mzk6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9zdHVkZW50cy9wcm9qZWN0cyI7czo1OiJyb3V0ZSI7czoyMjoic3R1ZGVudC5wcm9qZWN0cy5pbmRleCI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjY7fQ==', 1790070743),
-('PHfWoDrmpFQDxGNHoN1em2oEQruiVYUNRWNk4MR8', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiNU5oYXlBcU4zcmhDY05mQ2Z5T0ZyYXg3aGhzQnJxSzJZclJoWXdRMyI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjMxOiJodHRwOi8vMTI3LjAuMC4xOjgwMDEvZGFzaGJvYXJkIjtzOjU6InJvdXRlIjtzOjk6ImRhc2hib2FyZCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7fQ==', 1790070815);
+('Hja28HuJnf939hA7GaHmjK5VzpEfKkewEu2rKmR8', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiUGxTbDJ3aktkQnVTZ0xKdjNwVHdqWWNTRE5LT2RYQUtBWDJQSHZ5WSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9hZG1pbi9wcm9qZWN0LWJvb2tzL2NyZWF0ZSI7czo1OiJyb3V0ZSI7czoyNjoiYWRtaW4ucHJvamVjdC1ib29rcy5jcmVhdGUiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToyO30=', 1790086288);
 
 -- --------------------------------------------------------
 
@@ -299,6 +345,20 @@ ALTER TABLE `projects`
   ADD KEY `projects_assigned_teacher_foreign` (`assigned_teacher`);
 
 --
+-- Indexes for table `project_books`
+--
+ALTER TABLE `project_books`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `project_books_project_id_foreign` (`project_id`);
+
+--
+-- Indexes for table `project_book_chapters`
+--
+ALTER TABLE `project_book_chapters`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `project_book_chapters_project_book_id_chapter_no_unique` (`project_book_id`,`chapter_no`);
+
+--
 -- Indexes for table `project_user`
 --
 ALTER TABLE `project_user`
@@ -341,13 +401,25 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `project_books`
+--
+ALTER TABLE `project_books`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `project_book_chapters`
+--
+ALTER TABLE `project_book_chapters`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `project_user`
@@ -370,6 +442,18 @@ ALTER TABLE `users`
 --
 ALTER TABLE `projects`
   ADD CONSTRAINT `projects_assigned_teacher_foreign` FOREIGN KEY (`assigned_teacher`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `project_books`
+--
+ALTER TABLE `project_books`
+  ADD CONSTRAINT `project_books_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `project_book_chapters`
+--
+ALTER TABLE `project_book_chapters`
+  ADD CONSTRAINT `project_book_chapters_project_book_id_foreign` FOREIGN KEY (`project_book_id`) REFERENCES `project_books` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `project_user`

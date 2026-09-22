@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Student\StudentProjectController;
+use App\Http\Controllers\Student\StudentProjectBookController;
 
 // ---------- Student / default dashboard ----------
 Route::get('/dashboard', function () {
@@ -14,6 +15,8 @@ Route::middleware(['auth', 'verified', 'role:student'])
     ->name('student.')
     ->group(function () {
 
-        Route::resource('projects', StudentProjectController::class)
-            ->only(['index', 'show', 'edit', 'update']);
-    });
+    Route::resource('projects', StudentProjectController::class)->only(['index', 'show', 'edit', 'update']);
+
+    // Project Books (full CRUD)
+    Route::resource('project-books', StudentProjectBookController::class);
+});

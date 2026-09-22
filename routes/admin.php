@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminProjectController;
+use App\Http\Controllers\Admin\AdminProjectBookController;
 
 // ---------- Admin dashboard ----------
 Route::middleware(['auth', 'verified', 'role:admin'])
@@ -20,4 +21,6 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         // ---------- Admin: manage projects (CRUD) ----------
         Route::resource('projects', AdminProjectController::class);
 
+        // ---------- Admin: manage project books (full CRUD) ----------
+        Route::resource('project-books', AdminProjectBookController::class);
     });
