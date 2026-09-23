@@ -58,4 +58,9 @@ class Project extends Model
     {
         return $this->hasOne(ProjectBook::class);
     }
+
+    public function milestones()
+    {
+        return $this->hasMany(ProjectMilestone::class, 'project_id');
+    }
 }

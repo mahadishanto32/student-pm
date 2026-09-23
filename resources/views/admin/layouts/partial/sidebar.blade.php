@@ -4,7 +4,7 @@
             <div class="logo_section">
                 <a href="{{ route('admin.dashboard') }}">
                     <img class="logo_icon img-responsive"
-                         src="{{ asset('images/logo/logo_icon.png') }}" alt="#" />
+                         src="{{ asset('images/logo/logo.webp') }}" alt="#" />
                 </a>
             </div>
         </div>
@@ -13,7 +13,7 @@
             <div class="user_profle_side">
                 <div class="user_img">
                     <img class="img-responsive"
-                         src="{{ asset('images/layout_img/user_img.jpg') }}" alt="#" />
+                         src="{{ asset('images/logo/logo.webp') }}" alt="#" />
                 </div>
                 <div class="user_info">
                     <h6>{{ auth()->user()->name ?? 'John David' }}</h6>
@@ -28,7 +28,7 @@
         <ul class="list-unstyled components">
 
             {{-- ---------- Dashboard ---------- --}}
-            <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+            {{-- <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <a href="#dashboard" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
                     <i class="fa fa-dashboard yellow_color"></i> <span>Dashboard</span>
                 </a>
@@ -41,7 +41,9 @@
                         <a href="#">&gt; <span>Dashboard style 2</span></a>
                     </li>
                 </ul>
-            </li>
+            </li> --}}
+
+            <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"><a href="{{ route('admin.dashboard') }}"><i class="fa fa-dashboard orange_color"></i> <span>Dashboard</span></a></li>
 
             {{-- ---------- Users ---------- --}}
             <li class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
@@ -91,11 +93,43 @@
                 </ul>
             </li>
 
+            {{-- ---------- Meetings ---------- --}}
+            <li class="{{ request()->routeIs('admin.meetings.*') ? 'active' : '' }}">
+                <a href="#meetings_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-briefcase blue1_color"></i> <span>Meetings</span>
+                </a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.meetings.*') ? 'show' : '' }}"
+                    id="meetings_menu">
+                    <li class="{{ request()->routeIs('admin.meetings.index') ? 'active' : '' }}">
+                        <a href="{{ route('admin.meetings.index') }}">&gt; <span>All meetings</span></a>
+                    </li>
+                    <li class="{{ request()->routeIs('admin.meetings.create') ? 'active' : '' }}">
+                        <a href="{{ route('admin.meetings.create') }}">&gt; <span>Add New Meetings</span></a>
+                    </li>
+                </ul>
+            </li>
+
+            {{-- ---------- Project Milestone ---------- --}}
+            <li class="{{ request()->routeIs('admin.milestones.*') ? 'active' : '' }}">
+                <a href="#milestones_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-briefcase blue1_color"></i> <span>Milestone</span>
+                </a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.milestones.*') ? 'show' : '' }}"
+                    id="milestones_menu">
+                    <li class="{{ request()->routeIs('admin.milestones.index') ? 'active' : '' }}">
+                        <a href="{{ route('admin.milestones.index') }}">&gt; <span>All Milestone</span></a>
+                    </li>
+                    <li class="{{ request()->routeIs('admin.meetings.create') ? 'active' : '' }}">
+                        <a href="{{ route('admin.milestones.create') }}">&gt; <span>Add New Milestone</span></a>
+                    </li>
+                </ul>
+            </li>
+
             {{-- ---------- Widgets ---------- --}}
-            <li><a href="#"><i class="fa fa-clock-o orange_color"></i> <span>Widgets</span></a></li>
+            {{-- <li><a href="#"><i class="fa fa-clock-o orange_color"></i> <span>Widgets</span></a></li> --}}
 
             {{-- ---------- Elements ---------- --}}
-            <li>
+            {{-- <li>
                 <a href="#element" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
                     <i class="fa fa-diamond purple_color"></i> <span>Elements</span>
                 </a>
@@ -105,17 +139,17 @@
                     <li><a href="#">&gt; <span>Icons</span></a></li>
                     <li><a href="#">&gt; <span>Invoice</span></a></li>
                 </ul>
-            </li>
+            </li> --}}
 
             {{-- ---------- Tables ---------- --}}
-            <li class="{{ request()->routeIs('table') ? 'active' : '' }}">
+            {{-- <li class="{{ request()->routeIs('table') ? 'active' : '' }}">
                 <a href="{{ \Illuminate\Support\Facades\Route::has('table') ? route('table') : '#' }}">
                     <i class="fa fa-table purple_color2"></i> <span>Tables</span>
                 </a>
-            </li>
+            </li> --}}
 
             {{-- ---------- Apps ---------- --}}
-            <li>
+            {{-- <li>
                 <a href="#apps" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
                     <i class="fa fa-object-group blue2_color"></i> <span>Apps</span>
                 </a>
@@ -130,10 +164,10 @@
 
             <li>
                 <a href="#"><i class="fa fa-paper-plane red_color"></i> <span>Contact</span></a>
-            </li>
+            </li> --}}
 
             {{-- ---------- Additional Pages ---------- --}}
-            <li>
+            {{-- <li>
                 <a href="#additional_page" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
                     <i class="fa fa-clone yellow_color"></i> <span>Additional Pages</span>
                 </a>
@@ -147,7 +181,7 @@
 
             <li><a href="#"><i class="fa fa-map purple_color2"></i> <span>Map</span></a></li>
             <li><a href="#"><i class="fa fa-bar-chart-o green_color"></i> <span>Charts</span></a></li>
-            <li><a href="#"><i class="fa fa-cog yellow_color"></i> <span>Settings</span></a></li>
+            <li><a href="#"><i class="fa fa-cog yellow_color"></i> <span>Settings</span></a></li> --}}
 
         </ul>
     </div>

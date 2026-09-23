@@ -9,7 +9,7 @@
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
 
     <!-- Scripts / Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -20,9 +20,13 @@
 
         {{-- Logo / Brand --}}
         <div class="mb-8 text-center">
-            <a href="/" class="inline-flex items-center gap-2">
-                <x-application-logo class="w-12 h-12 fill-current text-indigo-600" />
-                <span class="text-2xl font-bold text-gray-800">
+            <a href="/" class="inline-flex flex-col items-center gap-3">
+                <img
+                    src="{{ asset('images/logo/logo_icon.png') }}"
+                    alt="{{ config('app.name', 'Laravel') }}"
+                    class="w-16 h-16 object-contain drop-shadow-sm"
+                >
+                <span class="text-2xl font-bold text-gray-800 tracking-tight">
                     {{ config('app.name', 'Laravel') }}
                 </span>
             </a>
@@ -87,8 +91,8 @@
                     </label>
 
                     @if (Route::has('password.request'))
-                        <a
-                            class="text-sm text-indigo-600 hover:text-indigo-800 underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-md"
+                        
+                           <a class="text-sm text-indigo-600 hover:text-indigo-800 underline focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-md"
                             href="{{ route('password.request') }}"
                         >
                             {{ __('Forgot password?') }}
@@ -101,6 +105,18 @@
                     {{ __('Log in') }}
                 </x-primary-button>
             </form>
+
+            {{-- Divider + optional register link --}}
+            @if (Route::has('register'))
+                <div class="mt-6 pt-6 border-t border-gray-100 text-center">
+                    <p class="text-sm text-gray-500">
+                        Don't have an account?
+                        <a href="{{ route('register') }}" class="text-indigo-600 hover:text-indigo-800 font-medium underline">
+                            Sign up
+                        </a>
+                    </p>
+                </div>
+            @endif
         </div>
 
         {{-- Footer note --}}

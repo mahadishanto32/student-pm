@@ -4,7 +4,7 @@
             <div class="logo_section">
                 <a href="{{ route('dashboard') }}">
                     <img class="logo_icon img-responsive"
-                         src="{{ asset('images/logo/logo_icon.png') }}" alt="#" />
+                         src="{{ asset('images/logo/logo.webp') }}" alt="#" />
                 </a>
             </div>
         </div>
@@ -13,7 +13,7 @@
             <div class="user_profle_side">
                 <div class="user_img">
                     <img class="img-responsive"
-                         src="{{ asset('images/layout_img/user_img.jpg') }}" alt="#" />
+                         src="{{ asset('images/logo/logo.webp') }}" alt="#" />
                 </div>
                 <div class="user_info">
                     <h6>{{ auth()->user()->name ?? 'John David' }}</h6>
@@ -28,7 +28,7 @@
         <ul class="list-unstyled components">
 
             {{-- ---------- Dashboard ---------- --}}
-            <li class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
+            {{-- <li class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <a href="#dashboard" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
                     <i class="fa fa-dashboard yellow_color"></i> <span>Dashboard</span>
                 </a>
@@ -41,7 +41,8 @@
                         <a href="#">&gt; <span>Dashboard style 2</span></a>
                     </li>
                 </ul>
-            </li>
+            </li> --}}
+            <li class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"><a href="{{ route('dashboard') }}"><i class="fa fa-dashboard orange_color"></i> <span>Dashboard</span></a></li>
 
             {{-- ---------- My Projects (student) ---------- --}}
             <li class="{{ request()->routeIs('student.projects.*') ? 'active' : '' }}">
@@ -59,12 +60,38 @@
             {{-- ---------- My Projects Book (student) ---------- --}}
             <li class="{{ request()->routeIs('student.project-books.*') ? 'active' : '' }}">
                 <a href="#student_project_books_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa fa-book blue1_color"></i> <span>My Project Books</span>
+                    <i class="fa fa-book purple_color"></i> <span>My Project Books</span>
                 </a>
                 <ul class="collapse list-unstyled {{ request()->routeIs('student.project-books.*') ? 'show' : '' }}"
                     id="student_project_books_menu">
                     <li class="{{ request()->routeIs('student.project-books.index') ? 'active' : '' }}">
                         <a href="{{ route('student.project-books.index') }}">&gt; <span>All My Project Books</span></a>
+                    </li>
+                </ul>
+            </li>
+
+            {{-- ---------- My Meetings (student) ---------- --}}
+            <li class="{{ request()->routeIs('student.meetings.*') ? 'active' : '' }}">
+                <a href="#student_meetings_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-briefcase green_color"></i> <span>My Meetings</span>
+                </a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('student.meetings.*') ? 'show' : '' }}"
+                    id="student_meetings_menu">
+                    <li class="{{ request()->routeIs('student.meetings.index') ? 'active' : '' }}">
+                        <a href="{{ route('student.meetings.index') }}">&gt; <span>All My Meetings</span></a>
+                    </li>
+                </ul>
+            </li>
+
+            {{-- ---------- Project MileStone (student) ---------- --}}
+            <li class="{{ request()->routeIs('student.milestones.*') ? 'active' : '' }}">
+                <a href="#student_milestones_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-briefcase green_color"></i> <span>Project MileStones</span>
+                </a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('student.milestones.*') ? 'show' : '' }}"
+                    id="student_milestones_menu">
+                    <li class="{{ request()->routeIs('student.milestones.index') ? 'active' : '' }}">
+                        <a href="{{ route('student.milestones.index') }}">&gt; <span>All Project MileStones</span></a>
                     </li>
                 </ul>
             </li>
@@ -77,10 +104,10 @@
             </li>
 
             {{-- ---------- Widgets ---------- --}}
-            <li><a href="#"><i class="fa fa-clock-o orange_color"></i> <span>Widgets</span></a></li>
+            {{-- <li><a href="#"><i class="fa fa-clock-o orange_color"></i> <span>Widgets</span></a></li> --}}
 
             {{-- ---------- Elements ---------- --}}
-            <li>
+            {{-- <li>
                 <a href="#element" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
                     <i class="fa fa-diamond purple_color"></i> <span>Elements</span>
                 </a>
@@ -90,17 +117,17 @@
                     <li><a href="#">&gt; <span>Icons</span></a></li>
                     <li><a href="#">&gt; <span>Invoice</span></a></li>
                 </ul>
-            </li>
+            </li> --}}
 
             {{-- ---------- Tables ---------- --}}
-            <li class="{{ request()->routeIs('table') ? 'active' : '' }}">
+            {{-- <li class="{{ request()->routeIs('table') ? 'active' : '' }}">
                 <a href="{{ \Illuminate\Support\Facades\Route::has('table') ? route('table') : '#' }}">
                     <i class="fa fa-table purple_color2"></i> <span>Tables</span>
                 </a>
-            </li>
+            </li> --}}
 
             {{-- ---------- Apps ---------- --}}
-            <li>
+            {{-- <li>
                 <a href="#apps" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
                     <i class="fa fa-object-group blue2_color"></i> <span>Apps</span>
                 </a>
@@ -115,10 +142,10 @@
 
             <li>
                 <a href="#"><i class="fa fa-paper-plane red_color"></i> <span>Contact</span></a>
-            </li>
+            </li> --}}
 
             {{-- ---------- Additional Pages ---------- --}}
-            <li>
+            {{-- <li>
                 <a href="#additional_page" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
                     <i class="fa fa-clone yellow_color"></i> <span>Additional Pages</span>
                 </a>
@@ -131,7 +158,7 @@
 
             <li><a href="#"><i class="fa fa-map purple_color2"></i> <span>Map</span></a></li>
             <li><a href="#"><i class="fa fa-bar-chart-o green_color"></i> <span>Charts</span></a></li>
-            <li><a href="#"><i class="fa fa-cog yellow_color"></i> <span>Settings</span></a></li>
+            <li><a href="#"><i class="fa fa-cog yellow_color"></i> <span>Settings</span></a></li> --}}
 
         </ul>
     </div>

@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminProjectController;
 use App\Http\Controllers\Admin\AdminProjectBookController;
+use App\Http\Controllers\Admin\AdminMeetingController;
+use App\Http\Controllers\Admin\AdminProjectMilestoneController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 
 // ---------- Admin dashboard ----------
 Route::middleware(['auth', 'verified', 'role:admin'])
@@ -11,16 +14,13 @@ Route::middleware(['auth', 'verified', 'role:admin'])
     ->name('admin.')
     ->group(function () {
 
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-        // ---------- Admin: manage users (CRUD) ----------
         Route::resource('users', AdminUserController::class)->except(['show']);
-
-        // ---------- Admin: manage projects (CRUD) ----------
         Route::resource('projects', AdminProjectController::class);
-
-        // ---------- Admin: manage project books (full CRUD) ----------
         Route::resource('project-books', AdminProjectBookController::class);
+        Route::resource('meetings', AdminMeetingController::class);
+        
+        // ---------- Admin: manage milestones (full CRUD) ----------
+        Route::resource('milestones', AdminProjectMilestoneController::class);
     });

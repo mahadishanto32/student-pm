@@ -11,84 +11,68 @@
         </div>
     </div>
 
+    {{-- Top counters --}}
     <div class="row column1">
         <div class="col-md-6 col-lg-3">
             <div class="full counter_section margin_bottom_30">
-                <div class="couter_icon">
-                    <div>
-                        <i class="fa fa-user yellow_color"></i>
-                    </div>
-                </div>
+                <div class="couter_icon"><div><i class="fa fa-user yellow_color"></i></div></div>
                 <div class="counter_no">
                     <div>
-                        <p class="total_no">2500</p>
-                        <p class="head_couter">Welcome</p>
+                        <p class="total_no text-dark">{{ number_format($totalUsers) }}</p>
+                        <p class="head_couter text-dark">Total Users</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-md-6 col-lg-3">
             <div class="full counter_section margin_bottom_30">
-                <div class="couter_icon">
-                    <div>
-                        <i class="fa fa-clock-o blue1_color"></i>
-                    </div>
-                </div>
+                <div class="couter_icon"><div><i class="fa fa-folder-open-o blue1_color"></i></div></div>
                 <div class="counter_no">
                     <div>
-                        <p class="total_no">123.50</p>
-                        <p class="head_couter">Average Time</p>
+                        <p class="total_no text-dark">{{ number_format($totalProjects) }}</p>
+                        <p class="head_couter text-dark">Total Projects</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-md-6 col-lg-3">
             <div class="full counter_section margin_bottom_30">
-                <div class="couter_icon">
-                    <div>
-                        <i class="fa fa-cloud-download green_color"></i>
-                    </div>
-                </div>
+                <div class="couter_icon"><div><i class="fa fa-book green_color"></i></div></div>
                 <div class="counter_no">
                     <div>
-                        <p class="total_no">1,805</p>
-                        <p class="head_couter">Collections</p>
+                        <p class="total_no text-dark">{{ number_format($totalProjectBooks) }}</p>
+                        <p class="head_couter text-dark">Project Books</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-md-6 col-lg-3">
             <div class="full counter_section margin_bottom_30">
-                <div class="couter_icon">
-                    <div>
-                        <i class="fa fa-comments-o red_color"></i>
-                    </div>
-                </div>
+                <div class="couter_icon"><div><i class="fa fa-flag-checkered red_color"></i></div></div>
                 <div class="counter_no">
                     <div>
-                        <p class="total_no">54</p>
-                        <p class="head_couter">Comments</p>
+                        <p class="total_no text-dark">{{ number_format($totalMilestones) }}</p>
+                        <p class="head_couter text-dark">Milestones</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    {{-- Project book status breakdown --}}
     <div class="row column1 social_media_section">
         <div class="col-md-6 col-lg-3">
             <div class="full socile_icons fb margin_bottom_30">
-                <div class="social_icon">
-                    <i class="fa fa-facebook"></i>
-                </div>
+                <div class="social_icon"><i class="fa fa-check-circle"></i></div>
                 <div class="social_cont">
                     <ul>
                         <li>
-                            <span><strong>35k</strong></span>
-                            <span>Friends</span>
+                            <span><strong>{{ $projectBookStats['approved'] ?? 0 }}</strong></span>
+                            <span>Approved</span>
                         </li>
                         <li>
-                            <span><strong>128</strong></span>
-                            <span>Feeds</span>
+                            <span><strong>{{ $projectBookStats['rejected'] ?? 0 }}</strong></span>
+                            <span>Rejected</span>
                         </li>
                     </ul>
                 </div>
@@ -96,18 +80,16 @@
         </div>
         <div class="col-md-6 col-lg-3">
             <div class="full socile_icons tw margin_bottom_30">
-                <div class="social_icon">
-                    <i class="fa fa-twitter"></i>
-                </div>
+                <div class="social_icon"><i class="fa fa-hourglass-half"></i></div>
                 <div class="social_cont">
                     <ul>
                         <li>
-                            <span><strong>584k</strong></span>
-                            <span>Followers</span>
+                            <span><strong>{{ $projectBookStats['pending'] ?? 0 }}</strong></span>
+                            <span>Pending</span>
                         </li>
                         <li>
-                            <span><strong>978</strong></span>
-                            <span>Tweets</span>
+                            <span><strong>{{ $projectBookStats['cancelled'] ?? 0 }}</strong></span>
+                            <span>Cancelled</span>
                         </li>
                     </ul>
                 </div>
@@ -115,18 +97,16 @@
         </div>
         <div class="col-md-6 col-lg-3">
             <div class="full socile_icons linked margin_bottom_30">
-                <div class="social_icon">
-                    <i class="fa fa-linkedin"></i>
-                </div>
+                <div class="social_icon"><i class="fa fa-cogs"></i></div>
                 <div class="social_cont">
                     <ul>
                         <li>
-                            <span><strong>758+</strong></span>
-                            <span>Contacts</span>
+                            <span><strong>{{ $projectBookStats['working'] ?? 0 }}</strong></span>
+                            <span>Working</span>
                         </li>
                         <li>
-                            <span><strong>365</strong></span>
-                            <span>Feeds</span>
+                            <span><strong>{{ $totalProjectBooks }}</strong></span>
+                            <span>Total</span>
                         </li>
                     </ul>
                 </div>
@@ -134,18 +114,16 @@
         </div>
         <div class="col-md-6 col-lg-3">
             <div class="full socile_icons google_p margin_bottom_30">
-                <div class="social_icon">
-                    <i class="fa fa-google-plus"></i>
-                </div>
+                <div class="social_icon"><i class="fa fa-trophy"></i></div>
                 <div class="social_cont">
                     <ul>
                         <li>
-                            <span><strong>450</strong></span>
-                            <span>Followers</span>
+                            <span><strong>{{ $projectBookStats['completed'] ?? 0 }}</strong></span>
+                            <span>Completed</span>
                         </li>
                         <li>
-                            <span><strong>57</strong></span>
-                            <span>Circles</span>
+                            <span><strong>{{ $totalProjects }}</strong></span>
+                            <span>Projects</span>
                         </li>
                     </ul>
                 </div>
@@ -153,233 +131,143 @@
         </div>
     </div>
 
-    <!-- graph -->
-    <div class="row column2 graph margin_bottom_30">
-        <div class="col-md-l2 col-lg-12">
-            <div class="white_shd full">
-                <div class="full graph_head">
-                    <div class="heading1 margin_0">
-                        <h2>Extra Area Chart</h2>
-                    </div>
-                </div>
-                <div class="full graph_revenue">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="content">
-                                <div class="area_chart">
-                                    <canvas height="120" id="canvas"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- end graph -->
-
     <div class="row column3">
-        <!-- testimonial -->
+        {{-- recent projects --}}
         <div class="col-md-6">
             <div class="dark_bg full margin_bottom_30">
                 <div class="full graph_head">
-                    <div class="heading1 margin_0">
-                        <h2>Testimonial</h2>
-                    </div>
+                    <div class="heading1 margin_0"><h2>Recent Projects</h2></div>
                 </div>
                 <div class="full graph_revenue">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="content testimonial">
-                                <div id="testimonial_slider" class="carousel slide" data-ride="carousel">
-                                    <!-- Wrapper for carousel items -->
-                                    <div class="carousel-inner">
-                                        <div class="item carousel-item active">
-                                            <div class="img-box"><img src="{{ asset('images/layout_img/user_img.jpg') }}" alt=""></div>
-                                            <p class="testimonial">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae..</p>
-                                            <p class="overview"><b>Michael Stuart</b>Seo Founder</p>
+                                @if($recentProjects->isEmpty())
+                                    <p class="testimonial">No projects have been created yet.</p>
+                                @else
+                                    <div id="testimonial_slider" class="carousel slide" data-ride="carousel">
+                                        <div class="carousel-inner">
+                                            @foreach($recentProjects as $project)
+                                                <div class="item carousel-item @if($loop->first) active @endif">
+                                                    <div class="img-box"><i class="fa fa-folder-open" style="font-size:40px;"></i></div>
+                                                    <p class="testimonial">
+                                                        <strong>{{ $project->project_name }}</strong><br>
+                                                        {{ \Illuminate\Support\Str::limit($project->project_topic, 90) }}
+                                                    </p>
+                                                    <p class="overview">
+                                                        <b>{{ $project->teacher->name ?? 'Unassigned' }}</b>
+                                                        Group #{{ $project->group_number }} &middot; {{ ucfirst($project->status) }}
+                                                    </p>
+                                                </div>
+                                            @endforeach
                                         </div>
-                                        <div class="item carousel-item">
-                                            <div class="img-box"><img src="{{ asset('images/layout_img/user_img.jpg') }}" alt=""></div>
-                                            <p class="testimonial">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae..</p>
-                                            <p class="overview"><b>Michael Stuart</b>Seo Founder</p>
-                                        </div>
-                                        <div class="item carousel-item">
-                                            <div class="img-box"><img src="{{ asset('images/layout_img/user_img.jpg') }}" alt=""></div>
-                                            <p class="testimonial">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae..</p>
-                                            <p class="overview"><b>Michael Stuart</b>Seo Founder</p>
-                                        </div>
+                                        <a class="carousel-control left carousel-control-prev" href="#testimonial_slider" data-slide="prev"><i class="fa fa-angle-left"></i></a>
+                                        <a class="carousel-control right carousel-control-next" href="#testimonial_slider" data-slide="next"><i class="fa fa-angle-right"></i></a>
                                     </div>
-                                    <!-- Carousel controls -->
-                                    <a class="carousel-control left carousel-control-prev" href="#testimonial_slider" data-slide="prev">
-                                        <i class="fa fa-angle-left"></i>
-                                    </a>
-                                    <a class="carousel-control right carousel-control-next" href="#testimonial_slider" data-slide="next">
-                                        <i class="fa fa-angle-right"></i>
-                                    </a>
-                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- end testimonial -->
+        {{-- end recent projects --}}
 
-        <!-- progress bar -->
+        {{-- milestone progress --}}
         <div class="col-md-6">
             <div class="white_shd full margin_bottom_30">
                 <div class="full graph_head">
-                    <div class="heading1 margin_0">
-                        <h2>Progress Bar</h2>
-                    </div>
+                    <div class="heading1 margin_0"><h2>Milestone Status</h2></div>
                 </div>
                 <div class="full progress_bar_inner">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="progress_bar">
-                                <!-- Skill Bars -->
-                                <span class="skill" style="width:73%;">Facebook <span class="info_valume">73%</span></span>
-                                <div class="progress skill-bar ">
-                                    <div class="progress-bar progress-bar-animated progress-bar-striped" role="progressbar" aria-valuenow="73" aria-valuemin="0" aria-valuemax="100" style="width: 73%;">
+                                @forelse($milestoneStats as $stat)
+                                    <span class="skill" style="width:{{ $stat['percent'] }}%;">{{ $stat['label'] }} <span class="info_valume">{{ $stat['percent'] }}%</span></span>
+                                    <div class="progress skill-bar">
+                                        <div class="progress-bar progress-bar-animated progress-bar-striped" role="progressbar" aria-valuenow="{{ $stat['percent'] }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $stat['percent'] }}%;">
+                                        </div>
                                     </div>
-                                </div>
-                                <span class="skill" style="width:62%;">Twitter <span class="info_valume">62%</span></span>
-                                <div class="progress skill-bar">
-                                    <div class="progress-bar progress-bar-animated progress-bar-striped" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" style="width: 62%;">
-                                    </div>
-                                </div>
-                                <span class="skill" style="width:54%;">Instagram <span class="info_valume">54%</span></span>
-                                <div class="progress skill-bar">
-                                    <div class="progress-bar progress-bar-animated progress-bar-striped" role="progressbar" aria-valuenow="54" aria-valuemin="0" aria-valuemax="100" style="width: 54%;">
-                                    </div>
-                                </div>
-                                <span class="skill" style="width:82%;">Google plus <span class="info_valume">82%</span></span>
-                                <div class="progress skill-bar">
-                                    <div class="progress-bar progress-bar-animated progress-bar-striped" role="progressbar" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100" style="width: 82%;">
-                                    </div>
-                                </div>
-                                <span class="skill" style="width:48%;">Other <span class="info_valume">48%</span></span>
-                                <div class="progress skill-bar">
-                                    <div class="progress-bar progress-bar-animated progress-bar-striped" role="progressbar" aria-valuenow="48" aria-valuemin="0" aria-valuemax="100" style="width: 48%;">
-                                    </div>
-                                </div>
+                                @empty
+                                    <p>No milestones recorded yet.</p>
+                                @endforelse
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- end progress bar -->
+        {{-- end milestone progress --}}
     </div>
 
     <div class="row column4 graph">
+        {{-- today's tasks --}}
         <div class="col-md-6">
             <div class="dash_blog">
                 <div class="dash_blog_inner">
                     <div class="dash_head">
-                        <h3><span><i class="fa fa-calendar"></i> {{ now()->format('j F Y') }}</span><span class="plus_green_bt"><a href="#">+</a></span></h3>
+                        <h3><span><i class="fa fa-calendar"></i> {{ now()->format('j F Y') }}</span></h3>
                     </div>
                     <div class="list_cont">
-                        <p>Today Tasks for Ronney Jack</p>
+                        <p>Today's Milestones</p>
                     </div>
                     <div class="task_list_main">
-                        <ul class="task_list">
-                            <li><a href="#">Meeting about plan for Admin Template 2018</a><br><strong>10:00 AM</strong></li>
-                            <li><a href="#">Create new task for Dashboard</a><br><strong>10:00 AM</strong></li>
-                            <li><a href="#">Meeting about plan for Admin Template 2018</a><br><strong>11:00 AM</strong></li>
-                            <li><a href="#">Create new task for Dashboard</a><br><strong>10:00 AM</strong></li>
-                            <li><a href="#">Meeting about plan for Admin Template 2018</a><br><strong>02:00 PM</strong></li>
-                        </ul>
+                        @if($todaysMilestones->isEmpty())
+                            <p>No milestones are due today.</p>
+                        @else
+                            <ul class="task_list">
+                                @foreach($todaysMilestones as $milestone)
+                                    <li>
+                                        <a href="#">{{ $milestone->title }} &mdash; {{ $milestone->project->project_name ?? 'N/A' }}</a><br>
+                                        <strong>{{ optional($milestone->tentative_time)->format('h:i A') }}</strong>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
                     </div>
                     <div class="read_more">
-                        <div class="center"><a class="main_bt read_bt" href="#">Read More</a></div>
+                        <div class="center"><a class="main_bt read_bt" href="{{ route('admin.milestones.index') }}">Read More</a></div>
                     </div>
                 </div>
             </div>
         </div>
+
+        {{-- recent updates --}}
         <div class="col-md-6">
             <div class="dash_blog">
                 <div class="dash_blog_inner">
                     <div class="dash_head">
-                        <h3><span><i class="fa fa-comments-o"></i> Updates</span><span class="plus_green_bt"><a href="#">+</a></span></h3>
+                        <h3><span><i class="fa fa-comments-o"></i> Updates</span></h3>
                     </div>
                     <div class="list_cont">
-                        <p>User confirmation</p>
+                        <p>Recent milestone activity</p>
                     </div>
                     <div class="msg_list_main">
-                        <ul class="msg_list">
-                            <li>
-                                <span><img src="{{ asset('images/layout_img/msg2.png') }}" class="img-responsive" alt="#" /></span>
-                                <span>
-                                    <span class="name_user">John Smith</span>
-                                    <span class="msg_user">Sed ut perspiciatis unde omnis.</span>
-                                    <span class="time_ago">12 min ago</span>
-                                </span>
-                            </li>
-                            <li>
-                                <span><img src="{{ asset('images/layout_img/msg3.png') }}" class="img-responsive" alt="#" /></span>
-                                <span>
-                                    <span class="name_user">John Smith</span>
-                                    <span class="msg_user">On the other hand, we denounce.</span>
-                                    <span class="time_ago">12 min ago</span>
-                                </span>
-                            </li>
-                            <li>
-                                <span><img src="{{ asset('images/layout_img/msg2.png') }}" class="img-responsive" alt="#" /></span>
-                                <span>
-                                    <span class="name_user">John Smith</span>
-                                    <span class="msg_user">Sed ut perspiciatis unde omnis.</span>
-                                    <span class="time_ago">12 min ago</span>
-                                </span>
-                            </li>
-                            <li>
-                                <span><img src="{{ asset('images/layout_img/msg3.png') }}" class="img-responsive" alt="#" /></span>
-                                <span>
-                                    <span class="name_user">John Smith</span>
-                                    <span class="msg_user">On the other hand, we denounce.</span>
-                                    <span class="time_ago">12 min ago</span>
-                                </span>
-                            </li>
-                        </ul>
+                        @if($recentUpdates->isEmpty())
+                            <p>No recent activity.</p>
+                        @else
+                            <ul class="msg_list">
+                                @foreach($recentUpdates as $update)
+                                    <li>
+                                        <span><i class="fa fa-user-circle" style="font-size:32px;"></i></span>
+                                        <span>
+                                            <span class="name_user">{{ $update->doneBy->name ?? 'Unassigned' }}</span>
+                                            <span class="msg_user">
+                                                {{ $update->title }} &mdash; {{ ucwords(str_replace('_', ' ', $update->status)) }}
+                                            </span>
+                                            <span class="time_ago">{{ $update->updated_at->diffForHumans() }}</span>
+                                        </span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
                     </div>
                     <div class="read_more">
-                        <div class="center"><a class="main_bt read_bt" href="#">Read More</a></div>
+                        <div class="center"><a class="main_bt read_bt" href="{{ route('admin.milestones.index') }}">Read More</a></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 @endsection
-
-@push('scripts')
-    <script>
-        // Sample "Extra Area Chart" — replace the data with real values whenever
-        // you're ready to wire this view up to a controller.
-        (function () {
-            var ctx = document.getElementById('canvas');
-            if (ctx && typeof Chart !== 'undefined') {
-                new Chart(ctx.getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-                        datasets: [{
-                            label: "Overview",
-                            data: [68, 55, 75, 86, 47, 52, 36],
-                            fill: true,
-                            borderColor: 'rgba(33, 150, 243, 1)',
-                            backgroundColor: 'rgba(33, 150, 243, 0.2)',
-                            pointBorderColor: 'rgba(33, 150, 243, 1)',
-                            pointBackgroundColor: 'rgba(255, 255, 255, 1)',
-                            pointBorderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        legend: false
-                    }
-                });
-            }
-        })();
-    </script>
-@endpush

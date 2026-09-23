@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 22, 2026 at 04:12 PM
+-- Generation Time: Sep 23, 2026 at 03:00 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -99,6 +99,33 @@ CREATE TABLE `job_batches` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `meetings`
+--
+
+CREATE TABLE `meetings` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `project_id` bigint(20) UNSIGNED NOT NULL,
+  `meeting_date_and_time` datetime NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `supervisor_note` text DEFAULT NULL,
+  `platform` enum('physical','online') NOT NULL DEFAULT 'physical',
+  `type` enum('present','completed','upcoming') NOT NULL DEFAULT 'upcoming',
+  `tentative_next_meeting_date_and_time` datetime DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `meetings`
+--
+
+INSERT INTO `meetings` (`id`, `project_id`, `meeting_date_and_time`, `title`, `description`, `supervisor_note`, `platform`, `type`, `tentative_next_meeting_date_and_time`, `created_at`, `updated_at`) VALUES
+(1, 1, '2026-09-23 14:00:00', 'Indtroduction Meeting', 'Test', 'ss', 'physical', 'present', '2026-09-26 12:00:00', '2026-09-23 00:07:46', '2026-09-23 00:07:46');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `migrations`
 --
 
@@ -122,7 +149,33 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (7, '2026_09_22_073229_create_project_user_table', 5),
 (8, '2026_09_22_073643_create_projects_table', 6),
 (9, '2026_09_22_125423_create_project_books_table', 7),
-(10, '2026_09_22_125434_create_project_book_chapters_table', 7);
+(10, '2026_09_22_125434_create_project_book_chapters_table', 7),
+(11, '2026_09_22_174825_create_meetings_table', 8),
+(12, '2026_09_23_112342_create_project_milestones_table', 9),
+(13, '2026_09_23_112417_create_milestone_tasks_table', 9);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `milestone_tasks`
+--
+
+CREATE TABLE `milestone_tasks` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `project_milestone_id` bigint(20) UNSIGNED NOT NULL,
+  `key_points` text NOT NULL,
+  `document` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `milestone_tasks`
+--
+
+INSERT INTO `milestone_tasks` (`id`, `project_milestone_id`, `key_points`, `document`, `created_at`, `updated_at`) VALUES
+(1, 1, 'vdsvd', 'uploads/tasks/1790163788_6ab3bb4c303d5.jpg', '2026-09-23 05:43:08', '2026-09-23 05:43:08'),
+(2, 1, 'test', 'uploads/tasks/1790163788_6ab3bb4c373a3.docx', '2026-09-23 05:43:08', '2026-09-23 05:43:08');
 
 -- --------------------------------------------------------
 
@@ -212,6 +265,31 @@ INSERT INTO `project_book_chapters` (`id`, `project_book_id`, `chapter_no`, `cha
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `project_milestones`
+--
+
+CREATE TABLE `project_milestones` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `project_id` bigint(20) UNSIGNED NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `tentative_time` timestamp NULL DEFAULT NULL,
+  `supervisor_note` text DEFAULT NULL,
+  `status` enum('pending','need_correction','completed','rejected') NOT NULL DEFAULT 'pending',
+  `done_by` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `project_milestones`
+--
+
+INSERT INTO `project_milestones` (`id`, `project_id`, `title`, `tentative_time`, `supervisor_note`, `status`, `done_by`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Project Setup', '2026-09-24 11:41:00', 'Good', 'pending', 6, '2026-09-23 05:43:08', '2026-09-23 05:53:19');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `project_user`
 --
 
@@ -253,7 +331,9 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('Hja28HuJnf939hA7GaHmjK5VzpEfKkewEu2rKmR8', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiUGxTbDJ3aktkQnVTZ0xKdjNwVHdqWWNTRE5LT2RYQUtBWDJQSHZ5WSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9hZG1pbi9wcm9qZWN0LWJvb2tzL2NyZWF0ZSI7czo1OiJyb3V0ZSI7czoyNjoiYWRtaW4ucHJvamVjdC1ib29rcy5jcmVhdGUiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToyO30=', 1790086288);
+('CwSEJL3809z54rPcQ1JmmAJTeaFtqbxeQ32PzpUg', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiS25weWVoZjdRNndMSlBKRTIyREpuVVhmNHB3SVUwQ1p4NTBmQTRzaiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9sb2dpbiI7czo1OiJyb3V0ZSI7czo1OiJsb2dpbiI7fX0=', 1790168363),
+('Hja28HuJnf939hA7GaHmjK5VzpEfKkewEu2rKmR8', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiUGxTbDJ3aktkQnVTZ0xKdjNwVHdqWWNTRE5LT2RYQUtBWDJQSHZ5WSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9hZG1pbi9wcm9qZWN0LWJvb2tzL2NyZWF0ZSI7czo1OiJyb3V0ZSI7czoyNjoiYWRtaW4ucHJvamVjdC1ib29rcy5jcmVhdGUiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToyO30=', 1790086288),
+('s4oN3AFRpo1Y8T5fFGn3QAGdlSwKjJc5boSqSUZb', 6, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiR0VaMVRDb1ZGbHVCVUVQczlPZ1RUUW9sV1czZzBhcE5HbHZwUTdLbiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9zdHVkZW50cy9tZWV0aW5ncy8xIjtzOjU6InJvdXRlIjtzOjIxOiJzdHVkZW50Lm1lZXRpbmdzLnNob3ciO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo2O30=', 1790146343);
 
 -- --------------------------------------------------------
 
@@ -325,10 +405,24 @@ ALTER TABLE `job_batches`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `meetings`
+--
+ALTER TABLE `meetings`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `meetings_project_id_foreign` (`project_id`);
+
+--
 -- Indexes for table `migrations`
 --
 ALTER TABLE `migrations`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `milestone_tasks`
+--
+ALTER TABLE `milestone_tasks`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `milestone_tasks_project_milestone_id_foreign` (`project_milestone_id`);
 
 --
 -- Indexes for table `password_reset_tokens`
@@ -357,6 +451,14 @@ ALTER TABLE `project_books`
 ALTER TABLE `project_book_chapters`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `project_book_chapters_project_book_id_chapter_no_unique` (`project_book_id`,`chapter_no`);
+
+--
+-- Indexes for table `project_milestones`
+--
+ALTER TABLE `project_milestones`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `project_milestones_project_id_foreign` (`project_id`),
+  ADD KEY `project_milestones_done_by_foreign` (`done_by`);
 
 --
 -- Indexes for table `project_user`
@@ -398,10 +500,22 @@ ALTER TABLE `jobs`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `meetings`
+--
+ALTER TABLE `meetings`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT for table `milestone_tasks`
+--
+ALTER TABLE `milestone_tasks`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `projects`
@@ -422,6 +536,12 @@ ALTER TABLE `project_book_chapters`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `project_milestones`
+--
+ALTER TABLE `project_milestones`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `project_user`
 --
 ALTER TABLE `project_user`
@@ -436,6 +556,18 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `meetings`
+--
+ALTER TABLE `meetings`
+  ADD CONSTRAINT `meetings_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `milestone_tasks`
+--
+ALTER TABLE `milestone_tasks`
+  ADD CONSTRAINT `milestone_tasks_project_milestone_id_foreign` FOREIGN KEY (`project_milestone_id`) REFERENCES `project_milestones` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `projects`
@@ -454,6 +586,13 @@ ALTER TABLE `project_books`
 --
 ALTER TABLE `project_book_chapters`
   ADD CONSTRAINT `project_book_chapters_project_book_id_foreign` FOREIGN KEY (`project_book_id`) REFERENCES `project_books` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `project_milestones`
+--
+ALTER TABLE `project_milestones`
+  ADD CONSTRAINT `project_milestones_done_by_foreign` FOREIGN KEY (`done_by`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `project_milestones_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `project_user`
