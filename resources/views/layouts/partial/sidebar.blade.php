@@ -86,12 +86,25 @@
             {{-- ---------- Project MileStone (student) ---------- --}}
             <li class="{{ request()->routeIs('student.milestones.*') ? 'active' : '' }}">
                 <a href="#student_milestones_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa fa-briefcase green_color"></i> <span>Project MileStones</span>
+                    <i class="fa fa-briefcase green_color"></i> <span>Project Milestones</span>
                 </a>
                 <ul class="collapse list-unstyled {{ request()->routeIs('student.milestones.*') ? 'show' : '' }}"
                     id="student_milestones_menu">
                     <li class="{{ request()->routeIs('student.milestones.index') ? 'active' : '' }}">
-                        <a href="{{ route('student.milestones.index') }}">&gt; <span>All Project MileStones</span></a>
+                        <a href="{{ route('student.milestones.index') }}">&gt; <span>All Project Milestones</span></a>
+                    </li>
+                </ul>
+            </li>
+
+            {{-- ---------- Project Presentations ---------- --}}
+            <li class="{{ request()->routeIs('student.presentations.*') ? 'active' : '' }}">
+                <a href="#student_presentations_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-briefcase green_color"></i> <span>Project Presentations</span>
+                </a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('student.presentations.*') ? 'show' : '' }}"
+                    id="student_presentations_menu">
+                    <li class="{{ request()->routeIs('student.presentations.index') ? 'active' : '' }}">
+                        <a href="{{ route('student.presentations.index') }}">&gt; <span>All Project Presentations</span></a>
                     </li>
                 </ul>
             </li>

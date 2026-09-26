@@ -6,6 +6,7 @@ use App\Http\Controllers\Student\StudentProjectBookController;
 use App\Http\Controllers\Student\StudentMeetingController;
 use App\Http\Controllers\Student\StudentProjectMilestoneController;
 use App\Http\Controllers\Student\StudentDashboardController;
+use App\Http\Controllers\Student\StudentPresentationController;   // ← add
 
 // ---------- Student / default dashboard ----------
 Route::get('/dashboard', [StudentDashboardController::class, 'index'])
@@ -24,9 +25,12 @@ Route::middleware(['auth', 'verified', 'role:student'])
     // Project Books (full CRUD)
     Route::resource('project-books', StudentProjectBookController::class);
 
-    // Meetings — READ ONLY (no create / store / edit / update / destroy)
+    // Meetings — READ ONLY
     Route::resource('meetings', StudentMeetingController::class)->only(['index', 'show']);
 
-    // ---------- Milestones (full CRUD) ----------
+    // Milestones (full CRUD)
     Route::resource('milestones', StudentProjectMilestoneController::class);
+
+    // Presentations (full CRUD)
+    Route::resource('presentations', StudentPresentationController::class);
 });
