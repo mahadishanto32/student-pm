@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 23, 2026 at 03:00 PM
+-- Generation Time: Sep 26, 2026 at 02:19 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -152,7 +152,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (10, '2026_09_22_125434_create_project_book_chapters_table', 7),
 (11, '2026_09_22_174825_create_meetings_table', 8),
 (12, '2026_09_23_112342_create_project_milestones_table', 9),
-(13, '2026_09_23_112417_create_milestone_tasks_table', 9);
+(13, '2026_09_23_112417_create_milestone_tasks_table', 9),
+(14, '2026_09_26_115511_create_presentations_table', 10);
 
 -- --------------------------------------------------------
 
@@ -187,6 +188,27 @@ CREATE TABLE `password_reset_tokens` (
   `email` varchar(255) NOT NULL,
   `token` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `presentations`
+--
+
+CREATE TABLE `presentations` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `project_id` bigint(20) UNSIGNED NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `done_by` bigint(20) UNSIGNED NOT NULL,
+  `key_points` text DEFAULT NULL,
+  `supervisor_feedback` text DEFAULT NULL,
+  `date_of_presentation` date NOT NULL,
+  `marks` decimal(5,2) DEFAULT NULL,
+  `presentation_file` varchar(255) DEFAULT NULL,
+  `status` enum('pending','completed','approved','rejected') NOT NULL DEFAULT 'pending',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -331,9 +353,11 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
+('B4y9nRvPhsgg6wENQJaihiuyQIYkpUGeC1QiLEtE', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiU2ZGc2x1V0tJVTRlSGowOXRYS3Ryd0EyZ2Y5d0ZzRlRFY0hjVTdocCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9sb2dpbiI7czo1OiJyb3V0ZSI7czo1OiJsb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1790234909),
 ('CwSEJL3809z54rPcQ1JmmAJTeaFtqbxeQ32PzpUg', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiS25weWVoZjdRNndMSlBKRTIyREpuVVhmNHB3SVUwQ1p4NTBmQTRzaiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9sb2dpbiI7czo1OiJyb3V0ZSI7czo1OiJsb2dpbiI7fX0=', 1790168363),
 ('Hja28HuJnf939hA7GaHmjK5VzpEfKkewEu2rKmR8', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiUGxTbDJ3aktkQnVTZ0xKdjNwVHdqWWNTRE5LT2RYQUtBWDJQSHZ5WSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9hZG1pbi9wcm9qZWN0LWJvb2tzL2NyZWF0ZSI7czo1OiJyb3V0ZSI7czoyNjoiYWRtaW4ucHJvamVjdC1ib29rcy5jcmVhdGUiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToyO30=', 1790086288),
-('s4oN3AFRpo1Y8T5fFGn3QAGdlSwKjJc5boSqSUZb', 6, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiR0VaMVRDb1ZGbHVCVUVQczlPZ1RUUW9sV1czZzBhcE5HbHZwUTdLbiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9zdHVkZW50cy9tZWV0aW5ncy8xIjtzOjU6InJvdXRlIjtzOjIxOiJzdHVkZW50Lm1lZXRpbmdzLnNob3ciO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo2O30=', 1790146343);
+('s4oN3AFRpo1Y8T5fFGn3QAGdlSwKjJc5boSqSUZb', 6, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiR0VaMVRDb1ZGbHVCVUVQczlPZ1RUUW9sV1czZzBhcE5HbHZwUTdLbiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9zdHVkZW50cy9tZWV0aW5ncy8xIjtzOjU6InJvdXRlIjtzOjIxOiJzdHVkZW50Lm1lZXRpbmdzLnNob3ciO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo2O30=', 1790146343),
+('vHbl76ODEo2rE6p5LiLN8Gh5AVxATg0vMiAq0xuA', 6, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiaWtlRTFjcWlFVDRYQW9PbWZ3MVVOaWNRTFZneXpxaDRGZVR6QWNoUCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDQ6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9zdHVkZW50cy9wcmVzZW50YXRpb25zIjtzOjU6InJvdXRlIjtzOjI3OiJzdHVkZW50LnByZXNlbnRhdGlvbnMuaW5kZXgiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo2O30=', 1790425128);
 
 -- --------------------------------------------------------
 
@@ -431,6 +455,14 @@ ALTER TABLE `password_reset_tokens`
   ADD PRIMARY KEY (`email`);
 
 --
+-- Indexes for table `presentations`
+--
+ALTER TABLE `presentations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `presentations_project_id_foreign` (`project_id`),
+  ADD KEY `presentations_done_by_foreign` (`done_by`);
+
+--
 -- Indexes for table `projects`
 --
 ALTER TABLE `projects`
@@ -509,13 +541,19 @@ ALTER TABLE `meetings`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `milestone_tasks`
 --
 ALTER TABLE `milestone_tasks`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `presentations`
+--
+ALTER TABLE `presentations`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `projects`
@@ -568,6 +606,13 @@ ALTER TABLE `meetings`
 --
 ALTER TABLE `milestone_tasks`
   ADD CONSTRAINT `milestone_tasks_project_milestone_id_foreign` FOREIGN KEY (`project_milestone_id`) REFERENCES `project_milestones` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `presentations`
+--
+ALTER TABLE `presentations`
+  ADD CONSTRAINT `presentations_done_by_foreign` FOREIGN KEY (`done_by`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `presentations_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `projects`
