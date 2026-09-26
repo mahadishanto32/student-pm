@@ -119,8 +119,21 @@
                     <li class="{{ request()->routeIs('admin.milestones.index') ? 'active' : '' }}">
                         <a href="{{ route('admin.milestones.index') }}">&gt; <span>All Milestone</span></a>
                     </li>
-                    <li class="{{ request()->routeIs('admin.meetings.create') ? 'active' : '' }}">
+                    <li class="{{ request()->routeIs('admin.milestones.create') ? 'active' : '' }}">
                         <a href="{{ route('admin.milestones.create') }}">&gt; <span>Add New Milestone</span></a>
+                    </li>
+                </ul>
+            </li>
+
+            {{-- ---------- Project Presentation ---------- --}}
+            <li class="{{ request()->routeIs('admin.presentations.*') ? 'active' : '' }}">
+                <a href="#presentations_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-briefcase blue1_color"></i> <span>Presentation</span>
+                </a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.presentations.*') ? 'show' : '' }}"
+                    id="presentations_menu">
+                    <li class="{{ request()->routeIs('admin.presentations.index') ? 'active' : '' }}">
+                        <a href="{{ route('admin.presentations.index') }}">&gt; <span>All Presentations</span></a>
                     </li>
                 </ul>
             </li>

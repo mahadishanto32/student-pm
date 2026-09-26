@@ -95,6 +95,19 @@
                 </ul>
             </li>
 
+            {{-- ---------- Project Presentations (teachers) ---------- --}}
+            <li class="{{ request()->routeIs('teachers.presentations.*') ? 'active' : '' }}">
+                <a href="#teachers_presentations_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-briefcase green_color"></i> <span>Project Presentations</span>
+                </a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('teachers.presentations.*') ? 'show' : '' }}"
+                    id="teachers_presentations_menu">
+                    <li class="{{ request()->routeIs('teachers.presentations.index') ? 'active' : '' }}">
+                        <a href="{{ route('teachers.presentations.index') }}">&gt; <span>All Project Presentations</span></a>
+                    </li>
+                </ul>
+            </li>
+
             {{-- ---------- Widgets ---------- --}}
             {{-- <li><a href="#"><i class="fa fa-clock-o orange_color"></i> <span>Widgets</span></a></li> --}}
 

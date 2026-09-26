@@ -19,7 +19,7 @@ class TeacherPresentationController extends Controller
         $query = Presentation::query()
             ->with(['project', 'presenter'])
             ->whereHas('project', function ($q) use ($teacherId) {
-                $q->where('supervisor_id', $teacherId);
+                $q->where('assigned_teacher', $teacherId);
             });
 
         // Search
@@ -41,7 +41,7 @@ class TeacherPresentationController extends Controller
 
         $presentations = $query->latest('date_of_presentation')->paginate(15);
 
-        return view('admin.presentations.index', compact('presentations'));
+        return view('teachers.presentations.index', compact('presentations'));
     }
 
     /**
@@ -53,7 +53,7 @@ class TeacherPresentationController extends Controller
 
         $presentation->load(['project', 'presenter']);
 
-        return view('student.presentations.show', compact('presentation'));
+        return view('teachers.presentations.show', compact('presentation'));
     }
 
     /**
@@ -65,7 +65,7 @@ class TeacherPresentationController extends Controller
 
         $presentation->load(['project', 'presenter']);
 
-        return view('student.presentations.edit', compact('presentation'));
+        return view('teachers.presentations.edit', compact('presentation'));
     }
 
     /**

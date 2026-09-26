@@ -89,7 +89,7 @@
                                 <th>Presentation File</th>
                                 <td>
                                     @if ($presentation->presentation_file)
-                                        <a href="{{ asset('uploads/presentations/' . $presentation->presentation_file) }}"
+                                        <a href="{{ asset('' . $presentation->presentation_file) }}"
                                            target="_blank" class="btn btn-sm btn-default">
                                             <i class="fa fa-file"></i> Download / View
                                         </a>

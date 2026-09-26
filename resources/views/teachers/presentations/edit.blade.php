@@ -140,7 +140,7 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Current Presentation File</label><br>
-                                    <a href="{{ asset('uploads/presentations/' . $presentation->presentation_file) }}"
+                                    <a href="{{ asset('' . $presentation->presentation_file) }}"
                                        target="_blank" class="btn btn-sm btn-default">
                                         <i class="fa fa-file"></i> View File
                                     </a>
