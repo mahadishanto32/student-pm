@@ -6,7 +6,8 @@ use App\Http\Controllers\Student\StudentProjectBookController;
 use App\Http\Controllers\Student\StudentMeetingController;
 use App\Http\Controllers\Student\StudentProjectMilestoneController;
 use App\Http\Controllers\Student\StudentDashboardController;
-use App\Http\Controllers\Student\StudentPresentationController;   // ← add
+use App\Http\Controllers\Student\StudentPresentationController;
+use App\Http\Controllers\Student\StudentVideoResumeController;
 
 // ---------- Student / default dashboard ----------
 Route::get('/dashboard', [StudentDashboardController::class, 'index'])
@@ -33,4 +34,7 @@ Route::middleware(['auth', 'verified', 'role:student'])
 
     // Presentations (full CRUD)
     Route::resource('presentations', StudentPresentationController::class);
+
+    // Video Resumes (full CRUD)
+    Route::resource('video-resumes', StudentVideoResumeController::class);
 });

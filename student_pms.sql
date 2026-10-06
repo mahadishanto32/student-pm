@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 26, 2026 at 02:19 PM
+-- Generation Time: Oct 06, 2026 at 07:34 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -32,6 +32,18 @@ CREATE TABLE `cache` (
   `value` mediumtext NOT NULL,
   `expiration` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `cache`
+--
+
+INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
+('spms-cache-stduent2@spms.com|127.0.0.1', 'i:2;', 1791301686),
+('spms-cache-stduent2@spms.com|127.0.0.1:timer', 'i:1791301686;', 1791301686),
+('spms-cache-test.teacher@spms.com|127.0.0.1', 'i:1;', 1791302035),
+('spms-cache-test.teacher@spms.com|127.0.0.1:timer', 'i:1791302035;', 1791302035),
+('spms-cache-testteacher@spms.com|127.0.0.1', 'i:1;', 1791302023),
+('spms-cache-testteacher@spms.com|127.0.0.1:timer', 'i:1791302023;', 1791302023);
 
 -- --------------------------------------------------------
 
@@ -153,7 +165,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (11, '2026_09_22_174825_create_meetings_table', 8),
 (12, '2026_09_23_112342_create_project_milestones_table', 9),
 (13, '2026_09_23_112417_create_milestone_tasks_table', 9),
-(14, '2026_09_26_115511_create_presentations_table', 10);
+(14, '2026_09_26_115511_create_presentations_table', 10),
+(15, '2026_10_06_152436_create_video_resumes_table', 11);
 
 -- --------------------------------------------------------
 
@@ -211,6 +224,13 @@ CREATE TABLE `presentations` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `presentations`
+--
+
+INSERT INTO `presentations` (`id`, `project_id`, `title`, `done_by`, `key_points`, `supervisor_feedback`, `date_of_presentation`, `marks`, `presentation_file`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Test Presentation', 6, 'scdsefdc', NULL, '2026-09-26', NULL, 'uploads/presentations/1790434883_6ab7de43ea194.pdf', 'pending', '2026-09-26 09:01:23', '2026-09-26 09:01:23');
+
 -- --------------------------------------------------------
 
 --
@@ -237,7 +257,7 @@ CREATE TABLE `projects` (
 
 INSERT INTO `projects` (`id`, `group_number`, `project_name`, `project_topic`, `short_overview`, `assigned_teacher`, `start_date`, `tentative_end_date`, `status`, `created_at`, `updated_at`) VALUES
 (1, '01', 'Student Project Management', 'PM', 'Student Project Management System', 8, '2026-09-22', '2026-12-11', 'pending', '2026-09-22 03:01:38', '2026-09-22 03:52:22'),
-(2, '02', NULL, NULL, NULL, 3, '2026-09-21', NULL, 'pending', '2026-09-22 03:20:19', '2026-09-22 03:20:19');
+(2, '02', 'Test Project', NULL, NULL, 3, '2026-09-21', NULL, 'pending', '2026-09-22 03:20:19', '2026-10-06 09:46:49');
 
 -- --------------------------------------------------------
 
@@ -353,11 +373,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('B4y9nRvPhsgg6wENQJaihiuyQIYkpUGeC1QiLEtE', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiU2ZGc2x1V0tJVTRlSGowOXRYS3Ryd0EyZ2Y5d0ZzRlRFY0hjVTdocCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9sb2dpbiI7czo1OiJyb3V0ZSI7czo1OiJsb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1790234909),
-('CwSEJL3809z54rPcQ1JmmAJTeaFtqbxeQ32PzpUg', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiS25weWVoZjdRNndMSlBKRTIyREpuVVhmNHB3SVUwQ1p4NTBmQTRzaiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9sb2dpbiI7czo1OiJyb3V0ZSI7czo1OiJsb2dpbiI7fX0=', 1790168363),
-('Hja28HuJnf939hA7GaHmjK5VzpEfKkewEu2rKmR8', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiUGxTbDJ3aktkQnVTZ0xKdjNwVHdqWWNTRE5LT2RYQUtBWDJQSHZ5WSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9hZG1pbi9wcm9qZWN0LWJvb2tzL2NyZWF0ZSI7czo1OiJyb3V0ZSI7czoyNjoiYWRtaW4ucHJvamVjdC1ib29rcy5jcmVhdGUiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToyO30=', 1790086288),
-('s4oN3AFRpo1Y8T5fFGn3QAGdlSwKjJc5boSqSUZb', 6, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiR0VaMVRDb1ZGbHVCVUVQczlPZ1RUUW9sV1czZzBhcE5HbHZwUTdLbiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9zdHVkZW50cy9tZWV0aW5ncy8xIjtzOjU6InJvdXRlIjtzOjIxOiJzdHVkZW50Lm1lZXRpbmdzLnNob3ciO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo2O30=', 1790146343),
-('vHbl76ODEo2rE6p5LiLN8Gh5AVxATg0vMiAq0xuA', 6, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiaWtlRTFjcWlFVDRYQW9PbWZ3MVVOaWNRTFZneXpxaDRGZVR6QWNoUCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDQ6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9zdHVkZW50cy9wcmVzZW50YXRpb25zIjtzOjU6InJvdXRlIjtzOjI3OiJzdHVkZW50LnByZXNlbnRhdGlvbnMuaW5kZXgiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo2O30=', 1790425128);
+('R9H5levUDC90WlCmjol3zLpJBG9FrqTe5EBpbnfg', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoickprUkw2Vjd5Z1dJeUFJTzZxSTBrYXJqOVQ0NWNFM0p0Q0tzSmdOQyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi92aWRlby1yZXN1bWVzLzIvZWRpdCI7czo1OiJyb3V0ZSI7czoyNDoiYWRtaW4udmlkZW8tcmVzdW1lcy5lZGl0Ijt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Mjt9', 1791302361);
 
 -- --------------------------------------------------------
 
@@ -389,6 +405,30 @@ INSERT INTO `users` (`id`, `name`, `email`, `role`, `email_verified_at`, `passwo
 (6, 'Sweety', 'sweety@spms.com', 'student', '2026-09-22 03:00:38', '$2y$12$DLxKwgP5ETbKqzNdMOFYP./NEhe8JRXxqosAEYInI41Ru8Mxk5Iou', NULL, '2026-09-22 02:58:04', '2026-09-22 03:00:38'),
 (7, 'Tithi', 'tithi@spms.com', 'student', '2026-09-22 03:00:33', '$2y$12$TBZcAwsh4oURA9b2t/tMa.DiyYoK7qDRNBa2haUpUHAyDzvgz3kJS', NULL, '2026-09-22 02:59:22', '2026-09-22 03:00:33'),
 (8, 'Poly Bhowmik', 'poly@spms.com', 'teacher', '2026-09-22 03:00:27', '$2y$12$EC6THEscDFUq1wRcAJQJR.jNkf7GPdtmaDYO1./HEhk6wSJPyCdIS', NULL, '2026-09-22 03:00:15', '2026-09-22 03:00:27');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `video_resumes`
+--
+
+CREATE TABLE `video_resumes` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `project_id` bigint(20) UNSIGNED NOT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `media_file` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `video_resumes`
+--
+
+INSERT INTO `video_resumes` (`id`, `project_id`, `title`, `media_file`, `created_at`, `updated_at`) VALUES
+(1, 1, 'fewfew', 'uploads/video-resumes/1791301162_CquLm8Dk.mp4', '2026-10-06 09:39:22', '2026-10-06 09:39:22'),
+(2, 1, 'uguy', 'uploads/video-resumes/1791301219_CAJS4D5L.mp4', '2026-10-06 09:40:19', '2026-10-06 09:40:19'),
+(3, 2, 'ewf', 'uploads/video-resumes/1791301738_vwDLfOE7.mp4', '2026-10-06 09:48:58', '2026-10-06 09:48:58');
 
 --
 -- Indexes for dumped tables
@@ -516,6 +556,13 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `users_email_unique` (`email`);
 
 --
+-- Indexes for table `video_resumes`
+--
+ALTER TABLE `video_resumes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `video_resumes_project_id_foreign` (`project_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -541,7 +588,7 @@ ALTER TABLE `meetings`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `milestone_tasks`
@@ -553,7 +600,7 @@ ALTER TABLE `milestone_tasks`
 -- AUTO_INCREMENT for table `presentations`
 --
 ALTER TABLE `presentations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `projects`
@@ -590,6 +637,12 @@ ALTER TABLE `project_user`
 --
 ALTER TABLE `users`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `video_resumes`
+--
+ALTER TABLE `video_resumes`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
@@ -645,6 +698,12 @@ ALTER TABLE `project_milestones`
 ALTER TABLE `project_user`
   ADD CONSTRAINT `project_user_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `project_user_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `video_resumes`
+--
+ALTER TABLE `video_resumes`
+  ADD CONSTRAINT `video_resumes_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

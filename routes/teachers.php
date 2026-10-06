@@ -7,6 +7,7 @@ use App\Http\Controllers\Teacher\TeacherMeetingController;
 use App\Http\Controllers\Teacher\TeacherProjectMilestoneController;
 use App\Http\Controllers\Teacher\TeacherDashboardController;
 use App\Http\Controllers\Teacher\TeacherPresentationController;
+use App\Http\Controllers\Teacher\TeacherVideoResumeController;
 
 Route::middleware(['auth', 'verified', 'role:teacher'])
     ->prefix('teachers')
@@ -25,4 +26,6 @@ Route::middleware(['auth', 'verified', 'role:teacher'])
         Route::resource('milestones', TeacherProjectMilestoneController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
 
         Route::resource('presentations', TeacherPresentationController::class)->only(['index', 'show', 'edit', 'update']);
+
+        Route::resource('video-resumes', TeacherVideoResumeController::class)->only(['index', 'show']);
     });

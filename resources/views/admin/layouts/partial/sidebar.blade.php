@@ -138,6 +138,19 @@
                 </ul>
             </li>
 
+            {{-- ---------- Project Video Resume ---------- --}}
+            <li class="{{ request()->routeIs('admin.video-resumes.*') ? 'active' : '' }}">
+                <a href="#video_resumes_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-video-camera blue_color"></i> <span>Video Resumes</span>
+                </a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.video-resumes.*') ? 'show' : '' }}"
+                    id="video_resumes_menu">
+                    <li class="{{ request()->routeIs('admin.video-resumes.index') ? 'active' : '' }}">
+                        <a href="{{ route('admin.video-resumes.index') }}">&gt; <span>All Video Resumes</span></a>
+                    </li>
+                </ul>
+            </li>
+
             {{-- ---------- Widgets ---------- --}}
             {{-- <li><a href="#"><i class="fa fa-clock-o orange_color"></i> <span>Widgets</span></a></li> --}}
 

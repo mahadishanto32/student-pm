@@ -109,6 +109,19 @@
                 </ul>
             </li>
 
+            {{-- ---------- Video Resumes ---------- --}}
+            <li class="{{ request()->routeIs('student.video-resumes.*') ? 'active' : '' }}">
+                <a href="#student_video_resumes_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-video-camera blue_color"></i> <span>Video Resumes</span>
+                </a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('student.video-resumes.*') ? 'show' : '' }}"
+                    id="student_video_resumes_menu">
+                    <li class="{{ request()->routeIs('student.video-resumes.index') ? 'active' : '' }}">
+                        <a href="{{ route('student.video-resumes.index') }}">&gt; <span>All Video Resumes</span></a>
+                    </li>
+                </ul>
+            </li>
+
             {{-- ---------- Profile ---------- --}}
             <li class="{{ request()->routeIs('profile.*') ? 'active' : '' }}">
                 <a href="{{ route('profile.edit') }}">
