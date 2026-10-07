@@ -21,7 +21,7 @@ Route::middleware(['auth', 'verified', 'role:student'])
     ->group(function () {
 
     Route::resource('projects', StudentProjectController::class)
-        ->only(['index', 'show', 'edit', 'update']);
+        ->only(['index', 'create', 'store', 'show', 'edit', 'update']);
 
     // Project Books (full CRUD)
     Route::resource('project-books', StudentProjectBookController::class);

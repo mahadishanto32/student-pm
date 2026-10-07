@@ -1,4 +1,4 @@
-@extends('admin.layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Create Project')
 
@@ -15,6 +15,13 @@
         <div class="col-md-12">
             <div class="full white_shadow_bg margin_bottom_30">
 
+                @if (session('success'))
+                    <div class="alert alert-success" style="margin: 15px;">{{ session('success') }}</div>
+                @endif
+                @if (session('error'))
+                    <div class="alert alert-danger" style="margin: 15px;">{{ session('error') }}</div>
+                @endif
+
                 @if ($errors->any())
                     <div class="alert alert-danger" style="margin: 15px;">
                         <ul style="margin-bottom: 0;">
@@ -25,45 +32,22 @@
                     </div>
                 @endif
 
-                <form action="{{ route('admin.projects.store') }}" method="POST" style="padding: 15px;">
+                <form action="{{ route('student.projects.store') }}" method="POST" style="padding: 15px;">
                     @csrf
 
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="group_number">Group Number <span class="text-danger">*</span></label>
-                                <input type="text" name="group_number" id="group_number"
-                                       class="form-control" value="{{ old('group_number') }}" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="project_name">Project Name</label>
+                                <label for="project_name">Project Name <span class="text-danger">*</span></label>
                                 <input type="text" name="project_name" id="project_name"
-                                       class="form-control" value="{{ old('project_name') }}">
+                                       class="form-control" value="{{ old('project_name') }}" required>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="project_topic">Project Topic</label>
                                 <input type="text" name="project_topic" id="project_topic"
                                        class="form-control" value="{{ old('project_topic') }}">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="assigned_teacher">Assigned Teacher</label>
-                                <select name="assigned_teacher" id="assigned_teacher" class="form-control">
-                                    <option value="">— Select Teacher —</option>
-                                    @foreach ($teachers as $teacher)
-                                        <option value="{{ $teacher->id }}" @selected(old('assigned_teacher') == $teacher->id)>
-                                            {{ $teacher->name }} ({{ $teacher->email }})
-                                        </option>
-                                    @endforeach
-                                </select>
                             </div>
                         </div>
                     </div>
@@ -89,36 +73,24 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="start_date">Start Date <span class="text-danger">*</span></label>
                                 <input type="date" name="start_date" id="start_date"
                                        class="form-control" value="{{ old('start_date') }}" required>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="tentative_end_date">Tentative End Date</label>
                                 <input type="date" name="tentative_end_date" id="tentative_end_date"
                                        class="form-control" value="{{ old('tentative_end_date') }}">
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="status">Status <span class="text-danger">*</span></label>
-                                <select name="status" id="status" class="form-control" required>
-                                    @foreach (['approved','pending','working','completed','rejected','cancelled'] as $s)
-                                        <option value="{{ $s }}" @selected(old('status', 'pending') === $s)>
-                                            {{ ucfirst($s) }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="form-group text-right">
-                        <a href="{{ route('admin.projects.index') }}" class="btn btn-default">Cancel</a>
+                        <a href="{{ route('student.projects.index') }}" class="btn btn-default">Cancel</a>
                         <button type="submit" class="btn btn-primary">
                             <i class="fa fa-save"></i> Save Project
                         </button>
@@ -129,4 +101,4 @@
             </div>
         </div>
     </div>
-@endsection 
+@endsection

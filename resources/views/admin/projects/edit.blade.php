@@ -29,10 +29,6 @@
                     @csrf
                     @method('PUT')
 
-                    @php
-                        $selectedMembers = old('assigned_team_member', $project->teamMembers->pluck('id')->toArray());
-                    @endphp
-
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -83,18 +79,21 @@
                                   class="form-control">{{ old('short_overview', $project->short_overview) }}</textarea>
                     </div>
 
+                    {{-- Team Members: READ ONLY --}}
                     <div class="form-group">
-                        <label for="assigned_team_member">Assigned Team Members</label>
-                        <select name="assigned_team_member[]" id="assigned_team_member"
-                                class="form-control" multiple size="6">
-                            @foreach ($members as $member)
-                                <option value="{{ $member->id }}"
-                                    @selected(in_array($member->id, $selectedMembers))>
+                        <label>Assigned Team Members</label>
+                        <div class="well well-sm" style="background: #f7f7f7; padding: 10px; border-radius: 4px;">
+                            @forelse ($project->teamMembers as $member)
+                                <span class="label label-info" style="display:inline-block; margin:2px;">
                                     {{ $member->name }} ({{ $member->email }})
-                                </option>
-                            @endforeach
-                        </select>
-                        <small class="text-muted">Hold Ctrl (Cmd) to select multiple members.</small>
+                                </span>
+                            @empty
+                                <span class="text-muted">No team members assigned.</span>
+                            @endforelse
+                        </div>
+                        <small class="text-muted">
+                            Team members are managed by students on their side and cannot be edited here.
+                        </small>
                     </div>
 
                     <div class="row">

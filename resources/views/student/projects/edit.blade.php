@@ -27,13 +27,22 @@
 
                 <div class="alert alert-info" style="margin: 15px;">
                     <i class="fa fa-info-circle"></i>
-                    You can only edit <strong>Project Name</strong>, <strong>Project Topic</strong> and <strong>Short Overview</strong>.
+                    You can edit <strong>Project Name</strong>, <strong>Project Topic</strong>,
+                    <strong>Short Overview</strong> and <strong>Assigned Team Members</strong>.
                     All other fields are managed by the admin / teacher.
+                    <br>
+                    <small class="text-muted">
+                        Removing a member (including yourself) will remove them from this project.
+                    </small>
                 </div>
 
                 <form action="{{ route('student.projects.update', $project->id) }}" method="POST" style="padding: 15px;">
                     @csrf
                     @method('PUT')
+
+                    @php
+                        $selectedMembers = old('assigned_team_member', $project->teamMembers->pluck('id')->toArray());
+                    @endphp
 
                     {{-- ---------- Read-only block ---------- --}}
                     <div class="row">
@@ -54,17 +63,22 @@
                         </div>
                     </div>
 
+                    {{-- ---------- Editable Team Members ---------- --}}
                     <div class="form-group">
-                        <label>Assigned Team Members</label>
-                        <div style="border: 1px solid #ddd; border-radius: 4px; padding: 8px; min-height: 40px; background: #f9f9f9;">
-                            @forelse ($project->teamMembers as $member)
-                                <span class="label label-info" style="display:inline-block; margin: 2px;">
-                                    {{ $member->name }}
-                                </span>
-                            @empty
-                                <span class="text-muted">No members assigned.</span>
-                            @endforelse
-                        </div>
+                        <label for="assigned_team_member">Assigned Team Members</label>
+                        <select name="assigned_team_member[]" id="assigned_team_member"
+                                class="form-control" multiple size="6">
+                            @foreach ($members as $member)
+                                <option value="{{ $member->id }}"
+                                    @selected(in_array($member->id, $selectedMembers))>
+                                    {{ $member->name }} ({{ $member->email }})
+                                    @if ($member->id === auth()->id()) — You @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">
+                            Hold Ctrl (Cmd) to select multiple members. Deselect a member to remove them from the project.
+                        </small>
                     </div>
 
                     <div class="row">

@@ -71,9 +71,6 @@
                     <li class="{{ request()->routeIs('admin.projects.index') ? 'active' : '' }}">
                         <a href="{{ route('admin.projects.index') }}">&gt; <span>All Projects</span></a>
                     </li>
-                    <li class="{{ request()->routeIs('admin.projects.create') ? 'active' : '' }}">
-                        <a href="{{ route('admin.projects.create') }}">&gt; <span>Add New Project</span></a>
-                    </li>
                 </ul>
             </li>
 

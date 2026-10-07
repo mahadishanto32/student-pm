@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 06, 2026 at 07:34 PM
+-- Generation Time: Oct 07, 2026 at 02:01 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -32,18 +32,6 @@ CREATE TABLE `cache` (
   `value` mediumtext NOT NULL,
   `expiration` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `cache`
---
-
-INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('spms-cache-stduent2@spms.com|127.0.0.1', 'i:2;', 1791301686),
-('spms-cache-stduent2@spms.com|127.0.0.1:timer', 'i:1791301686;', 1791301686),
-('spms-cache-test.teacher@spms.com|127.0.0.1', 'i:1;', 1791302035),
-('spms-cache-test.teacher@spms.com|127.0.0.1:timer', 'i:1791302035;', 1791302035),
-('spms-cache-testteacher@spms.com|127.0.0.1', 'i:1;', 1791302023),
-('spms-cache-testteacher@spms.com|127.0.0.1:timer', 'i:1791302023;', 1791302023);
 
 -- --------------------------------------------------------
 
@@ -239,12 +227,12 @@ INSERT INTO `presentations` (`id`, `project_id`, `title`, `done_by`, `key_points
 
 CREATE TABLE `projects` (
   `id` bigint(20) UNSIGNED NOT NULL,
-  `group_number` varchar(255) NOT NULL,
+  `group_number` varchar(255) DEFAULT NULL,
   `project_name` varchar(255) DEFAULT NULL,
   `project_topic` varchar(255) DEFAULT NULL,
   `short_overview` text DEFAULT NULL,
   `assigned_teacher` bigint(20) UNSIGNED DEFAULT NULL,
-  `start_date` date NOT NULL,
+  `start_date` date DEFAULT NULL,
   `tentative_end_date` date DEFAULT NULL,
   `status` enum('approved','pending','working','completed','rejected','cancelled') NOT NULL DEFAULT 'pending',
   `created_at` timestamp NULL DEFAULT NULL,
@@ -257,7 +245,8 @@ CREATE TABLE `projects` (
 
 INSERT INTO `projects` (`id`, `group_number`, `project_name`, `project_topic`, `short_overview`, `assigned_teacher`, `start_date`, `tentative_end_date`, `status`, `created_at`, `updated_at`) VALUES
 (1, '01', 'Student Project Management', 'PM', 'Student Project Management System', 8, '2026-09-22', '2026-12-11', 'pending', '2026-09-22 03:01:38', '2026-09-22 03:52:22'),
-(2, '02', 'Test Project', NULL, NULL, 3, '2026-09-21', NULL, 'pending', '2026-09-22 03:20:19', '2026-10-06 09:46:49');
+(2, '02', 'Test Project', NULL, NULL, 3, '2026-09-21', NULL, 'pending', '2026-09-22 03:20:19', '2026-10-06 09:46:49'),
+(3, '04', 'IOT Project', 'IOT', 'dwqdwd', 3, '2026-10-07', '2026-10-22', 'pending', '2026-10-07 01:16:19', '2026-10-07 01:27:45');
 
 -- --------------------------------------------------------
 
@@ -351,7 +340,9 @@ INSERT INTO `project_user` (`id`, `project_id`, `user_id`, `created_at`, `update
 (1, 1, 6, '2026-09-22 03:19:40', '2026-09-22 03:19:40'),
 (2, 1, 7, '2026-09-22 03:19:40', '2026-09-22 03:19:40'),
 (3, 2, 5, '2026-09-22 03:20:19', '2026-09-22 03:20:19'),
-(4, 2, 4, '2026-09-22 03:20:19', '2026-09-22 03:20:19');
+(4, 2, 4, '2026-09-22 03:20:19', '2026-09-22 03:20:19'),
+(6, 3, 7, '2026-10-07 01:16:20', '2026-10-07 01:16:20'),
+(7, 3, 6, '2026-10-07 01:16:20', '2026-10-07 01:16:20');
 
 -- --------------------------------------------------------
 
@@ -373,6 +364,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
+('DLmIIhNCKlIEHhfWAa5WpEaXlC3DNG8xSWjhwYRW', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiS1hyb214UGFnNVh3a0k5cmE0MWNBSU1rMWV0VkMydEQwa3h3Q0VxeiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS9hZG1pbi9tZWV0aW5ncy8xL2VkaXQiO3M6NToicm91dGUiO3M6MTk6ImFkbWluLm1lZXRpbmdzLmVkaXQiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToyO30=', 1791358274),
 ('R9H5levUDC90WlCmjol3zLpJBG9FrqTe5EBpbnfg', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoickprUkw2Vjd5Z1dJeUFJTzZxSTBrYXJqOVQ0NWNFM0p0Q0tzSmdOQyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi92aWRlby1yZXN1bWVzLzIvZWRpdCI7czo1OiJyb3V0ZSI7czoyNDoiYWRtaW4udmlkZW8tcmVzdW1lcy5lZGl0Ijt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Mjt9', 1791302361);
 
 -- --------------------------------------------------------
@@ -606,7 +598,7 @@ ALTER TABLE `presentations`
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `project_books`
@@ -630,7 +622,7 @@ ALTER TABLE `project_milestones`
 -- AUTO_INCREMENT for table `project_user`
 --
 ALTER TABLE `project_user`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `users`

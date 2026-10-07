@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Models\User;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 
 class StudentProjectController extends Controller
@@ -36,6 +38,52 @@ class StudentProjectController extends Controller
     }
 
     /**
+     * Show the create form for students.
+     */
+    public function create()
+    {
+        // Students can only pick other students as team members
+        $members = User::where('role', 'student')
+                    ->where('id', '!=', auth()->id())
+                    ->orderBy('name')
+                    ->get();
+
+        return view('student.projects.create', compact('members'));
+    }
+
+    /**
+     * Store a new project created by a student.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'project_name'            => ['required', 'string', 'max:255'],
+            'project_topic'           => ['nullable', 'string', 'max:255'],
+            'short_overview'          => ['nullable', 'string'],
+            'assigned_team_member'    => ['nullable', 'array'],
+            'assigned_team_member.*'  => ['exists:users,id'],
+            'start_date'              => ['required', 'date'],
+            'tentative_end_date'      => ['nullable', 'date', 'after_or_equal:start_date'],
+        ]);
+
+        $members = $validated['assigned_team_member'] ?? [];
+        unset($validated['assigned_team_member']);
+
+        // Auto-set status to pending for student submissions
+        $validated['status'] = 'pending';
+
+        $project = Project::create($validated);
+
+        // Always include the creating student as a team member
+        $memberIds = array_unique(array_merge($members, [auth()->id()]));
+        $project->teamMembers()->sync($memberIds);
+
+        return redirect()
+            ->route('student.projects.index')
+            ->with('success', 'Project created successfully. It is now pending approval.');
+    }
+
+    /**
      * Show a single project — only if the student is a member.
      */
     public function show(Project $project)
@@ -48,7 +96,7 @@ class StudentProjectController extends Controller
     }
 
     /**
-     * Show the edit form — student can only edit name, topic, overview.
+     * Show the edit form — student can edit name, topic, overview, and team members.
      */
     public function edit(Project $project)
     {
@@ -56,23 +104,36 @@ class StudentProjectController extends Controller
 
         $project->load(['teacher', 'teamMembers']);
 
-        return view('student.projects.edit', compact('project'));
+        // Students can only be team members
+        $members = User::where('role', 'student')
+                    ->orderBy('name')
+                    ->get();
+
+        return view('student.projects.edit', compact('project', 'members'));
     }
 
     /**
-     * Update — only project_name, project_topic, short_overview.
+     * Update — name, topic, overview, and team members.
      */
     public function update(Request $request, Project $project)
     {
         $this->authorizeProject($project);
 
         $validated = $request->validate([
-            'project_name'   => ['nullable', 'string', 'max:255'],
-            'project_topic'  => ['nullable', 'string', 'max:255'],
-            'short_overview' => ['nullable', 'string'],
+            'project_name'            => ['nullable', 'string', 'max:255'],
+            'project_topic'           => ['nullable', 'string', 'max:255'],
+            'short_overview'          => ['nullable', 'string'],
+            'assigned_team_member'    => ['nullable', 'array'],
+            'assigned_team_member.*'  => ['exists:users,id'],
         ]);
 
+        $members = $validated['assigned_team_member'] ?? [];
+        unset($validated['assigned_team_member']);
+
         $project->update($validated);
+
+        // Sync team members — this adds AND removes members as needed
+        $project->teamMembers()->sync($members);
 
         return redirect()
             ->route('student.projects.index')

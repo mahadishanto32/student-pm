@@ -26,11 +26,6 @@
                     <div class="col-md-6">
                         <h4>All Projects</h4>
                     </div>
-                    <div class="col-md-6 text-right">
-                        <a href="{{ route('admin.projects.create') }}" class="btn btn-primary">
-                            <i class="fa fa-plus"></i> Add New Project
-                        </a>
-                    </div>
                 </div>
 
                 <div class="row" style="padding: 15px;">

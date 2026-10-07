@@ -35,51 +35,6 @@ class AdminProjectController extends Controller
     }
 
     /**
-     * Show the create form.
-     */
-    public function create()
-    {
-        $teachers = User::where('role', 'teacher')->orderBy('name')->get();
-        $members  = User::where('role', 'student')->orderBy('name')->get();
-
-        return view('admin.projects.create', compact('teachers', 'members'));
-    }
-
-    /**
-     * Store a new project.
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'group_number'         => ['required', 'string', 'max:255', 'unique:projects,group_number'],
-            'project_name'         => ['nullable', 'string', 'max:255'],
-            'project_topic'        => ['nullable', 'string', 'max:255'],
-            'short_overview'       => ['nullable', 'string'],
-            'assigned_teacher'     => ['nullable', 'exists:users,id'],
-            'assigned_team_member' => ['nullable', 'array'],
-            'assigned_team_member.*' => ['exists:users,id'],
-            'start_date'           => ['required', 'date'],
-            'tentative_end_date'   => ['nullable', 'date', 'after_or_equal:start_date'],
-            'status'               => ['required', Rule::in([
-                'approved', 'pending', 'working', 'completed', 'rejected', 'cancelled',
-            ])],
-        ]);
-
-        $members = $validated['assigned_team_member'] ?? [];
-        unset($validated['assigned_team_member']);
-
-        $project = Project::create($validated);
-
-        if (!empty($members)) {
-            $project->teamMembers()->sync($members);
-        }
-
-        return redirect()
-            ->route('admin.projects.index')
-            ->with('success', 'Project created successfully.');
-    }
-
-    /**
      * Show a single project.
      */
     public function show(Project $project)
@@ -91,42 +46,37 @@ class AdminProjectController extends Controller
 
     /**
      * Show the edit form.
+     * NOTE: Team members are NOT editable by admin here — only via student side.
      */
     public function edit(Project $project)
     {
         $project->load('teamMembers');
 
         $teachers = User::where('role', 'teacher')->orderBy('name')->get();
-        $members  = User::where('role', 'student')->orderBy('name')->get();
 
-        return view('admin.projects.edit', compact('project', 'teachers', 'members'));
+        return view('admin.projects.edit', compact('project', 'teachers'));
     }
 
     /**
      * Update an existing project.
+     * NOTE: assigned_team_member is intentionally ignored.
      */
     public function update(Request $request, Project $project)
     {
         $validated = $request->validate([
-            'group_number'         => ['required', 'string', 'max:255', Rule::unique('projects', 'group_number')->ignore($project->id)],
-            'project_name'         => ['nullable', 'string', 'max:255'],
-            'project_topic'        => ['nullable', 'string', 'max:255'],
-            'short_overview'       => ['nullable', 'string'],
-            'assigned_teacher'     => ['nullable', 'exists:users,id'],
-            'assigned_team_member' => ['nullable', 'array'],
-            'assigned_team_member.*' => ['exists:users,id'],
-            'start_date'           => ['required', 'date'],
-            'tentative_end_date'   => ['nullable', 'date', 'after_or_equal:start_date'],
-            'status'               => ['required', Rule::in([
+            'group_number'       => ['nullable', 'string', 'max:255', Rule::unique('projects', 'group_number')->ignore($project->id)],
+            'project_name'       => ['nullable', 'string', 'max:255'],
+            'project_topic'      => ['nullable', 'string', 'max:255'],
+            'short_overview'     => ['nullable', 'string'],
+            'assigned_teacher'   => ['nullable', 'exists:users,id'],
+            'start_date'         => ['nullable', 'date'],
+            'tentative_end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'status'             => ['required', Rule::in([
                 'approved', 'pending', 'working', 'completed', 'rejected', 'cancelled',
             ])],
         ]);
 
-        $members = $validated['assigned_team_member'] ?? [];
-        unset($validated['assigned_team_member']);
-
         $project->update($validated);
-        $project->teamMembers()->sync($members);
 
         return redirect()
             ->route('admin.projects.index')

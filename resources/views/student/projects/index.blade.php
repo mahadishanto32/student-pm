@@ -23,8 +23,13 @@
                 @endif
 
                 <div class="row" style="padding: 15px 15px 0 15px;">
-                    <div class="col-md-12">
+                    <div class="col-md-8">
                         <h4>Projects I'm Part Of</h4>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <a href="{{ route('student.projects.create') }}" class="btn btn-primary">
+                            <i class="fa fa-plus"></i> Create Project
+                        </a>
                     </div>
                 </div>
 

@@ -19,7 +19,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('users', AdminUserController::class)->except(['show']);
-        Route::resource('projects', AdminProjectController::class);
+        Route::resource('projects', AdminProjectController::class)->except(['create', 'store']);
         Route::resource('project-books', AdminProjectBookController::class);
         Route::resource('meetings', AdminMeetingController::class);
 
