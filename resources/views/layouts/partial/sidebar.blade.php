@@ -122,6 +122,19 @@
                 </ul>
             </li>
 
+            {{-- ---------- Project Marks ---------- --}}
+            <li class="{{ request()->routeIs('student.project-marks.*') ? 'active' : '' }}">
+                <a href="#student_project_marks_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-star yellow_color"></i> <span>Project Marks</span>
+                </a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('student.project-marks.*') ? 'show' : '' }}"
+                    id="student_project_marks_menu">
+                    <li class="{{ request()->routeIs('student.project-marks.index') ? 'active' : '' }}">
+                        <a href="{{ route('student.project-marks.index') }}">&gt; <span>All Project Marks</span></a>
+                    </li>
+                </ul>
+            </li>
+
             {{-- ---------- Profile ---------- --}}
             <li class="{{ request()->routeIs('profile.*') ? 'active' : '' }}">
                 <a href="{{ route('profile.edit') }}">

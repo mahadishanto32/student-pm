@@ -148,6 +148,19 @@
                 </ul>
             </li>
 
+            {{-- ---------- Project Marks ---------- --}}
+            <li class="{{ request()->routeIs('admin.project-marks.*') ? 'active' : '' }}">
+                <a href="#project_marks_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <i class="fa fa-file-text blue_color"></i> <span>Project Marks</span>
+                </a>
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.project-marks.*') ? 'show' : '' }}"
+                    id="project_marks_menu">
+                    <li class="{{ request()->routeIs('admin.project-marks.index') ? 'active' : '' }}">
+                        <a href="{{ route('admin.project-marks.index') }}">&gt; <span>All Project Marks</span></a>
+                    </li>
+                </ul>
+            </li>
+
             {{-- ---------- Widgets ---------- --}}
             {{-- <li><a href="#"><i class="fa fa-clock-o orange_color"></i> <span>Widgets</span></a></li> --}}
 

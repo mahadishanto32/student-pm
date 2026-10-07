@@ -8,6 +8,7 @@ use App\Http\Controllers\Teacher\TeacherProjectMilestoneController;
 use App\Http\Controllers\Teacher\TeacherDashboardController;
 use App\Http\Controllers\Teacher\TeacherPresentationController;
 use App\Http\Controllers\Teacher\TeacherVideoResumeController;
+use App\Http\Controllers\Teacher\TeacherProjectMarkController;
 
 Route::middleware(['auth', 'verified', 'role:teacher'])
     ->prefix('teachers')
@@ -28,4 +29,7 @@ Route::middleware(['auth', 'verified', 'role:teacher'])
         Route::resource('presentations', TeacherPresentationController::class)->only(['index', 'show', 'edit', 'update']);
 
         Route::resource('video-resumes', TeacherVideoResumeController::class)->only(['index', 'show']);
+
+        // ---------- Teacher: give / manage marks for assigned projects ----------
+        Route::resource('project-marks', TeacherProjectMarkController::class);
     });

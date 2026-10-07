@@ -62,26 +62,35 @@ class AdminProjectController extends Controller
      * NOTE: assigned_team_member is intentionally ignored.
      */
     public function update(Request $request, Project $project)
-    {
-        $validated = $request->validate([
-            'group_number'       => ['nullable', 'string', 'max:255', Rule::unique('projects', 'group_number')->ignore($project->id)],
-            'project_name'       => ['nullable', 'string', 'max:255'],
-            'project_topic'      => ['nullable', 'string', 'max:255'],
-            'short_overview'     => ['nullable', 'string'],
-            'assigned_teacher'   => ['nullable', 'exists:users,id'],
-            'start_date'         => ['nullable', 'date'],
-            'tentative_end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'status'             => ['required', Rule::in([
-                'approved', 'pending', 'working', 'completed', 'rejected', 'cancelled',
-            ])],
-        ]);
+{
+    $validated = $request->validate([
+        'group_number'       => ['nullable', 'string', 'max:255', Rule::unique('projects', 'group_number')->ignore($project->id)],
+        'project_name'       => ['nullable', 'string', 'max:255'],
+        'project_topic'      => ['nullable', 'string', 'max:255'],
+        'short_overview'     => ['nullable', 'string'],
+        'assigned_teacher'   => ['nullable', 'exists:users,id'],
+        'start_date'         => ['nullable', 'date'],
+        'tentative_end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+        'status'             => ['required', Rule::in([
+            'approved', 'pending', 'working', 'completed', 'rejected', 'cancelled',
+        ])],
+    ]);
 
-        $project->update($validated);
+    // Read the old teacher BEFORE updating
+    $oldTeacherId = $project->assigned_teacher;
 
-        return redirect()
-            ->route('admin.projects.index')
-            ->with('success', 'Project updated successfully.');
+    $project->update($validated);
+
+    // Notify only when a (new) teacher was assigned
+    if ($project->assigned_teacher && (int) $project->assigned_teacher !== (int) $oldTeacherId) {
+        User::find($project->assigned_teacher)
+            ?->notify(new \App\Notifications\ProjectAssignedNotification($project));
     }
+
+    return redirect()
+        ->route('admin.projects.index')
+        ->with('success', 'Project updated successfully.');
+}
 
     /**
      * Delete a project.

@@ -8,6 +8,7 @@ use App\Http\Controllers\Student\StudentProjectMilestoneController;
 use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\Student\StudentPresentationController;
 use App\Http\Controllers\Student\StudentVideoResumeController;
+use App\Http\Controllers\Student\StudentProjectMarkController;
 
 // ---------- Student / default dashboard ----------
 Route::get('/dashboard', [StudentDashboardController::class, 'index'])
@@ -37,4 +38,8 @@ Route::middleware(['auth', 'verified', 'role:student'])
 
     // Video Resumes (full CRUD)
     Route::resource('video-resumes', StudentVideoResumeController::class);
+
+    // Project Marks — READ ONLY for students
+    Route::resource('project-marks', StudentProjectMarkController::class)
+        ->only(['index', 'show']);
 });

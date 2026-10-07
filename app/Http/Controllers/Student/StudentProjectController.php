@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\User;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
+use App\Services\ProjectNotificationService;
 
 class StudentProjectController extends Controller
 {
@@ -77,6 +78,9 @@ class StudentProjectController extends Controller
         // Always include the creating student as a team member
         $memberIds = array_unique(array_merge($members, [auth()->id()]));
         $project->teamMembers()->sync($memberIds);
+
+        // Notify admins + the selected team members
+        app(ProjectNotificationService::class)->projectCreated($project);
 
         return redirect()
             ->route('student.projects.index')

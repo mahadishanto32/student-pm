@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\AdminProjectMilestoneController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminPresentationController;
 use App\Http\Controllers\Admin\AdminVideoResumeController;
+use App\Http\Controllers\Admin\AdminProjectMarkController;
 
 // ---------- Admin dashboard ----------
 Route::middleware(['auth', 'verified', 'role:admin'])
@@ -27,4 +28,8 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::resource('milestones', AdminProjectMilestoneController::class);
         Route::resource('presentations', AdminPresentationController::class);
         Route::resource('video-resumes', AdminVideoResumeController::class)->only(['index', 'show', 'edit', 'update']);
+
+        // Project Marks — READ ONLY for admin
+        Route::resource('project-marks', AdminProjectMarkController::class)
+            ->only(['index', 'show']);
     });
