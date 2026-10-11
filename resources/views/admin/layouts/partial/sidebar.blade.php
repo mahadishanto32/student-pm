@@ -3,8 +3,7 @@
         <div class="sidebar-header">
             <div class="logo_section">
                 <a href="{{ route('admin.dashboard') }}">
-                    <img class="logo_icon img-responsive"
-                         src="{{ asset('images/logo/logo.webp') }}" alt="#" />
+                    <img class="logo_icon img-responsive" src="{{ asset('images/logo/logo.webp') }}" alt="Logo" />
                 </a>
             </div>
         </div>
@@ -12,11 +11,10 @@
             <div class="icon_setting"></div>
             <div class="user_profle_side">
                 <div class="user_img">
-                    <img class="img-responsive"
-                         src="{{ asset('images/logo/logo.webp') }}" alt="#" />
+                    <img class="img-responsive" src="{{ asset('images/logo/logo.webp') }}" alt="{{ auth()->user()->name ?? 'User' }}" />
                 </div>
                 <div class="user_info">
-                    <h6>{{ auth()->user()->name ?? 'John David' }}</h6>
+                    <h6>{{ auth()->user()->name ?? 'Guest' }}</h6>
                     <p><span class="online_animation"></span> Online</p>
                 </div>
             </div>
@@ -27,31 +25,18 @@
         <h4>General</h4>
         <ul class="list-unstyled components">
 
-            {{-- ---------- Dashboard ---------- --}}
-            {{-- <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <a href="#dashboard" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa fa-dashboard yellow_color"></i> <span>Dashboard</span>
+            <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('admin.dashboard') }}">
+                    <i class="fa fa-dashboard orange_color"></i> <span>Dashboard</span>
                 </a>
-                <ul class="collapse list-unstyled {{ request()->routeIs('admin.dashboard') ? 'show' : '' }}"
-                    id="dashboard">
-                    <li>
-                        <a href="{{ route('admin.dashboard') }}">&gt; <span>Default Dashboard</span></a>
-                    </li>
-                    <li>
-                        <a href="#">&gt; <span>Dashboard style 2</span></a>
-                    </li>
-                </ul>
-            </li> --}}
+            </li>
 
-            <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"><a href="{{ route('admin.dashboard') }}"><i class="fa fa-dashboard orange_color"></i> <span>Dashboard</span></a></li>
-
-            {{-- ---------- Users ---------- --}}
             <li class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                <a href="#users_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                <a href="#users_menu" data-toggle="collapse"
+                   aria-expanded="{{ request()->routeIs('admin.users.*') ? 'true' : 'false' }}" class="dropdown-toggle">
                     <i class="fa fa-users green_color"></i> <span>Users</span>
                 </a>
-                <ul class="collapse list-unstyled {{ request()->routeIs('admin.users.*') ? 'show' : '' }}"
-                    id="users_menu">
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.users.*') ? 'show' : '' }}" id="users_menu">
                     <li class="{{ request()->routeIs('admin.users.index') ? 'active' : '' }}">
                         <a href="{{ route('admin.users.index') }}">&gt; <span>All Users</span></a>
                     </li>
@@ -61,28 +46,26 @@
                 </ul>
             </li>
 
-            {{-- ---------- Projects ---------- --}}
             <li class="{{ request()->routeIs('admin.projects.*') ? 'active' : '' }}">
-                <a href="#projects_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa fa-briefcase blue1_color"></i> <span>Projects</span>
+                <a href="#projects_menu" data-toggle="collapse"
+                   aria-expanded="{{ request()->routeIs('admin.projects.*') ? 'true' : 'false' }}" class="dropdown-toggle">
+                    <i class="fa fa-folder-open blue1_color"></i> <span>Projects</span>
                 </a>
-                <ul class="collapse list-unstyled {{ request()->routeIs('admin.projects.*') ? 'show' : '' }}"
-                    id="projects_menu">
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.projects.*') ? 'show' : '' }}" id="projects_menu">
                     <li class="{{ request()->routeIs('admin.projects.index') ? 'active' : '' }}">
                         <a href="{{ route('admin.projects.index') }}">&gt; <span>All Projects</span></a>
                     </li>
                 </ul>
             </li>
 
-            {{-- ---------- Project Book ---------- --}}
-            <li class="{{ request()->routeIs('admin.project-book.*') ? 'active' : '' }}">
-                <a href="#project_books_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa fa-book blue1_color"></i> <span>Project Books</span>
+            <li class="{{ request()->routeIs('admin.project-books.*') ? 'active' : '' }}">
+                <a href="#project_books_menu" data-toggle="collapse"
+                   aria-expanded="{{ request()->routeIs('admin.project-books.*') ? 'true' : 'false' }}" class="dropdown-toggle">
+                    <i class="fa fa-book purple_color"></i> <span>Project Books</span>
                 </a>
-                <ul class="collapse list-unstyled {{ request()->routeIs('admin.project-books.*') ? 'show' : '' }}"
-                    id="project_books_menu">
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.project-books.*') ? 'show' : '' }}" id="project_books_menu">
                     <li class="{{ request()->routeIs('admin.project-books.index') ? 'active' : '' }}">
-                        <a href="{{ route('admin.project-books.index') }}">&gt; <span>All Project Book</span></a>
+                        <a href="{{ route('admin.project-books.index') }}">&gt; <span>All Project Books</span></a>
                     </li>
                     <li class="{{ request()->routeIs('admin.project-books.create') ? 'active' : '' }}">
                         <a href="{{ route('admin.project-books.create') }}">&gt; <span>Add New Project Book</span></a>
@@ -90,31 +73,29 @@
                 </ul>
             </li>
 
-            {{-- ---------- Meetings ---------- --}}
             <li class="{{ request()->routeIs('admin.meetings.*') ? 'active' : '' }}">
-                <a href="#meetings_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa fa-briefcase blue1_color"></i> <span>Meetings</span>
+                <a href="#meetings_menu" data-toggle="collapse"
+                   aria-expanded="{{ request()->routeIs('admin.meetings.*') ? 'true' : 'false' }}" class="dropdown-toggle">
+                    <i class="fa fa-calendar green_color"></i> <span>Meetings</span>
                 </a>
-                <ul class="collapse list-unstyled {{ request()->routeIs('admin.meetings.*') ? 'show' : '' }}"
-                    id="meetings_menu">
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.meetings.*') ? 'show' : '' }}" id="meetings_menu">
                     <li class="{{ request()->routeIs('admin.meetings.index') ? 'active' : '' }}">
-                        <a href="{{ route('admin.meetings.index') }}">&gt; <span>All meetings</span></a>
+                        <a href="{{ route('admin.meetings.index') }}">&gt; <span>All Meetings</span></a>
                     </li>
                     <li class="{{ request()->routeIs('admin.meetings.create') ? 'active' : '' }}">
-                        <a href="{{ route('admin.meetings.create') }}">&gt; <span>Add New Meetings</span></a>
+                        <a href="{{ route('admin.meetings.create') }}">&gt; <span>Add New Meeting</span></a>
                     </li>
                 </ul>
             </li>
 
-            {{-- ---------- Project Milestone ---------- --}}
             <li class="{{ request()->routeIs('admin.milestones.*') ? 'active' : '' }}">
-                <a href="#milestones_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa fa-briefcase blue1_color"></i> <span>Milestone</span>
+                <a href="#milestones_menu" data-toggle="collapse"
+                   aria-expanded="{{ request()->routeIs('admin.milestones.*') ? 'true' : 'false' }}" class="dropdown-toggle">
+                    <i class="fa fa-flag-checkered yellow_color"></i> <span>Milestones</span>
                 </a>
-                <ul class="collapse list-unstyled {{ request()->routeIs('admin.milestones.*') ? 'show' : '' }}"
-                    id="milestones_menu">
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.milestones.*') ? 'show' : '' }}" id="milestones_menu">
                     <li class="{{ request()->routeIs('admin.milestones.index') ? 'active' : '' }}">
-                        <a href="{{ route('admin.milestones.index') }}">&gt; <span>All Milestone</span></a>
+                        <a href="{{ route('admin.milestones.index') }}">&gt; <span>All Milestones</span></a>
                     </li>
                     <li class="{{ request()->routeIs('admin.milestones.create') ? 'active' : '' }}">
                         <a href="{{ route('admin.milestones.create') }}">&gt; <span>Add New Milestone</span></a>
@@ -122,102 +103,41 @@
                 </ul>
             </li>
 
-            {{-- ---------- Project Presentation ---------- --}}
             <li class="{{ request()->routeIs('admin.presentations.*') ? 'active' : '' }}">
-                <a href="#presentations_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa fa-briefcase blue1_color"></i> <span>Presentation</span>
+                <a href="#presentations_menu" data-toggle="collapse"
+                   aria-expanded="{{ request()->routeIs('admin.presentations.*') ? 'true' : 'false' }}" class="dropdown-toggle">
+                    <i class="fa fa-file-powerpoint-o orange_color"></i> <span>Presentations</span>
                 </a>
-                <ul class="collapse list-unstyled {{ request()->routeIs('admin.presentations.*') ? 'show' : '' }}"
-                    id="presentations_menu">
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.presentations.*') ? 'show' : '' }}" id="presentations_menu">
                     <li class="{{ request()->routeIs('admin.presentations.index') ? 'active' : '' }}">
                         <a href="{{ route('admin.presentations.index') }}">&gt; <span>All Presentations</span></a>
                     </li>
                 </ul>
             </li>
 
-            {{-- ---------- Project Video Resume ---------- --}}
             <li class="{{ request()->routeIs('admin.video-resumes.*') ? 'active' : '' }}">
-                <a href="#video_resumes_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                <a href="#video_resumes_menu" data-toggle="collapse"
+                   aria-expanded="{{ request()->routeIs('admin.video-resumes.*') ? 'true' : 'false' }}" class="dropdown-toggle">
                     <i class="fa fa-video-camera blue_color"></i> <span>Video Resumes</span>
                 </a>
-                <ul class="collapse list-unstyled {{ request()->routeIs('admin.video-resumes.*') ? 'show' : '' }}"
-                    id="video_resumes_menu">
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.video-resumes.*') ? 'show' : '' }}" id="video_resumes_menu">
                     <li class="{{ request()->routeIs('admin.video-resumes.index') ? 'active' : '' }}">
                         <a href="{{ route('admin.video-resumes.index') }}">&gt; <span>All Video Resumes</span></a>
                     </li>
                 </ul>
             </li>
 
-            {{-- ---------- Project Marks ---------- --}}
             <li class="{{ request()->routeIs('admin.project-marks.*') ? 'active' : '' }}">
-                <a href="#project_marks_menu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa fa-file-text blue_color"></i> <span>Project Marks</span>
+                <a href="#project_marks_menu" data-toggle="collapse"
+                   aria-expanded="{{ request()->routeIs('admin.project-marks.*') ? 'true' : 'false' }}" class="dropdown-toggle">
+                    <i class="fa fa-star yellow_color"></i> <span>Project Marks</span>
                 </a>
-                <ul class="collapse list-unstyled {{ request()->routeIs('admin.project-marks.*') ? 'show' : '' }}"
-                    id="project_marks_menu">
+                <ul class="collapse list-unstyled {{ request()->routeIs('admin.project-marks.*') ? 'show' : '' }}" id="project_marks_menu">
                     <li class="{{ request()->routeIs('admin.project-marks.index') ? 'active' : '' }}">
                         <a href="{{ route('admin.project-marks.index') }}">&gt; <span>All Project Marks</span></a>
                     </li>
                 </ul>
             </li>
-
-            {{-- ---------- Widgets ---------- --}}
-            {{-- <li><a href="#"><i class="fa fa-clock-o orange_color"></i> <span>Widgets</span></a></li> --}}
-
-            {{-- ---------- Elements ---------- --}}
-            {{-- <li>
-                <a href="#element" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa fa-diamond purple_color"></i> <span>Elements</span>
-                </a>
-                <ul class="collapse list-unstyled" id="element">
-                    <li><a href="#">&gt; <span>General Elements</span></a></li>
-                    <li><a href="#">&gt; <span>Media Gallery</span></a></li>
-                    <li><a href="#">&gt; <span>Icons</span></a></li>
-                    <li><a href="#">&gt; <span>Invoice</span></a></li>
-                </ul>
-            </li> --}}
-
-            {{-- ---------- Tables ---------- --}}
-            {{-- <li class="{{ request()->routeIs('table') ? 'active' : '' }}">
-                <a href="{{ \Illuminate\Support\Facades\Route::has('table') ? route('table') : '#' }}">
-                    <i class="fa fa-table purple_color2"></i> <span>Tables</span>
-                </a>
-            </li> --}}
-
-            {{-- ---------- Apps ---------- --}}
-            {{-- <li>
-                <a href="#apps" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa fa-object-group blue2_color"></i> <span>Apps</span>
-                </a>
-                <ul class="collapse list-unstyled" id="apps">
-                    <li><a href="#">&gt; <span>Email</span></a></li>
-                    <li><a href="#">&gt; <span>Calendar</span></a></li>
-                    <li><a href="#">&gt; <span>Media Gallery</span></a></li>
-                </ul>
-            </li>
-
-            <li><a href="#"><i class="fa fa-briefcase blue1_color"></i> <span>Pricing Tables</span></a></li>
-
-            <li>
-                <a href="#"><i class="fa fa-paper-plane red_color"></i> <span>Contact</span></a>
-            </li> --}}
-
-            {{-- ---------- Additional Pages ---------- --}}
-            {{-- <li>
-                <a href="#additional_page" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <i class="fa fa-clone yellow_color"></i> <span>Additional Pages</span>
-                </a>
-                <ul class="collapse list-unstyled" id="additional_page">
-                    <li><a href="#">&gt; <span>Profile</span></a></li>
-                    <li><a href="{{ route('admin.projects.index') }}">&gt; <span>Projects</span></a></li>
-                    <li><a href="#">&gt; <span>Login</span></a></li>
-                    <li><a href="#">&gt; <span>404 Error</span></a></li>
-                </ul>
-            </li>
-
-            <li><a href="#"><i class="fa fa-map purple_color2"></i> <span>Map</span></a></li>
-            <li><a href="#"><i class="fa fa-bar-chart-o green_color"></i> <span>Charts</span></a></li>
-            <li><a href="#"><i class="fa fa-cog yellow_color"></i> <span>Settings</span></a></li> --}}
 
         </ul>
     </div>

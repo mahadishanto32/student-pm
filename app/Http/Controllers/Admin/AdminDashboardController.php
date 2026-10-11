@@ -4,88 +4,49 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
-use App\Models\ProjectBook;
-use App\Models\ProjectMilestone;
 use App\Models\User;
-use Carbon\Carbon;
+use App\Support\DashboardMetrics;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AdminDashboardController extends Controller
 {
     public function index()
     {
-        // ----- Top counters -----
-        $totalUsers        = User::count();
-        $totalProjects     = Project::count();
-        $totalProjectBooks = ProjectBook::count();
-        $totalMilestones   = ProjectMilestone::count();
+        $metrics = new DashboardMetrics(); // null scope = whole system
 
-        // ----- Project book status breakdown (replaces the social-icons row) -----
-        $projectBookStats = collect(ProjectBook::statuses())->mapWithKeys(
-            fn ($status) => [$status => ProjectBook::where('status', $status)->count()]
-        );
+        $stats          = $metrics->counters();
+        $stats['users'] = User::count();
 
-        // ----- Milestone status breakdown (progress bars) -----
-        $milestoneStatuses = [
-            ProjectMilestone::STATUS_PENDING,
-            ProjectMilestone::STATUS_NEED_CORRECTION,
-            ProjectMilestone::STATUS_COMPLETED,
-            ProjectMilestone::STATUS_REJECTED,
-        ];
+        $roles = User::selectRaw('role, COUNT(*) AS c')->groupBy('role')->pluck('c', 'role');
 
-        $milestoneStats = collect($milestoneStatuses)->map(function ($status) use ($totalMilestones) {
-            $count   = ProjectMilestone::where('status', $status)->count();
-            $percent = $totalMilestones > 0 ? (int) round(($count / $totalMilestones) * 100) : 0;
+        // Supervisor workload: projects per teacher (top 5)
+        $workload = DB::table('projects')
+            ->join('users', 'users.id', '=', 'projects.assigned_teacher')
+            ->selectRaw('users.name, COUNT(*) AS projects')
+            ->groupBy('users.id', 'users.name')
+            ->orderByDesc('projects')
+            ->take(5)->get();
 
-            return [
-                'status'  => $status,
-                'label'   => ucwords(str_replace('_', ' ', $status)),
-                'count'   => $count,
-                'percent' => $percent,
-            ];
-        });
-
-        // ----- Projects created per month, last 7 months (for the area chart) -----
-        $months = collect(range(6, 0))->map(fn ($i) => Carbon::now()->subMonths($i));
-
-        $chartLabels = $months->map->format('M')->values()->toArray();
-
-        $chartData = $months->map(function (Carbon $month) {
-            return Project::whereYear('created_at', $month->year)
-                ->whereMonth('created_at', $month->month)
-                ->count();
-        })->values()->toArray();
-
-        // ----- Recent projects (replaces the testimonial slider) -----
-        $recentProjects = Project::with('teacher')
-            ->latest()
-            ->take(3)
-            ->get();
-
-        // ----- Today's milestones ("today tasks" box) -----
-        $todaysMilestones = ProjectMilestone::with('project')
-            ->whereDate('tentative_time', Carbon::today())
-            ->orderBy('tentative_time')
-            ->take(5)
-            ->get();
-
-        // ----- Recent milestone activity ("Updates" box) -----
-        $recentUpdates = ProjectMilestone::with(['project', 'doneBy'])
-            ->latest('updated_at')
-            ->take(4)
-            ->get();
-
-        return view('admin.dashboard', compact(
-            'totalUsers',
-            'totalProjects',
-            'totalProjectBooks',
-            'totalMilestones',
-            'projectBookStats',
-            'milestoneStats',
-            'chartLabels',
-            'chartData',
-            'recentProjects',
-            'todaysMilestones',
-            'recentUpdates',
-        ));
+        return view('admin.dashboard', [
+            'stats'          => $stats,
+            'roles'          => $roles,
+            'unassigned'     => Project::whereNull('assigned_teacher')->count(),
+            'submissions'    => [
+                'presentations' => DB::table('presentations')->count(),
+                'videos'        => DB::table('video_resumes')->count(),
+                'meetings'      => DB::table('meetings')->count(),
+            ],
+            'workload'       => $workload,
+            'projectStatus'  => $metrics->projectStatusStats(),
+            'bookStats'      => $metrics->bookStats(),
+            'milestoneStats' => $metrics->milestoneStats(),
+            'chart'          => $metrics->monthlyActivity(withProjects: true),
+            'projects'       => $metrics->projectCards(5),
+            'attention'      => $metrics->attention(5),
+            'updates'        => $metrics->recentUpdates(5),
+            'schedule'       => $metrics->schedule(5),
+            'notifications'  => DashboardMetrics::notifications(Auth::user()),
+        ]);
     }
 }

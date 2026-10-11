@@ -3,270 +3,78 @@
 @section('title', 'Admin Dashboard')
 
 @section('content')
-    <div class="row column_title">
-        <div class="col-md-12">
-            <div class="page_title">
-                <h2>Admin Dashboard</h2>
-            </div>
-        </div>
-    </div>
+    @php
+        $r = fn ($name) => \Illuminate\Support\Facades\Route::has($name) ? route($name) : null;
+    @endphp
+    @include('dashboard.partials.assets')
 
-    {{-- Top counters --}}
-    <div class="row column1">
-        <div class="col-md-6 col-lg-3">
-            <div class="full counter_section margin_bottom_30">
-                <div class="couter_icon"><div><i class="fa fa-user yellow_color"></i></div></div>
-                <div class="counter_no">
-                    <div>
-                        <p class="total_no text-dark">{{ number_format($totalUsers) }}</p>
-                        <p class="head_couter text-dark">Total Users</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="full counter_section margin_bottom_30">
-                <div class="couter_icon"><div><i class="fa fa-folder-open-o blue1_color"></i></div></div>
-                <div class="counter_no">
-                    <div>
-                        <p class="total_no text-dark">{{ number_format($totalProjects) }}</p>
-                        <p class="head_couter text-dark">Total Projects</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="full counter_section margin_bottom_30">
-                <div class="couter_icon"><div><i class="fa fa-book green_color"></i></div></div>
-                <div class="counter_no">
-                    <div>
-                        <p class="total_no text-dark">{{ number_format($totalProjectBooks) }}</p>
-                        <p class="head_couter text-dark">Project Books</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="full counter_section margin_bottom_30">
-                <div class="couter_icon"><div><i class="fa fa-flag-checkered red_color"></i></div></div>
-                <div class="counter_no">
-                    <div>
-                        <p class="total_no text-dark">{{ number_format($totalMilestones) }}</p>
-                        <p class="head_couter text-dark">Milestones</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="dx">
+        <x-dx.hero
+            :title="\App\Support\DashboardMetrics::greeting() . ', ' . Auth::user()->name"
+            :text="now()->format('l, j F Y') . '. Here is where the project system stands today.'"
+            :chips="[
+                ['label' => 'milestones overdue',  'value' => $stats['overdue'],   'alert' => true],
+                ['label' => 'due today',           'value' => $stats['due_today']],
+                ['label' => 'projects without a supervisor', 'value' => $unassigned, 'alert' => true],
+                ['label' => 'unread notifications','value' => $notifications['unread']],
+            ]"
+            :actions="[
+                ['label' => 'Milestones', 'url' => $r('admin.milestones.index')],
+                ['label' => 'Projects',   'url' => $r('admin.projects.index'), 'ghost' => true],
+            ]" />
 
-    {{-- Project book status breakdown --}}
-    <div class="row column1 social_media_section">
-        <div class="col-md-6 col-lg-3">
-            <div class="full socile_icons fb margin_bottom_30">
-                <div class="social_icon"><i class="fa fa-check-circle"></i></div>
-                <div class="social_cont">
-                    <ul>
-                        <li>
-                            <span><strong>{{ $projectBookStats['approved'] ?? 0 }}</strong></span>
-                            <span>Approved</span>
-                        </li>
-                        <li>
-                            <span><strong>{{ $projectBookStats['rejected'] ?? 0 }}</strong></span>
-                            <span>Rejected</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="full socile_icons tw margin_bottom_30">
-                <div class="social_icon"><i class="fa fa-hourglass-half"></i></div>
-                <div class="social_cont">
-                    <ul>
-                        <li>
-                            <span><strong>{{ $projectBookStats['pending'] ?? 0 }}</strong></span>
-                            <span>Pending</span>
-                        </li>
-                        <li>
-                            <span><strong>{{ $projectBookStats['cancelled'] ?? 0 }}</strong></span>
-                            <span>Cancelled</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="full socile_icons linked margin_bottom_30">
-                <div class="social_icon"><i class="fa fa-cogs"></i></div>
-                <div class="social_cont">
-                    <ul>
-                        <li>
-                            <span><strong>{{ $projectBookStats['working'] ?? 0 }}</strong></span>
-                            <span>Working</span>
-                        </li>
-                        <li>
-                            <span><strong>{{ $totalProjectBooks }}</strong></span>
-                            <span>Total</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="full socile_icons google_p margin_bottom_30">
-                <div class="social_icon"><i class="fa fa-trophy"></i></div>
-                <div class="social_cont">
-                    <ul>
-                        <li>
-                            <span><strong>{{ $projectBookStats['completed'] ?? 0 }}</strong></span>
-                            <span>Completed</span>
-                        </li>
-                        <li>
-                            <span><strong>{{ $totalProjects }}</strong></span>
-                            <span>Projects</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row column3">
-        {{-- recent projects --}}
-        <div class="col-md-6">
-            <div class="dark_bg full margin_bottom_30">
-                <div class="full graph_head">
-                    <div class="heading1 margin_0"><h2>Recent Projects</h2></div>
-                </div>
-                <div class="full graph_revenue">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="content testimonial">
-                                @if($recentProjects->isEmpty())
-                                    <p class="testimonial">No projects have been created yet.</p>
-                                @else
-                                    <div id="testimonial_slider" class="carousel slide" data-ride="carousel">
-                                        <div class="carousel-inner">
-                                            @foreach($recentProjects as $project)
-                                                <div class="item carousel-item @if($loop->first) active @endif">
-                                                    <div class="img-box"><i class="fa fa-folder-open" style="font-size:40px;"></i></div>
-                                                    <p class="testimonial">
-                                                        <strong>{{ $project->project_name }}</strong><br>
-                                                        {{ \Illuminate\Support\Str::limit($project->project_topic, 90) }}
-                                                    </p>
-                                                    <p class="overview">
-                                                        <b>{{ $project->teacher->name ?? 'Unassigned' }}</b>
-                                                        Group #{{ $project->group_number }} &middot; {{ ucfirst($project->status) }}
-                                                    </p>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                        <a class="carousel-control left carousel-control-prev" href="#testimonial_slider" data-slide="prev"><i class="fa fa-angle-left"></i></a>
-                                        <a class="carousel-control right carousel-control-next" href="#testimonial_slider" data-slide="next"><i class="fa fa-angle-right"></i></a>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{-- end recent projects --}}
-
-        {{-- milestone progress --}}
-        <div class="col-md-6">
-            <div class="white_shd full margin_bottom_30">
-                <div class="full graph_head">
-                    <div class="heading1 margin_0"><h2>Milestone Status</h2></div>
-                </div>
-                <div class="full progress_bar_inner">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="progress_bar">
-                                @forelse($milestoneStats as $stat)
-                                    <span class="skill" style="width:{{ $stat['percent'] }}%;">{{ $stat['label'] }} <span class="info_valume">{{ $stat['percent'] }}%</span></span>
-                                    <div class="progress skill-bar">
-                                        <div class="progress-bar progress-bar-animated progress-bar-striped" role="progressbar" aria-valuenow="{{ $stat['percent'] }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ $stat['percent'] }}%;">
-                                        </div>
-                                    </div>
-                                @empty
-                                    <p>No milestones recorded yet.</p>
-                                @endforelse
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{-- end milestone progress --}}
-    </div>
-
-    <div class="row column4 graph">
-        {{-- today's tasks --}}
-        <div class="col-md-6">
-            <div class="dash_blog">
-                <div class="dash_blog_inner">
-                    <div class="dash_head">
-                        <h3><span><i class="fa fa-calendar"></i> {{ now()->format('j F Y') }}</span></h3>
-                    </div>
-                    <div class="list_cont">
-                        <p>Today's Milestones</p>
-                    </div>
-                    <div class="task_list_main">
-                        @if($todaysMilestones->isEmpty())
-                            <p>No milestones are due today.</p>
-                        @else
-                            <ul class="task_list">
-                                @foreach($todaysMilestones as $milestone)
-                                    <li>
-                                        <a href="#">{{ $milestone->title }} &mdash; {{ $milestone->project->project_name ?? 'N/A' }}</a><br>
-                                        <strong>{{ optional($milestone->tentative_time)->format('h:i A') }}</strong>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        @endif
-                    </div>
-                    <div class="read_more">
-                        <div class="center"><a class="main_bt read_bt" href="{{ route('admin.milestones.index') }}">Read More</a></div>
-                    </div>
-                </div>
-            </div>
+        {{-- KPIs --}}
+        <div class="row">
+            <div class="col-sm-6 col-xl-3"><x-dx.kpi icon="users" tone="blue" :value="number_format($stats['users'])" label="Users"
+                :note="($roles['student'] ?? 0) . ' students, ' . ($roles['teacher'] ?? 0) . ' teachers'" /></div>
+            <div class="col-sm-6 col-xl-3"><x-dx.kpi icon="folder-open-o" tone="teal" :value="number_format($stats['projects'])" label="Projects"
+                :note="$unassigned > 0 ? $unassigned . ' need a supervisor' : 'All have a supervisor'" /></div>
+            <div class="col-sm-6 col-xl-3"><x-dx.kpi icon="book" tone="green" :value="number_format($stats['books'])" label="Project books"
+                :note="($bookStats['approved'] ?? 0) . ' approved'" /></div>
+            <div class="col-sm-6 col-xl-3"><x-dx.kpi icon="flag-checkered" tone="amber" :value="number_format($stats['milestones'])" label="Milestones"
+                :note="$stats['completion'] . '% completed'" /></div>
         </div>
 
-        {{-- recent updates --}}
-        <div class="col-md-6">
-            <div class="dash_blog">
-                <div class="dash_blog_inner">
-                    <div class="dash_head">
-                        <h3><span><i class="fa fa-comments-o"></i> Updates</span></h3>
-                    </div>
-                    <div class="list_cont">
-                        <p>Recent milestone activity</p>
-                    </div>
-                    <div class="msg_list_main">
-                        @if($recentUpdates->isEmpty())
-                            <p>No recent activity.</p>
-                        @else
-                            <ul class="msg_list">
-                                @foreach($recentUpdates as $update)
-                                    <li>
-                                        <span><i class="fa fa-user-circle" style="font-size:32px;"></i></span>
-                                        <span>
-                                            <span class="name_user">{{ $update->doneBy->name ?? 'Unassigned' }}</span>
-                                            <span class="msg_user">
-                                                {{ $update->title }} &mdash; {{ ucwords(str_replace('_', ' ', $update->status)) }}
-                                            </span>
-                                            <span class="time_ago">{{ $update->updated_at->diffForHumans() }}</span>
-                                        </span>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        @endif
-                    </div>
-                    <div class="read_more">
-                        <div class="center"><a class="main_bt read_bt" href="{{ route('admin.milestones.index') }}">Read More</a></div>
-                    </div>
-                </div>
+        {{-- Trends --}}
+        <div class="row">
+            <div class="col-lg-8">@include('dashboard.partials.activity-chart', ['title' => 'System activity'])</div>
+            <div class="col-lg-4">@include('dashboard.partials.milestone-status')</div>
+        </div>
+
+        {{-- Projects + schedule --}}
+        <div class="row">
+            <div class="col-lg-8">
+                @include('dashboard.partials.projects', [
+                    'title' => 'Recent projects', 'sub' => 'Newest first, with progress against time',
+                    'href' => $r('admin.projects.index'), 'showSupervisor' => true,
+                    'emptyTitle' => 'No projects have been created yet',
+                ])
+            </div>
+            <div class="col-lg-4">@include('dashboard.partials.schedule')</div>
+        </div>
+
+        {{-- Work queues --}}
+        <div class="row">
+            <div class="col-lg-4">@include('dashboard.partials.attention', ['href' => $r('admin.milestones.index')])</div>
+            <div class="col-lg-4">@include('dashboard.partials.updates', ['href' => $r('admin.milestones.index'), 'byWhom' => true])</div>
+            <div class="col-lg-4">@include('dashboard.partials.notifications')</div>
+        </div>
+
+        {{-- Breakdowns --}}
+        <div class="row">
+            <div class="col-lg-4">@include('dashboard.partials.status-bars', ['title' => 'Projects by status', 'counts' => $projectStatus])</div>
+            <div class="col-lg-4">@include('dashboard.partials.status-bars', ['title' => 'Project books by status', 'counts' => $bookStats])</div>
+            <div class="col-lg-4">
+                <x-dx.panel title="People and workload">
+                    @forelse($workload as $w)
+                        <div class="dx-plain"><span>{{ $w->name }}</span><b>{{ $w->projects }} {{ \Illuminate\Support\Str::plural('project', $w->projects) }}</b></div>
+                    @empty
+                        <x-dx.empty icon="user-o" title="No supervisors assigned yet" />
+                    @endforelse
+                    <div class="dx-plain" style="margin-top:12px"><span>Presentations</span><b>{{ $submissions['presentations'] }}</b></div>
+                    <div class="dx-plain"><span>Video resumes</span><b>{{ $submissions['videos'] }}</b></div>
+                    <div class="dx-plain"><span>Meetings held or scheduled</span><b>{{ $submissions['meetings'] }}</b></div>
+                </x-dx.panel>
             </div>
         </div>
     </div>

@@ -4,104 +4,51 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
-use App\Models\ProjectBook;
-use App\Models\ProjectMilestone;
-use Carbon\Carbon;
+use App\Support\DashboardMetrics;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TeacherDashboardController extends Controller
 {
     public function index()
     {
-        $teacherId = Auth::id();
+        $teacher    = Auth::user();
+        $projectIds = Project::where('assigned_teacher', $teacher->id)->pluck('id');
+        $metrics    = new DashboardMetrics($projectIds);
 
-        // Base query: only projects assigned to this teacher.
-        $projectIds = Project::where('assigned_teacher', $teacherId)->pluck('id');
+        $stats = $metrics->counters();
 
-        // ----- Top counters (scoped to this teacher) -----
-        $totalProjects     = $projectIds->count();
-        $totalProjectBooks = ProjectBook::whereIn('project_id', $projectIds)->count();
-        $totalMilestones   = ProjectMilestone::whereIn('project_id', $projectIds)->count();
-        $pendingMilestones = ProjectMilestone::whereIn('project_id', $projectIds)
-            ->where('status', ProjectMilestone::STATUS_PENDING)
-            ->count();
-
-        // ----- Project book status breakdown (replaces the social-icons row) -----
-        $projectBookStats = collect(ProjectBook::statuses())->mapWithKeys(
-            fn ($status) => [
-                $status => ProjectBook::whereIn('project_id', $projectIds)
-                    ->where('status', $status)
-                    ->count(),
-            ]
-        );
-
-        // ----- Milestone status breakdown (progress bars) -----
-        $milestoneStatuses = [
-            ProjectMilestone::STATUS_PENDING,
-            ProjectMilestone::STATUS_NEED_CORRECTION,
-            ProjectMilestone::STATUS_COMPLETED,
-            ProjectMilestone::STATUS_REJECTED,
-        ];
-
-        $milestoneStats = collect($milestoneStatuses)->map(function ($status) use ($projectIds, $totalMilestones) {
-            $count = ProjectMilestone::whereIn('project_id', $projectIds)
-                ->where('status', $status)
-                ->count();
-            $percent = $totalMilestones > 0 ? (int) round(($count / $totalMilestones) * 100) : 0;
-
-            return [
-                'status'  => $status,
-                'label'   => ucwords(str_replace('_', ' ', $status)),
-                'count'   => $count,
-                'percent' => $percent,
-            ];
-        });
-
-        // ----- Milestones created per month, last 7 months (for the chart) -----
-        $months = collect(range(6, 0))->map(fn ($i) => Carbon::now()->subMonths($i));
-
-        $chartLabels = $months->map->format('M')->values()->toArray();
-
-        $chartData = $months->map(function (Carbon $month) use ($projectIds) {
-            return ProjectMilestone::whereIn('project_id', $projectIds)
-                ->whereYear('created_at', $month->year)
-                ->whereMonth('created_at', $month->month)
-                ->count();
-        })->values()->toArray();
-
-        // ----- This teacher's assigned projects (replaces the testimonial slider) -----
-        $myProjects = Project::where('assigned_teacher', $teacherId)
-            ->latest()
-            ->take(3)
+        // Students under supervision and whether marks were entered for them
+        $students = DB::table('project_user')
+            ->join('users', 'users.id', '=', 'project_user.user_id')
+            ->join('projects', 'projects.id', '=', 'project_user.project_id')
+            ->whereIn('project_user.project_id', $projectIds)
+            ->select('users.id', 'users.name', 'projects.project_name')
             ->get();
 
-        // ----- Today's milestones across this teacher's projects -----
-        $todaysMilestones = ProjectMilestone::with('project')
-            ->whereIn('project_id', $projectIds)
-            ->whereDate('tentative_time', Carbon::today())
-            ->orderBy('tentative_time')
-            ->take(5)
-            ->get();
+        $markedIds = DB::table('project_marks')
+            ->where('supervisor_id', $teacher->id)->pluck('student_id')->all();
 
-        // ----- Recent milestone activity across this teacher's projects -----
-        $recentUpdates = ProjectMilestone::with(['project', 'doneBy'])
-            ->whereIn('project_id', $projectIds)
-            ->latest('updated_at')
-            ->take(4)
-            ->get();
+        $marking = $students->map(fn ($s) => [
+            'name'    => $s->name,
+            'project' => $s->project_name,
+            'marked'  => in_array($s->id, $markedIds),
+        ]);
 
-        return view('teachers.dashboard', compact(
-            'totalProjects',
-            'totalProjectBooks',
-            'totalMilestones',
-            'pendingMilestones',
-            'projectBookStats',
-            'milestoneStats',
-            'chartLabels',
-            'chartData',
-            'myProjects',
-            'todaysMilestones',
-            'recentUpdates',
-        ));
+        $stats['students'] = $students->pluck('id')->unique()->count();
+        $stats['marked']   = $marking->where('marked', true)->count();
+
+        return view('teachers.dashboard', [
+            'stats'          => $stats,
+            'marking'        => $marking,
+            'bookStats'      => $metrics->bookStats(),
+            'milestoneStats' => $metrics->milestoneStats(),
+            'chart'          => $metrics->monthlyActivity(),
+            'projects'       => $metrics->projectCards(5),
+            'attention'      => $metrics->attention(5),
+            'updates'        => $metrics->recentUpdates(5),
+            'schedule'       => $metrics->schedule(5),
+            'notifications'  => DashboardMetrics::notifications($teacher),
+        ]);
     }
 }

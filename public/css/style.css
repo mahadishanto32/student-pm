@@ -1,14 +1,4 @@
 /*------------------------------------------------------------------
-    File Name: style.css
-    Template Name: Pluto - Responsive HTML5 Template
-    Created By: html.design
-    Envato Profile: https://themeforest.net/user/htmldotdesign
-    Website: https://html.design
-    Version: 1.0
--------------------------------------------------------------------*/
-
-
-/*------------------------------------------------------------------
     [Table of contents]
 
     1. import fonts
@@ -33,9 +23,9 @@
         -> button section
         -> pagination
         -> model bt
-    17. Gallery Section     
+    17. Gallery Section
     18. Icons
-    19. Invoice  
+    19. Invoice
     20. Price table
     21. Mail
     22. Price table page
@@ -44,7 +34,7 @@
     25. Login Section
     26. Error
     27. Map
-   
+
 -------------------------------------------------------------------*/
 
 
@@ -618,7 +608,7 @@ a:focus {
 
 
 /*==============
-    - topbar 
+    - topbar
 ==============*/
 
 .topbar {
@@ -2134,7 +2124,7 @@ i.icon {
 
 
 /*------------------------------------------------------------------
-    16. General Elements 
+    16. General Elements
 -------------------------------------------------------------------*/
 
 .link.today {
@@ -2266,7 +2256,7 @@ i.icon {
 
 
 /*------------------------------------------------------------------
-    17. Gallery Section   
+    17. Gallery Section
 -------------------------------------------------------------------*/
 
 .gallery_section_inner .column {
@@ -2291,7 +2281,7 @@ i.icon {
 
 
 /*------------------------------------------------------------------
-    18. Icons  
+    18. Icons
 -------------------------------------------------------------------*/
 
 .fontawesome-icons-list .fw_icon a {
@@ -2332,7 +2322,7 @@ i.icon {
 
 
 /*------------------------------------------------------------------
-    19. Invoice  
+    19. Invoice
 -------------------------------------------------------------------*/
 
 h2.invoice_head {
@@ -2413,7 +2403,7 @@ h2.invoice_head small {
 
 
 /*------------------------------------------------------------------
-    20. Price table  
+    20. Price table
 -------------------------------------------------------------------*/
 
 .price_table table.table {
