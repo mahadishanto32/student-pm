@@ -31,7 +31,7 @@ Route::middleware(['auth', 'verified', 'role:student'])
     Route::resource('meetings', StudentMeetingController::class)->only(['index', 'show']);
 
     // Milestones (full CRUD)
-    Route::resource('milestones', StudentProjectMilestoneController::class);
+    Route::resource('milestones', StudentProjectMilestoneController::class)->only(['index', 'show', 'edit', 'update']);
 
     // Presentations (full CRUD)
     Route::resource('presentations', StudentPresentationController::class);

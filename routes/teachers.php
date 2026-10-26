@@ -24,7 +24,7 @@ Route::middleware(['auth', 'verified', 'role:teacher'])
         Route::resource('meetings', TeacherMeetingController::class);
 
         // ---------- Teacher: manage milestones for assigned projects (no create / store) ----------
-        Route::resource('milestones', TeacherProjectMilestoneController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
+        Route::resource('milestones', TeacherProjectMilestoneController::class);
 
         Route::resource('presentations', TeacherPresentationController::class)->only(['index', 'show', 'edit', 'update']);
 

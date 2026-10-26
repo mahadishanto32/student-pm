@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('teachers.layouts.app')
 
 @section('title', 'Create Milestone')
 
@@ -25,7 +25,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('student.milestones.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('teachers.milestones.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     <div class="row" style="padding: 15px;">
@@ -62,9 +62,22 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Status</label>
-                                <input type="text" class="form-control" value="Pending" disabled>
-                                <small class="text-muted">Status is set by the supervisor.</small>
+                                <label>Status <span class="text-danger">*</span></label>
+                                <select name="status" class="form-control" required>
+                                    @foreach (['pending', 'need_correction', 'completed', 'rejected'] as $s)
+                                        <option value="{{ $s }}" @selected(old('status', 'pending') === $s)>
+                                            {{ ucwords(str_replace('_', ' ', $s)) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Supervisor Note</label>
+                                <textarea name="supervisor_note" class="form-control" rows="3"
+                                        placeholder="Optional note for the students">{{ old('supervisor_note') }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -115,7 +128,7 @@
 
                     <div class="row" style="padding: 0 15px 15px 15px;">
                         <div class="col-md-12 text-right">
-                            <a href="{{ route('student.milestones.index') }}" class="btn btn-default">Cancel</a>
+                            <a href="{{ route('teachers.milestones.index') }}" class="btn btn-default">Cancel</a>
                             <button type="submit" class="btn btn-primary">Save Milestone</button>
                         </div>
                     </div>

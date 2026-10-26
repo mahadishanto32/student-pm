@@ -3,24 +3,20 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\MilestoneTask;
 use App\Models\Project;
 use App\Models\ProjectMilestone;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Validation\Rule;
 
 class StudentProjectMilestoneController extends Controller
 {
-    /**
-     * Allowed document mime extensions.
-     */
     protected array $allowedMimes = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx'];
 
     /**
-     * Only return projects the current student is assigned to.
+     * Only projects the current student is assigned to.
      */
     protected function assignedProjectIds(): array
     {
@@ -54,67 +50,6 @@ class StudentProjectMilestoneController extends Controller
             ->get();
 
         return view('student.milestones.index', compact('milestones', 'projects'));
-    }
-
-    /**
-     * Show create form.
-     */
-    public function create(Request $request)
-    {
-        $projects = Project::whereIn('id', $this->assignedProjectIds())
-            ->orderBy('group_number')
-            ->get();
-
-        if ($projects->isEmpty()) {
-            return redirect()
-                ->route('student.milestones.index')
-                ->with('error', 'You are not assigned to any project.');
-        }
-
-        $selectedProjectId = $request->get('project_id');
-
-        return view('student.milestones.create', compact('projects', 'selectedProjectId'));
-    }
-
-    /**
-     * Store a milestone + its tasks.
-     */
-    public function store(Request $request)
-    {
-        $projectIds = $this->assignedProjectIds();
-
-        $validated = $request->validate([
-            'project_id'              => ['required', Rule::in($projectIds)],
-            'title'                   => ['required', 'string', 'max:255'],
-            'tentative_time'          => ['nullable', 'date'],
-
-            'tasks'                   => ['required', 'array', 'min:1'],
-            'tasks.*.key_points'      => ['required', 'string', 'max:1000'],
-            'tasks.*.document'        => ['nullable', 'file', 'mimes:' . implode(',', $this->allowedMimes), 'max:5120'],
-        ]);
-
-        DB::beginTransaction();
-
-        try {
-            $milestone = ProjectMilestone::create([
-                'project_id'     => $validated['project_id'],
-                'title'          => $validated['title'],
-                'tentative_time' => $validated['tentative_time'] ?? null,
-                'status'         => ProjectMilestone::STATUS_PENDING,
-                'done_by'        => Auth::id(),
-            ]);
-
-            $this->saveTasks($milestone, $request->input('tasks', []), $request->file('tasks', []));
-
-            DB::commit();
-
-            return redirect()
-                ->route('student.milestones.show', $milestone->id)
-                ->with('success', 'Milestone created successfully.');
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            return back()->withInput()->with('error', 'Failed to create milestone: ' . $e->getMessage());
-        }
     }
 
     /**
@@ -153,6 +88,7 @@ class StudentProjectMilestoneController extends Controller
 
     /**
      * Update a milestone + its tasks.
+     * Students cannot change project, status or supervisor_note.
      */
     public function update(Request $request, string $id)
     {
@@ -166,15 +102,12 @@ class StudentProjectMilestoneController extends Controller
                 ->with('error', 'Completed milestones cannot be edited.');
         }
 
-        $projectIds = $this->assignedProjectIds();
-
         $validated = $request->validate([
-            'project_id'              => ['required', Rule::in($projectIds)],
             'title'                   => ['required', 'string', 'max:255'],
             'tentative_time'          => ['nullable', 'date'],
 
             'tasks'                   => ['required', 'array', 'min:1'],
-            'tasks.*.id'              => ['nullable', 'integer', 'exists:milestone_tasks,id'],
+            'tasks.*.id'              => ['nullable', 'integer'],
             'tasks.*.key_points'      => ['required', 'string', 'max:1000'],
             'tasks.*.document'        => ['nullable', 'file', 'mimes:' . implode(',', $this->allowedMimes), 'max:5120'],
             'tasks.*.remove_document' => ['nullable', 'boolean'],
@@ -183,9 +116,7 @@ class StudentProjectMilestoneController extends Controller
         DB::beginTransaction();
 
         try {
-            // NOTE: status and supervisor_note are intentionally NOT updated here.
             $milestone->update([
-                'project_id'     => $validated['project_id'],
                 'title'          => $validated['title'],
                 'tentative_time' => $validated['tentative_time'] ?? null,
             ]);
@@ -203,85 +134,35 @@ class StudentProjectMilestoneController extends Controller
         }
     }
 
-    /**
-     * Delete a milestone (and its tasks + documents).
-     */
-    public function destroy(string $id)
-    {
-        $milestone = ProjectMilestone::with('tasks')
-            ->whereIn('project_id', $this->assignedProjectIds())
-            ->findOrFail($id);
-
-        DB::beginTransaction();
-
-        try {
-            foreach ($milestone->tasks as $task) {
-                $this->deleteDocument($task->document);
-            }
-
-            $milestone->tasks()->delete();
-            $milestone->delete();
-
-            DB::commit();
-
-            return redirect()
-                ->route('student.milestones.index')
-                ->with('success', 'Milestone deleted successfully.');
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            return back()->with('error', 'Failed to delete milestone: ' . $e->getMessage());
-        }
-    }
-
     /* ------------------------------------------------------------------ */
     /* Helpers                                                             */
     /* ------------------------------------------------------------------ */
 
     /**
-     * Persist tasks for a newly created milestone.
-     */
-    protected function saveTasks(ProjectMilestone $milestone, array $rows, array $files): void
-    {
-        foreach ($rows as $index => $row) {
-            $documentPath = null;
-
-            if (isset($files[$index]['document']) && $files[$index]['document'] instanceof \Illuminate\Http\UploadedFile) {
-                $documentPath = $this->uploadDocument($files[$index]['document']);
-            }
-
-            $milestone->tasks()->create([
-                'key_points' => $row['key_points'],
-                'document'   => $documentPath,
-            ]);
-        }
-    }
-
-    /**
-     * Sync tasks on update: update existing, create new, delete removed.
+     * Sync tasks: update existing, create new, delete removed.
      */
     protected function syncTasks(ProjectMilestone $milestone, Request $request): void
     {
-        $rows       = $request->input('tasks', []);
-        $files      = $request->file('tasks', []);
+        $rows        = $request->input('tasks', []);
+        $files       = $request->file('tasks', []);
         $keptTaskIds = [];
 
         foreach ($rows as $index => $row) {
             $task = null;
 
             if (!empty($row['id'])) {
+                // Scoped to this milestone, so tasks of other milestones can't be touched.
                 $task = $milestone->tasks()->where('id', $row['id'])->first();
             }
 
             $documentPath = $task->document ?? null;
 
-            // Handle explicit removal
             if (!empty($row['remove_document'])) {
                 $this->deleteDocument($documentPath);
                 $documentPath = null;
             }
 
-            // Handle new upload
-            if (isset($files[$index]['document']) && $files[$index]['document'] instanceof \Illuminate\Http\UploadedFile) {
+            if (isset($files[$index]['document']) && $files[$index]['document'] instanceof UploadedFile) {
                 $this->deleteDocument($documentPath);
                 $documentPath = $this->uploadDocument($files[$index]['document']);
             }
@@ -301,7 +182,6 @@ class StudentProjectMilestoneController extends Controller
             }
         }
 
-        // Delete tasks removed from the form
         $removed = $milestone->tasks()->whereNotIn('id', $keptTaskIds)->get();
         foreach ($removed as $task) {
             $this->deleteDocument($task->document);
@@ -309,10 +189,7 @@ class StudentProjectMilestoneController extends Controller
         }
     }
 
-    /**
-     * Save an uploaded document to public/uploads/tasks and return its relative path.
-     */
-    protected function uploadDocument(\Illuminate\Http\UploadedFile $file): string
+    protected function uploadDocument(UploadedFile $file): string
     {
         $folder = public_path('uploads/tasks');
 
@@ -326,9 +203,6 @@ class StudentProjectMilestoneController extends Controller
         return 'uploads/tasks/' . $name;
     }
 
-    /**
-     * Delete a document from disk (safely).
-     */
     protected function deleteDocument(?string $relativePath): void
     {
         if (!$relativePath) {

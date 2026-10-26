@@ -25,12 +25,7 @@
                 <div class="row" style="padding: 15px 15px 0 15px;">
                     <div class="col-md-6">
                         <h4>Milestones</h4>
-                    </div>
-                    <div class="col-md-6 text-right">
-                        <a href="{{ route('student.milestones.create') }}" class="btn btn-success">
-                            <i class="fa fa-plus"></i> New Milestone
-                        </a>
-                    </div>
+                    </div>                    
                 </div>
 
                 <div class="row" style="padding: 15px;">
@@ -127,15 +122,6 @@
                                                 <i class="fa fa-pencil"></i>
                                             </a>
                                         @endif
-                                        <form action="{{ route('student.milestones.destroy', $milestone->id) }}"
-                                              method="POST" style="display:inline-block;"
-                                              onsubmit="return confirm('Delete this milestone and all its tasks?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-sm btn-danger" title="Delete">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </form>
                                     </td>
                                 </tr>
                             @empty

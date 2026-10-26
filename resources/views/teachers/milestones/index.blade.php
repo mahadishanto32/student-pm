@@ -23,8 +23,21 @@
                 @endif
 
                 <div class="row" style="padding: 15px 15px 0 15px;">
-                    <div class="col-md-12">
-                        <h4>Milestones of My Assigned Projects</h4>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <h4 style="margin-top: 7px;">Milestones of My Assigned Projects</h4>
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-xs-12 text-right">
+                        @if ($projects->isNotEmpty())
+                            <a href="{{ route('teachers.milestones.create', request()->filled('project_id') ? ['project_id' => request('project_id')] : []) }}"
+                            class="btn btn-success">
+                                <i class="fa fa-plus"></i> New Milestone
+                            </a>
+                        @else
+                            <button type="button" class="btn btn-success" disabled
+                                    title="You are not assigned to any project">
+                                <i class="fa fa-plus"></i> New Milestone
+                            </button>
+                        @endif
                     </div>
                 </div>
 
