@@ -97,9 +97,6 @@
                     <li class="{{ request()->routeIs('admin.milestones.index') ? 'active' : '' }}">
                         <a href="{{ route('admin.milestones.index') }}">&gt; <span>All Milestones</span></a>
                     </li>
-                    <li class="{{ request()->routeIs('admin.milestones.create') ? 'active' : '' }}">
-                        <a href="{{ route('admin.milestones.create') }}">&gt; <span>Add New Milestone</span></a>
-                    </li>
                 </ul>
             </li>
 

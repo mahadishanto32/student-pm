@@ -51,13 +51,13 @@
                 </div>
 
                 <div class="row" style="padding: 0 15px 15px 15px;">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label>Tentative Time</label>
                             <p>{{ $milestone->tentative_time?->format('d M Y, h:i A') ?? '—' }}</p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label>Status</label>
                             <p>
@@ -76,10 +76,16 @@
                             </p>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label>Done By</label>
                             <p>{{ $milestone->doneBy->name ?? '—' }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Marks</label>
+                            <p>{{ $milestone->marks ?? '—' }}</p>
                         </div>
                     </div>
 

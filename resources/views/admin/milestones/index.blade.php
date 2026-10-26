@@ -26,11 +26,6 @@
                     <div class="col-md-6">
                         <h4>All Milestones</h4>
                     </div>
-                    <div class="col-md-6 text-right">
-                        <a href="{{ route('admin.milestones.create') }}" class="btn btn-success">
-                            <i class="fa fa-plus"></i> New Milestone
-                        </a>
-                    </div>
                 </div>
 
                 <div class="row" style="padding: 15px;">
@@ -82,6 +77,7 @@
                                 <th>Tentative Time</th>
                                 <th>Tasks</th>
                                 <th>Status</th>
+                                <th>Marks</th>
                                 <th>Done By</th>
                                 <th>Supervisor Note</th>
                                 <th style="width: 200px;">Actions</th>
@@ -116,6 +112,7 @@
                                             {{ ucwords(str_replace('_', ' ', $milestone->status)) }}
                                         </span>
                                     </td>
+                                    <td>{{ $milestone->marks ?? '—' }}</td>
                                     <td>{{ $milestone->doneBy->name ?? '—' }}</td>
                                     <td>
                                         @if ($milestone->supervisor_note)
@@ -146,7 +143,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center">No milestones found.</td>
+                                    <td colspan="10" class="text-center">No milestones found.</td>
                                 </tr>
                             @endforelse
                         </tbody>

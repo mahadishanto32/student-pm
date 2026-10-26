@@ -92,6 +92,7 @@ class TeacherProjectMilestoneController extends Controller
             'title'                   => ['required', 'string', 'max:255'],
             'tentative_time'          => ['nullable', 'date'],
             'status'                  => ['nullable', Rule::in($this->statuses())],
+            'marks'                   => ['nullable', 'integer', 'between:0,10'],
             'supervisor_note'         => ['nullable', 'string', 'max:5000'],
 
             'tasks'                   => ['required', 'array', 'min:1'],
@@ -107,6 +108,7 @@ class TeacherProjectMilestoneController extends Controller
                 'title'           => $validated['title'],
                 'tentative_time'  => $validated['tentative_time'] ?? null,
                 'status'          => $validated['status'] ?? ProjectMilestone::STATUS_PENDING,
+                'marks'           => $validated['marks'] ?? null,
                 'supervisor_note' => $validated['supervisor_note'] ?? null,
                 'done_by'         => Auth::id(),
             ]);
@@ -153,48 +155,30 @@ class TeacherProjectMilestoneController extends Controller
     }
 
     /**
-     * Update everything: milestone fields, status, supervisor note, tasks.
+     * Review a milestone: status, marks and supervisor note only.
      */
     public function update(Request $request, string $id)
     {
-        $milestone = ProjectMilestone::with('tasks')
-            ->whereIn('project_id', $this->assignedProjectIds())
+        $milestone = ProjectMilestone::whereIn('project_id', $this->assignedProjectIds())
             ->findOrFail($id);
 
         $validated = $request->validate([
-            'project_id'              => ['required', Rule::in($this->assignedProjectIds())],
-            'title'                   => ['required', 'string', 'max:255'],
-            'tentative_time'          => ['nullable', 'date'],
-            'status'                  => ['required', Rule::in($this->statuses())],
-            'supervisor_note'         => ['nullable', 'string', 'max:5000'],
-
-            'tasks'                   => ['required', 'array', 'min:1'],
-            'tasks.*.id'              => ['nullable', 'integer'],
-            'tasks.*.key_points'      => ['required', 'string', 'max:1000'],
-            'tasks.*.document'        => ['nullable', 'file', 'mimes:' . implode(',', $this->allowedMimes), 'max:5120'],
-            'tasks.*.remove_document' => ['nullable', 'boolean'],
+            'status'          => ['required', Rule::in($this->statuses())],
+            'marks'           => ['nullable', 'integer', 'between:0,10'],
+            'supervisor_note' => ['nullable', 'string', 'max:5000'],
         ]);
-
-        DB::beginTransaction();
 
         try {
             $milestone->update([
-                'project_id'      => $validated['project_id'],
-                'title'           => $validated['title'],
-                'tentative_time'  => $validated['tentative_time'] ?? null,
                 'status'          => $validated['status'],
+                'marks'           => $validated['marks'] ?? null,
                 'supervisor_note' => $validated['supervisor_note'] ?? null,
             ]);
 
-            $this->syncTasks($milestone, $request);
-
-            DB::commit();
-
             return redirect()
                 ->route('teachers.milestones.show', $milestone->id)
-                ->with('success', 'Milestone updated successfully.');
+                ->with('success', 'Milestone reviewed successfully.');
         } catch (\Throwable $e) {
-            DB::rollBack();
             return back()->withInput()->with('error', 'Failed to update milestone: ' . $e->getMessage());
         }
     }

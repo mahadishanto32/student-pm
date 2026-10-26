@@ -79,6 +79,9 @@
                     <li class="{{ request()->routeIs('teachers.milestones.index') ? 'active' : '' }}">
                         <a href="{{ route('teachers.milestones.index') }}">&gt; <span>All Project Milestones</span></a>
                     </li>
+                    <li class="{{ request()->routeIs('teachers.milestones.create') ? 'active' : '' }}">
+                        <a href="{{ route('teachers.milestones.create') }}">&gt; <span>Add New Milestone</span></a>
+                    </li>
                 </ul>
             </li>
 

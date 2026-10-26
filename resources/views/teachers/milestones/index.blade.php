@@ -90,6 +90,7 @@
                                 <th>Tentative Time</th>
                                 <th>Tasks</th>
                                 <th>Status</th>
+                                <th>Marks</th>
                                 <th>Done By</th>
                                 <th>Supervisor Note</th>
                                 <th style="width: 170px;">Actions</th>
@@ -124,6 +125,7 @@
                                             {{ ucwords(str_replace('_', ' ', $milestone->status)) }}
                                         </span>
                                     </td>
+                                    <td>{{ $milestone->marks ?? '—' }}</td>
                                     <td>{{ $milestone->doneBy->name ?? '—' }}</td>
                                     <td>
                                         @if ($milestone->supervisor_note)

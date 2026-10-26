@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 11, 2026 at 07:45 PM
+-- Generation Time: Oct 26, 2026 at 07:34 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -128,7 +128,17 @@ INSERT INTO `marks_distributions` (`project_marks_id`, `topic`, `given_marks`, `
 (1, 'Project Book', 18.00, 20.00, '2026-10-07 12:31:24', '2026-10-07 12:31:24'),
 (1, 'Implementation and Result', 14.00, 20.00, '2026-10-07 12:31:24', '2026-10-07 12:31:24'),
 (1, 'Presentation', 19.00, 20.00, '2026-10-07 12:31:24', '2026-10-07 12:31:24'),
-(1, 'Video Resume', 15.00, 20.00, '2026-10-07 12:31:24', '2026-10-07 12:31:24');
+(1, 'Video Resume', 15.00, 20.00, '2026-10-07 12:31:24', '2026-10-07 12:31:24'),
+(2, 'Milestones', 15.00, 20.00, '2026-10-24 11:55:57', '2026-10-24 11:55:57'),
+(2, 'Project Book', 16.00, 20.00, '2026-10-24 11:55:57', '2026-10-24 11:55:57'),
+(2, 'Implementation and Result', 18.00, 20.00, '2026-10-24 11:55:57', '2026-10-24 11:55:57'),
+(2, 'Presentation', 20.00, 20.00, '2026-10-24 11:55:57', '2026-10-24 11:55:57'),
+(2, 'Video Resume', 17.00, 20.00, '2026-10-24 11:55:57', '2026-10-24 11:55:57'),
+(3, 'Milestones', 16.00, 20.00, '2026-10-24 11:57:09', '2026-10-24 11:57:09'),
+(3, 'Project Book', 18.00, 20.00, '2026-10-24 11:57:09', '2026-10-24 11:57:09'),
+(3, 'Implementation and Result', 16.00, 20.00, '2026-10-24 11:57:09', '2026-10-24 11:57:09'),
+(3, 'Presentation', 17.00, 20.00, '2026-10-24 11:57:09', '2026-10-24 11:57:09'),
+(3, 'Video Resume', 20.00, 20.00, '2026-10-24 11:57:09', '2026-10-24 11:57:09');
 
 -- --------------------------------------------------------
 
@@ -156,7 +166,8 @@ CREATE TABLE `meetings` (
 
 INSERT INTO `meetings` (`id`, `project_id`, `meeting_date_and_time`, `title`, `description`, `supervisor_note`, `platform`, `type`, `tentative_next_meeting_date_and_time`, `created_at`, `updated_at`) VALUES
 (1, 1, '2026-09-23 14:00:00', 'Indtroduction Meeting', 'Test', 'ss', 'physical', 'present', '2026-09-26 12:00:00', '2026-09-23 00:07:46', '2026-09-23 00:07:46'),
-(2, 4, '2026-10-07 21:51:00', 'dewdfwe', 'ewd', 'dede', 'physical', 'present', '2026-10-24 21:51:00', '2026-10-07 09:51:15', '2026-10-07 09:51:15');
+(2, 4, '2026-10-07 21:51:00', 'dewdfwe', 'ewd', 'dede', 'physical', 'present', '2026-10-24 21:51:00', '2026-10-07 09:51:15', '2026-10-07 09:51:15'),
+(3, 5, '2026-10-24 12:00:00', 'Introduction Meeting', 'wqdwesdwd', 'wdwed', 'physical', 'upcoming', NULL, '2026-10-24 11:48:12', '2026-10-24 11:48:12');
 
 -- --------------------------------------------------------
 
@@ -192,7 +203,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (15, '2026_10_06_152436_create_video_resumes_table', 11),
 (16, '2026_10_07_153207_create_notifications_table', 12),
 (17, '2026_10_07_162805_create_project_marks_table', 13),
-(18, '2026_10_07_162836_create_marks_distributions_table', 13);
+(18, '2026_10_07_162836_create_marks_distributions_table', 13),
+(19, '2026_10_26_170555_add_marks_to_project_milestones_table', 14);
 
 -- --------------------------------------------------------
 
@@ -215,7 +227,10 @@ CREATE TABLE `milestone_tasks` (
 
 INSERT INTO `milestone_tasks` (`id`, `project_milestone_id`, `key_points`, `document`, `created_at`, `updated_at`) VALUES
 (1, 1, 'vdsvd', 'uploads/tasks/1790163788_6ab3bb4c303d5.jpg', '2026-09-23 05:43:08', '2026-09-23 05:43:08'),
-(2, 1, 'test', 'uploads/tasks/1790163788_6ab3bb4c373a3.docx', '2026-09-23 05:43:08', '2026-09-23 05:43:08');
+(2, 1, 'test', 'uploads/tasks/1790163788_6ab3bb4c373a3.docx', '2026-09-23 05:43:08', '2026-09-23 05:43:08'),
+(3, 2, 'wqdwqddwd', 'uploads/tasks/1792864247_6adceff756c4e.webp', '2026-10-24 11:50:47', '2026-10-24 11:50:47'),
+(4, 2, 'dwqdwqd', NULL, '2026-10-24 11:50:47', '2026-10-24 11:50:47'),
+(5, 3, 'dwdwsd', NULL, '2026-10-26 11:23:14', '2026-10-26 11:23:14');
 
 -- --------------------------------------------------------
 
@@ -240,8 +255,15 @@ CREATE TABLE `notifications` (
 
 INSERT INTO `notifications` (`id`, `type`, `notifiable_type`, `notifiable_id`, `data`, `read_at`, `created_at`, `updated_at`) VALUES
 ('08aef010-e6aa-4da1-b806-1136ab269d9f', 'App\\Notifications\\MeetingCreatedNotification', 'App\\Models\\User', 5, '{\"type\":\"meeting_created\",\"title\":\"New meeting\",\"message\":\"Meeting \\\"dewdfwe\\\" scheduled for 07 Oct 2026, 09:51 PM in project \\\"ewddfcef\\\".\",\"project_id\":4,\"meeting_id\":2}', NULL, '2026-10-07 09:51:16', '2026-10-07 09:51:16'),
+('187fe9b3-fe66-4c85-93ea-bde462312aee', 'App\\Notifications\\MeetingCreatedNotification', 'App\\Models\\User', 9, '{\"type\":\"meeting_created\",\"title\":\"New meeting\",\"message\":\"Meeting \\\"Introduction Meeting\\\" scheduled for 24 Oct 2026, 12:00 PM in project \\\"Attendance Management System\\\".\",\"project_id\":5,\"meeting_id\":3}', NULL, '2026-10-24 11:48:13', '2026-10-24 11:48:13'),
+('2ccdcb2f-b8d1-468b-ae45-7ae606668b2f', 'App\\Notifications\\ProjectCreatedNotification', 'App\\Models\\User', 9, '{\"type\":\"project_created\",\"title\":\"New project\",\"message\":\"Project \\\"Attendance Management System\\\" has been created.\",\"project_id\":5}', NULL, '2026-10-24 11:35:14', '2026-10-24 11:35:14'),
+('2e2d163d-e476-49b4-b4fa-7147a5cad964', 'App\\Notifications\\ProjectCreatedNotification', 'App\\Models\\User', 6, '{\"type\":\"project_created\",\"title\":\"New project\",\"message\":\"Project \\\"Attendance Management System\\\" has been created.\",\"project_id\":5}', NULL, '2026-10-24 11:35:14', '2026-10-24 11:35:14'),
 ('425efeb5-de15-477c-ab8b-b58a59708c94', 'App\\Notifications\\MeetingCreatedNotification', 'App\\Models\\User', 3, '{\"type\":\"meeting_created\",\"title\":\"New meeting\",\"message\":\"Meeting \\\"dewdfwe\\\" scheduled for 07 Oct 2026, 09:51 PM in project \\\"ewddfcef\\\".\",\"project_id\":4,\"meeting_id\":2}', NULL, '2026-10-07 09:51:16', '2026-10-07 09:51:16'),
 ('4de704cc-8076-4330-a84c-d9c9dafad8a3', 'App\\Notifications\\ProjectCreatedNotification', 'App\\Models\\User', 5, '{\"type\":\"project_created\",\"title\":\"New project\",\"message\":\"Project \\\"ewddfcef\\\" has been created.\",\"project_id\":4}', NULL, '2026-10-07 09:48:32', '2026-10-07 09:48:32'),
+('5bb58ea4-09bb-4e37-b572-59fd989ea1c7', 'App\\Notifications\\MeetingCreatedNotification', 'App\\Models\\User', 6, '{\"type\":\"meeting_created\",\"title\":\"New meeting\",\"message\":\"Meeting \\\"Introduction Meeting\\\" scheduled for 24 Oct 2026, 12:00 PM in project \\\"Attendance Management System\\\".\",\"project_id\":5,\"meeting_id\":3}', NULL, '2026-10-24 11:48:13', '2026-10-24 11:48:13'),
+('5df58e49-aeed-40eb-836d-076f645f957b', 'App\\Notifications\\MeetingCreatedNotification', 'App\\Models\\User', 8, '{\"type\":\"meeting_created\",\"title\":\"New meeting\",\"message\":\"Meeting \\\"Introduction Meeting\\\" scheduled for 24 Oct 2026, 12:00 PM in project \\\"Attendance Management System\\\".\",\"project_id\":5,\"meeting_id\":3}', NULL, '2026-10-24 11:48:13', '2026-10-24 11:48:13'),
+('5e2476e2-32c1-4940-9691-57aaff1bd84e', 'App\\Notifications\\ProjectCreatedNotification', 'App\\Models\\User', 2, '{\"type\":\"project_created\",\"title\":\"New project\",\"message\":\"Project \\\"Attendance Management System\\\" has been created.\",\"project_id\":5}', '2026-10-24 11:37:39', '2026-10-24 11:35:14', '2026-10-24 11:37:39'),
+('93329087-990e-4ff6-a5ef-b62c1a082202', 'App\\Notifications\\ProjectAssignedNotification', 'App\\Models\\User', 8, '{\"type\":\"project_assigned\",\"title\":\"Project assigned to you\",\"message\":\"You have been assigned to project \\\"Attendance Management System\\\".\",\"project_id\":5}', '2026-10-24 11:39:33', '2026-10-24 11:38:48', '2026-10-24 11:39:33'),
 ('c42b26b9-5c1e-4abd-b834-7a5424fcd2aa', 'App\\Notifications\\ProjectCreatedNotification', 'App\\Models\\User', 2, '{\"type\":\"project_created\",\"title\":\"New project\",\"message\":\"Project \\\"ewddfcef\\\" has been created.\",\"project_id\":4}', NULL, '2026-10-07 09:48:32', '2026-10-07 09:48:32'),
 ('db2910e5-1a3c-4056-bdcd-d72198c4e7fb', 'App\\Notifications\\ProjectCreatedNotification', 'App\\Models\\User', 6, '{\"type\":\"project_created\",\"title\":\"New project\",\"message\":\"Project \\\"ewddfcef\\\" has been created.\",\"project_id\":4}', NULL, '2026-10-07 09:48:32', '2026-10-07 09:48:32'),
 ('e2778e57-e597-4c2d-aa69-be1fa9c27061', 'App\\Notifications\\MeetingCreatedNotification', 'App\\Models\\User', 6, '{\"type\":\"meeting_created\",\"title\":\"New meeting\",\"message\":\"Meeting \\\"dewdfwe\\\" scheduled for 07 Oct 2026, 09:51 PM in project \\\"ewddfcef\\\".\",\"project_id\":4,\"meeting_id\":2}', NULL, '2026-10-07 09:51:16', '2026-10-07 09:51:16');
@@ -284,7 +306,8 @@ CREATE TABLE `presentations` (
 --
 
 INSERT INTO `presentations` (`id`, `project_id`, `title`, `done_by`, `key_points`, `supervisor_feedback`, `date_of_presentation`, `marks`, `presentation_file`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Test Presentation', 6, 'scdsefdc', NULL, '2026-09-26', NULL, 'uploads/presentations/1790434883_6ab7de43ea194.pdf', 'pending', '2026-09-26 09:01:23', '2026-09-26 09:01:23');
+(1, 1, 'Test Presentation', 6, 'scdsefdc', NULL, '2026-09-26', NULL, 'uploads/presentations/1790434883_6ab7de43ea194.pdf', 'pending', '2026-09-26 09:01:23', '2026-09-26 09:01:23'),
+(2, 5, 'saxdwsd', 9, 'cxsacaesd', NULL, '2026-10-24', NULL, 'uploads/presentations/1792864423_6adcf0a720eb2.docx', 'pending', '2026-10-24 11:53:43', '2026-10-24 11:53:43');
 
 -- --------------------------------------------------------
 
@@ -314,7 +337,8 @@ INSERT INTO `projects` (`id`, `group_number`, `project_name`, `project_topic`, `
 (1, '01', 'Student Project Management', 'PM', 'Student Project Management System', 8, '2026-09-22', '2026-12-11', 'pending', '2026-09-22 03:01:38', '2026-09-22 03:52:22'),
 (2, '02', 'Test Project', NULL, NULL, 3, '2026-09-21', NULL, 'pending', '2026-09-22 03:20:19', '2026-10-06 09:46:49'),
 (3, '04', 'IOT Project', 'IOT', 'dwqdwd', 3, '2026-10-07', '2026-10-22', 'pending', '2026-10-07 01:16:19', '2026-10-07 01:27:45'),
-(4, '05', 'ewddfcef', 'ewfcew', 'ffewfef', 3, '2026-10-21', '2026-10-29', 'pending', '2026-10-07 09:48:28', '2026-10-07 09:50:02');
+(4, '05', 'ewddfcef', 'ewfcew', 'ffewfef', 3, '2026-10-21', '2026-10-29', 'pending', '2026-10-07 09:48:28', '2026-10-07 09:50:02'),
+(5, '10', 'Attendance Management System', 'Web Based', 'Attendance Management System', 8, '2026-10-25', '2026-12-24', 'working', '2026-10-24 11:35:11', '2026-10-24 11:40:11');
 
 -- --------------------------------------------------------
 
@@ -335,7 +359,8 @@ CREATE TABLE `project_books` (
 --
 
 INSERT INTO `project_books` (`id`, `project_id`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'pending', '2026-09-22 07:16:27', '2026-09-22 07:16:27');
+(1, 1, 'pending', '2026-09-22 07:16:27', '2026-09-22 07:16:27'),
+(2, 5, 'pending', '2026-10-24 11:45:07', '2026-10-24 11:45:07');
 
 -- --------------------------------------------------------
 
@@ -359,7 +384,10 @@ CREATE TABLE `project_book_chapters` (
 
 INSERT INTO `project_book_chapters` (`id`, `project_book_id`, `chapter_no`, `chapter_title`, `chapter_description`, `created_at`, `updated_at`) VALUES
 (2, 1, 1, 'Introduction', 'Intro', '2026-09-22 07:17:57', '2026-09-22 07:17:57'),
-(3, 1, 2, 'Literature Review', 'Literature Review Chapter', '2026-09-22 07:17:57', '2026-09-22 07:17:57');
+(3, 1, 2, 'Literature Review', 'Literature Review Chapter', '2026-09-22 07:17:57', '2026-09-22 07:17:57'),
+(6, 2, 1, 'Introduction', 'Test 1', '2026-10-24 11:46:25', '2026-10-24 11:46:25'),
+(7, 2, 2, 'Literature Review', 'wed', '2026-10-24 11:46:25', '2026-10-24 11:46:25'),
+(8, 2, 3, 'Methodology', 'wsdwd', '2026-10-24 11:46:25', '2026-10-24 11:46:25');
 
 -- --------------------------------------------------------
 
@@ -382,7 +410,9 @@ CREATE TABLE `project_marks` (
 --
 
 INSERT INTO `project_marks` (`id`, `project_id`, `supervisor_id`, `student_id`, `remarks`, `created_at`, `updated_at`) VALUES
-(1, 2, 3, 4, 'aa', '2026-10-07 12:31:24', '2026-10-07 12:31:24');
+(1, 2, 3, 4, 'aa', '2026-10-07 12:31:24', '2026-10-07 12:31:24'),
+(2, 5, 8, 9, 'dwsdwqd', '2026-10-24 11:55:57', '2026-10-24 11:55:57'),
+(3, 5, 8, 6, NULL, '2026-10-24 11:57:09', '2026-10-24 11:57:09');
 
 -- --------------------------------------------------------
 
@@ -397,6 +427,7 @@ CREATE TABLE `project_milestones` (
   `tentative_time` timestamp NULL DEFAULT NULL,
   `supervisor_note` text DEFAULT NULL,
   `status` enum('pending','need_correction','completed','rejected') NOT NULL DEFAULT 'pending',
+  `marks` int(10) UNSIGNED DEFAULT NULL,
   `done_by` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -406,8 +437,10 @@ CREATE TABLE `project_milestones` (
 -- Dumping data for table `project_milestones`
 --
 
-INSERT INTO `project_milestones` (`id`, `project_id`, `title`, `tentative_time`, `supervisor_note`, `status`, `done_by`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Project Setup', '2026-09-24 11:41:00', 'Good', 'pending', 6, '2026-09-23 05:43:08', '2026-09-23 05:53:19');
+INSERT INTO `project_milestones` (`id`, `project_id`, `title`, `tentative_time`, `supervisor_note`, `status`, `marks`, `done_by`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Project Setup', '2026-09-24 11:41:00', 'Good', 'pending', 8, 6, '2026-09-23 05:43:08', '2026-10-26 11:21:12'),
+(2, 5, 'Frontend Complete', '2026-10-29 05:50:00', 'hushduwhd', 'completed', NULL, 9, '2026-10-24 11:50:47', '2026-10-24 11:52:02'),
+(3, 5, 'wefewsf', '2026-10-23 17:26:00', 'dwsdw', 'pending', NULL, 8, '2026-10-26 11:23:13', '2026-10-26 11:23:13');
 
 -- --------------------------------------------------------
 
@@ -435,7 +468,9 @@ INSERT INTO `project_user` (`id`, `project_id`, `user_id`, `created_at`, `update
 (6, 3, 7, '2026-10-07 01:16:20', '2026-10-07 01:16:20'),
 (7, 3, 6, '2026-10-07 01:16:20', '2026-10-07 01:16:20'),
 (8, 4, 5, '2026-10-07 09:48:28', '2026-10-07 09:48:28'),
-(9, 4, 6, '2026-10-07 09:48:28', '2026-10-07 09:48:28');
+(9, 4, 6, '2026-10-07 09:48:28', '2026-10-07 09:48:28'),
+(10, 5, 6, '2026-10-24 11:35:11', '2026-10-24 11:35:11'),
+(11, 5, 9, '2026-10-24 11:35:11', '2026-10-24 11:35:11');
 
 -- --------------------------------------------------------
 
@@ -457,8 +492,8 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('EatDB6Wnut1lutpHoMfI9IeU5uzSf2ysmJKw0zwy', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoibk54MVBZMERVOWRLUEhVSFhZMWNWT2xiQzVHTG42R2E2empHRXNaWCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9wcm9qZWN0LW1hcmtzLzEiO3M6NToicm91dGUiO3M6MjQ6ImFkbWluLnByb2plY3QtbWFya3Muc2hvdyI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7fQ==', 1791398898),
-('WHEaS7MhUeDhtSHtjbFLf7oKudQGkYzLWzqKC7t2', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiM1QyVTFVRVNHaUphMGVnRlM1bDE0Y3FiTWxCYVlza0MzczJ6YUU0RyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9kYXNoYm9hcmQiO3M6NToicm91dGUiO3M6MTU6ImFkbWluLmRhc2hib2FyZCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7fQ==', 1791740165);
+('flO3x8ViOvXxx5sYMCxmid3OMfdKN2PNJO8scFVy', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoidFFOOGpENG11R0loeUdLZ2xrajgwd0hpVUxMczVZNVM5TFlYUVp3bSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9kYXNoYm9hcmQiO3M6NToicm91dGUiO3M6MTU6ImFkbWluLmRhc2hib2FyZCI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7fQ==', 1793039512),
+('OH9g7LHipo0jZmPwF1bIqwyYHZxiRwKErVbW1znA', 6, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiOXB5TUcxSVpCOTRGb3Y2OE50eVRqT2NiWDd5M1BZWHVuRnUwTkdUNSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9kYXNoYm9hcmQiO3M6NToicm91dGUiO3M6OToiZGFzaGJvYXJkIjt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Njt9', 1792864677);
 
 -- --------------------------------------------------------
 
@@ -489,7 +524,8 @@ INSERT INTO `users` (`id`, `name`, `email`, `role`, `email_verified_at`, `passwo
 (5, 'Student 2', 'student2@spms.com', 'student', '2026-09-21 10:17:13', '$2y$12$jpuBy/.9sp/Ac2nPnA.qu.Ck8S0K9/QvmUoayr9jFssqYa4GQomVS', NULL, '2026-09-21 10:16:39', '2026-09-21 10:17:13'),
 (6, 'Sweety', 'sweety@spms.com', 'student', '2026-09-22 03:00:38', '$2y$12$DLxKwgP5ETbKqzNdMOFYP./NEhe8JRXxqosAEYInI41Ru8Mxk5Iou', NULL, '2026-09-22 02:58:04', '2026-09-22 03:00:38'),
 (7, 'Tithi', 'tithi@spms.com', 'student', '2026-09-22 03:00:33', '$2y$12$TBZcAwsh4oURA9b2t/tMa.DiyYoK7qDRNBa2haUpUHAyDzvgz3kJS', NULL, '2026-09-22 02:59:22', '2026-09-22 03:00:33'),
-(8, 'Poly Bhowmik', 'poly@spms.com', 'teacher', '2026-09-22 03:00:27', '$2y$12$EC6THEscDFUq1wRcAJQJR.jNkf7GPdtmaDYO1./HEhk6wSJPyCdIS', NULL, '2026-09-22 03:00:15', '2026-09-22 03:00:27');
+(8, 'Poly Bhowmik', 'poly@spms.com', 'teacher', '2026-09-22 03:00:27', '$2y$12$EC6THEscDFUq1wRcAJQJR.jNkf7GPdtmaDYO1./HEhk6wSJPyCdIS', NULL, '2026-09-22 03:00:15', '2026-09-22 03:00:27'),
+(9, 'Sweety Tithi', 'sweetytithi@spms.com', 'student', NULL, '$2y$12$/BnSn3EoSrFnnbmZgVCv7O8a6Za7VdL/fQuSd5weCmwmGhMyzJCF6', NULL, '2026-10-24 11:31:22', '2026-10-24 11:31:22');
 
 -- --------------------------------------------------------
 
@@ -513,7 +549,8 @@ CREATE TABLE `video_resumes` (
 INSERT INTO `video_resumes` (`id`, `project_id`, `title`, `media_file`, `created_at`, `updated_at`) VALUES
 (1, 1, 'fewfew', 'uploads/video-resumes/1791301162_CquLm8Dk.mp4', '2026-10-06 09:39:22', '2026-10-06 09:39:22'),
 (2, 1, 'uguy', 'uploads/video-resumes/1791301219_CAJS4D5L.mp4', '2026-10-06 09:40:19', '2026-10-06 09:40:19'),
-(3, 2, 'ewf', 'uploads/video-resumes/1791301738_vwDLfOE7.mp4', '2026-10-06 09:48:58', '2026-10-06 09:48:58');
+(3, 2, 'ewf', 'uploads/video-resumes/1791301738_vwDLfOE7.mp4', '2026-10-06 09:48:58', '2026-10-06 09:48:58'),
+(4, 5, 'wswq', 'uploads/video-resumes/1792864458_3MFGNxlh.mp4', '2026-10-24 11:54:18', '2026-10-24 11:54:18');
 
 --
 -- Indexes for dumped tables
@@ -689,73 +726,73 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `meetings`
 --
 ALTER TABLE `meetings`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `milestone_tasks`
 --
 ALTER TABLE `milestone_tasks`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `presentations`
 --
 ALTER TABLE `presentations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `project_books`
 --
 ALTER TABLE `project_books`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `project_book_chapters`
 --
 ALTER TABLE `project_book_chapters`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `project_marks`
 --
 ALTER TABLE `project_marks`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `project_milestones`
 --
 ALTER TABLE `project_milestones`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `project_user`
 --
 ALTER TABLE `project_user`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `video_resumes`
 --
 ALTER TABLE `video_resumes`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables

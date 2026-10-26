@@ -127,6 +127,16 @@
                             </div>
                         </div>
 
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Marks (out of 10)</label>
+                                <input type="number" name="marks" class="form-control"
+                                    min="0" max="10" step="1"
+                                    placeholder="0 - 10"
+                                    value="{{ old('marks', $milestone->marks) }}">
+                            </div>
+                        </div>
+
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>Supervisor Note</label>

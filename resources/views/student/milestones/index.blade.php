@@ -25,7 +25,7 @@
                 <div class="row" style="padding: 15px 15px 0 15px;">
                     <div class="col-md-6">
                         <h4>Milestones</h4>
-                    </div>                    
+                    </div>
                 </div>
 
                 <div class="row" style="padding: 15px;">
@@ -77,6 +77,7 @@
                                 <th>Tentative Time</th>
                                 <th>Tasks</th>
                                 <th>Status</th>
+                                <th>Marks</th>
                                 <th>Done By</th>
                                 <th style="width: 170px;">Actions</th>
                             </tr>
@@ -110,6 +111,7 @@
                                             {{ ucwords(str_replace('_', ' ', $milestone->status)) }}
                                         </span>
                                     </td>
+                                    <td>{{ $milestone->marks ?? '—' }}</td>
                                     <td>{{ $milestone->doneBy->name ?? '—' }}</td>
                                     <td>
                                         <a href="{{ route('student.milestones.show', $milestone->id) }}"
@@ -126,7 +128,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center">No milestones found.</td>
+                                    <td colspan="10" class="text-center">No milestones found.</td>
                                 </tr>
                             @endforelse
                         </tbody>

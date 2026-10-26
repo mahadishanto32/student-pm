@@ -60,7 +60,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Status <span class="text-danger">*</span></label>
                                 <select name="status" class="form-control" required>
@@ -70,6 +70,16 @@
                                         </option>
                                     @endforeach
                                 </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Marks (out of 10)</label>
+                                <input type="number" name="marks" class="form-control"
+                                    min="0" max="10" step="1"
+                                    placeholder="0 - 10"
+                                    ">
                             </div>
                         </div>
 
