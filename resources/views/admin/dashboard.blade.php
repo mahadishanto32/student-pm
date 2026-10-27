@@ -74,8 +74,12 @@
                     <div class="dx-plain" style="margin-top:12px"><span>Presentations</span><b>{{ $submissions['presentations'] }}</b></div>
                     <div class="dx-plain"><span>Video resumes</span><b>{{ $submissions['videos'] }}</b></div>
                     <div class="dx-plain"><span>Meetings held or scheduled</span><b>{{ $submissions['meetings'] }}</b></div>
+                    
                 </x-dx.panel>
             </div>
+        </div>
+        <div class="row">
+            <div class="col-12">@include('dashboard.partials.marks-admin')</div>
         </div>
     </div>
 @endsection

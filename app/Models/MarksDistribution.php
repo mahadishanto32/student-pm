@@ -31,9 +31,7 @@ class MarksDistribution extends Model
     public const TOPICS = [
         'Milestones',
         'Project Book',
-        'Implementation and Result',
         'Presentation',
-        'Video Resume',
     ];
 
     public function projectMark(): BelongsTo

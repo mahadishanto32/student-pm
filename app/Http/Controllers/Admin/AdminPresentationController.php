@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Presentation;
 use App\Models\Project;
 use App\Models\User;
+use App\Models\ProjectMark;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
@@ -50,7 +51,24 @@ class AdminPresentationController extends Controller
         // Data for filter dropdowns
         $projects = Project::orderBy('group_number')->get();
 
-        return view('admin.presentations.index', compact('presentations', 'projects'));
+        // project_id => ['marked' => n, 'avg' => x] for the "Presentation" topic
+        $marksSummary = ProjectMark::with(['distributions' => fn ($q) => $q->where('topic', 'Presentation')])
+            ->whereIn('project_id', $presentations->pluck('project_id')->unique())
+            ->get()
+            ->groupBy('project_id')
+            ->map(function ($rows) {
+                $given = $rows
+                    ->map(fn ($m) => $m->distributions->first()?->given_marks)
+                    ->filter(fn ($v) => $v !== null)
+                    ->map(fn ($v) => (float) $v);
+
+                return [
+                    'marked' => $given->count(),
+                    'avg'    => $given->count() ? round($given->avg(), 2) : null,
+                ];
+            });
+
+        return view('admin.presentations.index', compact('presentations', 'projects', 'marksSummary'));
     }
 
     /**
@@ -58,9 +76,22 @@ class AdminPresentationController extends Controller
      */
     public function show(Presentation $presentation)
     {
-        $presentation->load(['project', 'presenter']);
+        $presentation->load(['project.teamMembers', 'presenter']);
 
-        return view('admin.presentations.show', compact('presentation'));
+        $students = $presentation->project->teamMembers
+            ->where('role', 'student')
+            ->values();
+
+        $marks = ProjectMark::with([
+                'distributions' => fn ($q) => $q->where('topic', 'Presentation'),
+                'supervisor',
+            ])
+            ->where('project_id', $presentation->project_id)
+            ->whereIn('student_id', $students->pluck('id'))
+            ->get()
+            ->keyBy('student_id');
+
+        return view('admin.presentations.show', compact('presentation', 'students', 'marks'));
     }
 
     /**
@@ -88,7 +119,6 @@ class AdminPresentationController extends Controller
             'key_points'            => ['nullable', 'string'],
             'supervisor_feedback'   => ['nullable', 'string'],
             'date_of_presentation'  => ['nullable', 'date'],
-            'marks'                 => ['nullable', 'numeric', 'min:0', 'max:100'],
             'status'                => ['nullable', 'in:pending,approved,rejected,completed'],
             'presentation_file'     => ['nullable', 'file', 'max:10240'], // max 10MB
         ]);

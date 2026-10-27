@@ -2,212 +2,174 @@
 
 namespace App\Http\Controllers\Teacher;
 
+use App\Http\Controllers\Concerns\BuildsProjectMarkSheets;
 use App\Http\Controllers\Controller;
-use App\Models\MarksDistribution;
 use App\Models\Project;
 use App\Models\ProjectMark;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class TeacherProjectMarkController extends Controller
 {
-    public function index(Request $request)
+    use BuildsProjectMarkSheets;
+
+    /** Only projects assigned to the logged-in teacher. */
+    protected function findProject(string $id): Project
     {
-        $teacherId = Auth::id();
-
-        $marks = ProjectMark::with(['project', 'student', 'distributions'])
-            ->where('supervisor_id', $teacherId)
-            ->when($request->filled('project_id'), fn ($q) => $q->where('project_id', $request->project_id))
-            ->when($request->filled('search'), function ($q) use ($request) {
-                $s = $request->search;
-                $q->where(function ($q) use ($s) {
-                    $q->whereHas('student', fn ($u) => $u->where('name', 'like', "%{$s}%"))
-                      ->orWhereHas('project', fn ($p) => $p->where('group_number', 'like', "%{$s}%")
-                                                           ->orWhere('project_name', 'like', "%{$s}%"));
-                });
-            })
-            ->latest()
-            ->paginate(10);
-
-        $projects = Project::where('assigned_teacher', $teacherId)
-            ->orderBy('group_number')
-            ->get();
-
-        return view('teachers.project-marks.index', compact('marks', 'projects'));
-    }
-
-    public function create()
-    {
-        $teacherId = Auth::id();
-
-        $projects = Project::with('teamMembers:users.id,users.name')
-            ->where('assigned_teacher', $teacherId)
-            ->orderBy('group_number')
-            ->get();
-
-        // students who already have a mark record, grouped by project
-        $marked = ProjectMark::whereIn('project_id', $projects->pluck('id'))
-            ->get(['project_id', 'student_id'])
-            ->groupBy('project_id')
-            ->map(fn ($g) => $g->pluck('student_id')->all());
-
-        $projectData = $projects->map(fn ($p) => [
-            'id'       => $p->id,
-            'label'    => 'Group ' . $p->group_number . ' — ' . ($p->project_name ?? 'Untitled'),
-            'students' => $p->teamMembers->map(fn ($u) => [
-                'id'     => $u->id,
-                'name'   => $u->name,
-                'marked' => in_array($u->id, $marked[$p->id] ?? []),
-            ])->values(),
-        ])->values();
-
-        return view('teachers.project-marks.create', [
-            'projectData' => $projectData,
-            'topics'      => MarksDistribution::TOPICS,
-            'outOf'       => ProjectMark::MARKS_PER_TOPIC,
-        ]);
-    }
-
-    public function store(Request $request): RedirectResponse
-    {
-        $data = $request->validate(
-            array_merge([
-                'project_id' => ['required', 'integer', 'exists:projects,id'],
-                'student_id' => ['required', 'integer', 'exists:users,id'],
-            ], $this->marksRules()),
-            [],
-            $this->attributeNames()
-        );
-
-        $teacherId = Auth::id();
-
-        // Teacher may mark only his assigned projects
-        $project = Project::where('id', $data['project_id'])
-            ->where('assigned_teacher', $teacherId)
-            ->firstOrFail();
-
-        // Student must belong to this project's team
-        abort_unless(
-            $project->teamMembers()->where('users.id', $data['student_id'])->exists(),
-            403,
-            'This student is not a member of the selected project.'
-        );
-
-        if (ProjectMark::where('project_id', $project->id)->where('student_id', $data['student_id'])->exists()) {
-            return back()->withInput()->with('error', 'Marks have already been given to this student for this project. Please edit the existing record.');
-        }
-
-        DB::transaction(function () use ($data, $project, $teacherId) {
-            $mark = ProjectMark::create([
-                'project_id'    => $project->id,
-                'supervisor_id' => $teacherId,
-                'student_id'    => $data['student_id'],
-                'remarks'       => $data['remarks'] ?? null,
-            ]);
-
-            $this->saveDistributions($mark, array_values($data['marks']));
-        });
-
-        return redirect()->route('teachers.project-marks.index')
-            ->with('success', 'Marks saved successfully.');
-    }
-
-    public function show($id)
-    {
-        $mark = $this->findOwned($id);
-
-        return view('teachers.project-marks.show', [
-            'mark'          => $mark,
-            'distributions' => $mark->distributions->keyBy('topic'),
-            'topics'        => MarksDistribution::TOPICS,
-            'gradingScale'  => ProjectMark::GRADING_SCALE,
-        ]);
-    }
-
-    public function edit($id)
-    {
-        $mark = $this->findOwned($id);
-
-        return view('teachers.project-marks.edit', [
-            'mark'          => $mark,
-            'distributions' => $mark->distributions->keyBy('topic'),
-            'topics'        => MarksDistribution::TOPICS,
-            'outOf'         => ProjectMark::MARKS_PER_TOPIC,
-        ]);
-    }
-
-    public function update(Request $request, $id): RedirectResponse
-    {
-        $mark = $this->findOwned($id);
-
-        $data = $request->validate($this->marksRules(), [], $this->attributeNames());
-
-        DB::transaction(function () use ($mark, $data) {
-            $mark->update(['remarks' => $data['remarks'] ?? null]);
-            $this->saveDistributions($mark, array_values($data['marks']));
-        });
-
-        return redirect()->route('teachers.project-marks.show', $mark->id)
-            ->with('success', 'Marks updated successfully.');
-    }
-
-    public function destroy($id): RedirectResponse
-    {
-        $mark = $this->findOwned($id);
-        $mark->delete(); // distributions removed by cascade
-
-        return redirect()->route('teachers.project-marks.index')
-            ->with('success', 'Marks deleted successfully.');
-    }
-
-    /* ---------------- helpers ---------------- */
-
-    private function findOwned($id): ProjectMark
-    {
-        return ProjectMark::with(['project', 'student', 'supervisor', 'distributions'])
-            ->where('supervisor_id', Auth::id())
+        return Project::with('teamMembers')
+            ->where('assigned_teacher', Auth::id())
             ->findOrFail($id);
     }
 
-    private function marksRules(): array
+    public function index(Request $request)
     {
-        return [
-            'remarks'   => ['nullable', 'string', 'max:2000'],
-            'marks'     => ['required', 'array', 'size:' . count(MarksDistribution::TOPICS)],
-            'marks.*'   => ['required', 'numeric', 'min:0', 'max:' . ProjectMark::MARKS_PER_TOPIC],
+        $projects = Project::with('teamMembers')
+            ->where('assigned_teacher', Auth::id())
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $s = $request->search;
+
+                $q->where(function ($q) use ($s) {
+                    $q->where('project_name', 'like', "%{$s}%")
+                    ->orWhere('project_topic', 'like', "%{$s}%")
+                    ->orWhere('group_number', 'like', "%{$s}%")
+                    // NEW: partial match against team members' class_id
+                    ->orWhereHas('teamMembers', function ($sub) use ($s) {
+                        $sub->where('class_id', 'like', "%{$s}%");
+                    });
+                });
+            })
+            ->orderBy('group_number')
+            ->paginate(10)
+            ->withQueryString();
+
+        // Build summaries and attach student names for the view
+        $summaries = $this->summaries($projects->getCollection());
+
+        foreach ($projects as $project) {
+            $names = $project->teamMembers
+                ->pluck('name')
+                ->filter()
+                ->values()
+                ->all();
+
+            $summaries[$project->id]['student_names'] = $names;
+        }
+
+        return view('teachers.project-marks.index', compact('projects', 'summaries'));
+    }
+
+    public function show(string $id)
+    {
+        $project  = $this->findProject($id);
+        $rows     = $this->buildSheets(collect([$project]))[$project->id];
+        $topicMap = $this->topicMap();
+        $perTopic = ProjectMark::MARKS_PER_TOPIC;
+
+        return view('teachers.project-marks.show', compact('project', 'rows', 'topicMap', 'perTopic'));
+    }
+
+    public function edit(string $id)
+    {
+        $project  = $this->findProject($id);
+        $rows     = $this->buildSheets(collect([$project]))[$project->id];
+        $topicMap = $this->topicMap();
+        $perTopic = ProjectMark::MARKS_PER_TOPIC;
+
+        return view('teachers.project-marks.edit', compact('project', 'rows', 'topicMap', 'perTopic'));
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $project  = $this->findProject($id);
+        $students = $project->teamMembers->where('role', 'student');
+        $max      = ProjectMark::MARKS_PER_TOPIC;
+
+        $rules    = [
+            'marks'           => ['required', 'array'],
+            'marks.*.remarks' => ['nullable', 'string', 'max:2000'],
         ];
-    }
+        $messages = [];
 
-    private function attributeNames(): array
-    {
-        $names = [];
-        foreach (MarksDistribution::TOPICS as $i => $topic) {
-            $names["marks.$i"] = strtolower($topic) . ' marks';
+        foreach ($this->topicMap() as $key => $topic) {
+            $rules["marks.*.{$key}"]          = ['nullable', 'numeric', 'min:0', "max:{$max}"];
+            $messages["marks.*.{$key}.max"]   = "{$topic} marks cannot exceed {$max}.";
+            $messages["marks.*.{$key}.min"]   = "{$topic} marks cannot be negative.";
+            $messages["marks.*.{$key}.numeric"] = "{$topic} marks must be a number.";
         }
-        return $names;
-    }
 
-    /**
-     * $marks is a 0-indexed list in the same order as MarksDistribution::TOPICS.
-     * out_of is always forced to 20 on the server.
-     */
-    private function saveDistributions(ProjectMark $mark, array $marks): void
-    {
-        foreach (MarksDistribution::TOPICS as $i => $topic) {
-            $values = [
-                'given_marks' => $marks[$i],
-                'out_of'      => ProjectMark::MARKS_PER_TOPIC,
-            ];
+        $request->validate($rules, $messages);
 
-            $query = $mark->distributions()->where('topic', $topic);
+        try {
+            DB::transaction(function () use ($request, $project, $students, $max) {
+                $now = now();
 
-            if ($query->exists()) {
-                $query->update($values);
-            } else {
-                $mark->distributions()->create(['topic' => $topic] + $values);
-            }
+                foreach ($students as $student) {
+                    $input = $request->input("marks.{$student->id}");
+                    if (! is_array($input)) {
+                        continue;
+                    }
+
+                    $remarks = trim((string) ($input['remarks'] ?? ''));
+                    $values  = [];
+
+                    foreach ($this->topicMap() as $key => $topic) {
+                        $v = $input[$key] ?? null;
+                        $values[$topic] = ($v === null || $v === '') ? null : $v;
+                    }
+
+                    $hasAny = collect($values)->contains(fn ($v) => $v !== null) || $remarks !== '';
+
+                    $pm = ProjectMark::where('project_id', $project->id)
+                        ->where('student_id', $student->id)
+                        ->first();
+
+                    if (! $pm && ! $hasAny) {
+                        continue; // nothing to store
+                    }
+
+                    $pm ??= new ProjectMark([
+                        'project_id' => $project->id,
+                        'student_id' => $student->id,
+                    ]);
+                    $pm->supervisor_id = Auth::id();
+                    $pm->remarks       = $remarks !== '' ? $remarks : null;
+                    $pm->save();
+
+                    foreach ($values as $topic => $given) {
+                        $query = DB::table('marks_distributions')
+                            ->where('project_marks_id', $pm->id)
+                            ->where('topic', $topic);
+
+                        if ($given === null) {
+                            $query->delete(); // blank = clear this topic's mark
+                            continue;
+                        }
+
+                        $data = [
+                            'given_marks' => $given,
+                            'out_of'      => $max,
+                            'updated_at'  => $now,
+                        ];
+
+                        if ($query->exists()) {
+                            $query->update($data);
+                        } else {
+                            DB::table('marks_distributions')->insert($data + [
+                                'project_marks_id' => $pm->id,
+                                'topic'            => $topic,
+                                'created_at'       => $now,
+                            ]);
+                        }
+                    }
+                }
+            });
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', 'Failed to save marks: ' . $e->getMessage());
         }
+
+        return redirect()
+            ->route('teachers.project-marks.show', $project->id)
+            ->with('success', 'Project marks updated successfully.');
     }
 }

@@ -16,7 +16,6 @@ class ProjectMilestone extends Model
         'title',
         'tentative_time',
         'supervisor_note',
-        'marks',
         'status',
         'done_by',
     ];

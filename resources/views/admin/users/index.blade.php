@@ -59,6 +59,7 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
+                                <th>Class ID</th>
                                 <th>Verified</th>
                                 <th>Created At</th>
                                 <th style="width: 160px;">Actions</th>
@@ -79,6 +80,9 @@
                                             };
                                         @endphp
                                         <span class="label {{ $badgeClass }}">{{ ucfirst($user->role) }}</span>
+                                    </td>
+                                    <td>
+                                        {{ $user->class_id ?? '—' }}
                                     </td>
                                     <td>
                                         @if ($user->email_verified_at)
@@ -106,7 +110,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center">No users found.</td>
+                                    <td colspan="8" class="text-center">No users found.</td>
                                 </tr>
                             @endforelse
                         </tbody>

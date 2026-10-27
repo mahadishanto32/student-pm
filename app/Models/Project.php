@@ -69,4 +69,19 @@ class Project extends Model
     {
         return $this->hasMany(VideoResume::class);
     }
+
+    public function partnerApprovals(): HasMany
+    {
+        return $this->hasMany(PartnerApproval::class);
+    }
+
+    /**
+     * Hide projects that are still waiting for the first partner approvals.
+     * Use this in admin/teacher listings (not needed in the student index).
+     */
+    public function scopeVisible($query)
+    {
+        return $query->whereDoesntHave('partnerApprovals', fn ($q) =>
+            $q->where('for_creation', true)->where('approve', 'Pending'));
+    }
 }

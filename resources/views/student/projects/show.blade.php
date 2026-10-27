@@ -78,6 +78,12 @@
                                     @empty
                                         <span class="text-muted">No members assigned.</span>
                                     @endforelse
+
+                                    @foreach ($project->partnerApprovals()->pending()->with('user')->get() as $pa)
+                                        <span class="label label-warning" style="display:inline-block; margin: 2px;">
+                                            {{ $pa->user->name }} (awaiting approval)
+                                        </span>
+                                    @endforeach
                                 </td>
                             </tr>
                             <tr>
@@ -103,13 +109,35 @@
                         <a href="{{ route('student.projects.index') }}" class="btn btn-default">
                             <i class="fa fa-arrow-left"></i> Back
                         </a>
-                        <a href="{{ route('student.projects.edit', $project->id) }}" class="btn btn-primary">
-                            <i class="fa fa-pencil"></i> Edit
-                        </a>
+                        @unless ($myApproval)
+                            <a href="{{ route('student.projects.edit', $project->id) }}" class="btn btn-primary">
+                                <i class="fa fa-pencil"></i> Edit
+                            </a>
+                        @endunless
                     </div>
                 </div>
 
             </div>
+            @if ($myApproval)
+                <div class="alert alert-warning" style="margin: 15px;">
+                    <strong>Team invitation:</strong>
+                    You have been assigned to this project by {{ $myApproval->inviter->name ?? 'a student' }}.
+                    Do you want to join?
+
+                    <form action="{{ route('student.partner-approvals.respond', $myApproval->id) }}"
+                        method="POST" style="display:inline-block; margin-left: 15px;">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" name="approve" value="Yes" class="btn btn-success btn-sm">
+                            <i class="fa fa-check"></i> Accept
+                        </button>
+                        <button type="submit" name="approve" value="No" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Decline this invitation?')">
+                            <i class="fa fa-times"></i> Decline
+                        </button>
+                    </form>
+                </div>
+            @endif
         </div>
     </div>
 @endsection

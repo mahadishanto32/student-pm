@@ -62,21 +62,7 @@
         <div class="row">
             <div class="col-lg-6">@include('dashboard.partials.status-bars', ['title' => 'Project book status', 'counts' => $bookStats, 'emptyTitle' => 'No project book yet'])</div>
             <div class="col-lg-6">
-                <x-dx.panel title="My marks" sub="Entered by your supervisor">
-                    @if(!$marks)
-                        <x-dx.empty icon="trophy" title="No marks yet" text="They will appear here once your supervisor enters them." />
-                    @else
-                        <div class="dx-score"><b>{{ rtrim(rtrim(number_format($marks['given'], 2), '0'), '.') }}</b><span>out of {{ rtrim(rtrim(number_format($marks['out_of'], 2), '0'), '.') }}</span></div>
-                        @foreach($marks['rows'] as $row)
-                            <div class="dx-stat dx-st-completed" style="grid-template-columns: 150px 1fr 56px">
-                                <span>{{ $row->topic }}</span>
-                                <span class="dx-stat__bar"><i style="width: {{ $row->out_of > 0 ? $row->given_marks / $row->out_of * 100 : 0 }}%"></i></span>
-                                <b>{{ (float) $row->given_marks }}/{{ (float) $row->out_of }}</b>
-                            </div>
-                        @endforeach
-                        @if($marks['remarks'])<p class="dx-list__sub" style="margin-top:10px">Remarks: {{ $marks['remarks'] }}</p>@endif
-                    @endif
-                </x-dx.panel>
+                @include('dashboard.partials.marks-student')
             </div>
         </div>
     </div>

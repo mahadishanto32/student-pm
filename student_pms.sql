@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 26, 2026 at 07:34 PM
+-- Generation Time: Oct 27, 2026 at 02:21 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -112,7 +112,7 @@ CREATE TABLE `job_batches` (
 
 CREATE TABLE `marks_distributions` (
   `project_marks_id` bigint(20) UNSIGNED NOT NULL,
-  `topic` enum('Milestones','Project Book','Implementation and Result','Presentation','Video Resume') NOT NULL,
+  `topic` enum('Milestones','Project Book','Presentation','Video Resume') NOT NULL,
   `given_marks` decimal(5,2) NOT NULL DEFAULT 0.00,
   `out_of` decimal(5,2) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -124,21 +124,25 @@ CREATE TABLE `marks_distributions` (
 --
 
 INSERT INTO `marks_distributions` (`project_marks_id`, `topic`, `given_marks`, `out_of`, `created_at`, `updated_at`) VALUES
+(1, '', 14.00, 20.00, '2026-10-07 12:31:24', '2026-10-07 12:31:24'),
 (1, 'Milestones', 15.00, 20.00, '2026-10-07 12:31:24', '2026-10-07 12:31:24'),
 (1, 'Project Book', 18.00, 20.00, '2026-10-07 12:31:24', '2026-10-07 12:31:24'),
-(1, 'Implementation and Result', 14.00, 20.00, '2026-10-07 12:31:24', '2026-10-07 12:31:24'),
 (1, 'Presentation', 19.00, 20.00, '2026-10-07 12:31:24', '2026-10-07 12:31:24'),
 (1, 'Video Resume', 15.00, 20.00, '2026-10-07 12:31:24', '2026-10-07 12:31:24'),
-(2, 'Milestones', 15.00, 20.00, '2026-10-24 11:55:57', '2026-10-24 11:55:57'),
-(2, 'Project Book', 16.00, 20.00, '2026-10-24 11:55:57', '2026-10-24 11:55:57'),
-(2, 'Implementation and Result', 18.00, 20.00, '2026-10-24 11:55:57', '2026-10-24 11:55:57'),
-(2, 'Presentation', 20.00, 20.00, '2026-10-24 11:55:57', '2026-10-24 11:55:57'),
+(2, '', 18.00, 20.00, '2026-10-24 11:55:57', '2026-10-24 11:55:57'),
+(2, 'Milestones', 16.00, 20.00, '2026-10-24 11:55:57', '2026-10-27 04:14:50'),
+(2, 'Project Book', 16.00, 20.00, '2026-10-24 11:55:57', '2026-10-27 04:59:53'),
+(2, 'Presentation', 20.00, 20.00, '2026-10-24 11:55:57', '2026-10-27 05:08:47'),
 (2, 'Video Resume', 17.00, 20.00, '2026-10-24 11:55:57', '2026-10-24 11:55:57'),
-(3, 'Milestones', 16.00, 20.00, '2026-10-24 11:57:09', '2026-10-24 11:57:09'),
-(3, 'Project Book', 18.00, 20.00, '2026-10-24 11:57:09', '2026-10-24 11:57:09'),
-(3, 'Implementation and Result', 16.00, 20.00, '2026-10-24 11:57:09', '2026-10-24 11:57:09'),
-(3, 'Presentation', 17.00, 20.00, '2026-10-24 11:57:09', '2026-10-24 11:57:09'),
-(3, 'Video Resume', 20.00, 20.00, '2026-10-24 11:57:09', '2026-10-24 11:57:09');
+(3, '', 16.00, 20.00, '2026-10-24 11:57:09', '2026-10-24 11:57:09'),
+(3, 'Milestones', 17.00, 20.00, '2026-10-24 11:57:09', '2026-10-27 04:14:50'),
+(3, 'Project Book', 18.00, 20.00, '2026-10-24 11:57:09', '2026-10-27 04:59:53'),
+(3, 'Presentation', 18.00, 20.00, '2026-10-24 11:57:09', '2026-10-27 05:08:47'),
+(3, 'Video Resume', 20.00, 20.00, '2026-10-24 11:57:09', '2026-10-24 11:57:09'),
+(4, 'Milestones', 15.00, 20.00, '2026-10-27 04:22:43', '2026-10-27 04:22:43'),
+(5, 'Milestones', 17.00, 20.00, '2026-10-27 04:22:43', '2026-10-27 04:22:43'),
+(6, 'Project Book', 19.00, 20.00, '2026-10-27 04:59:20', '2026-10-27 04:59:20'),
+(7, 'Project Book', 17.00, 20.00, '2026-10-27 04:59:20', '2026-10-27 04:59:20');
 
 -- --------------------------------------------------------
 
@@ -204,7 +208,10 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (16, '2026_10_07_153207_create_notifications_table', 12),
 (17, '2026_10_07_162805_create_project_marks_table', 13),
 (18, '2026_10_07_162836_create_marks_distributions_table', 13),
-(19, '2026_10_26_170555_add_marks_to_project_milestones_table', 14);
+(19, '2026_10_26_170555_add_marks_to_project_milestones_table', 14),
+(20, '2026_10_27_070349_add_description_to_milestone_tasks_table', 15),
+(22, '2026_10_27_073952_create_partner_approvals_table', 16),
+(26, '2026_10_27_125459_add_class_id_to_users_table', 17);
 
 -- --------------------------------------------------------
 
@@ -216,6 +223,7 @@ CREATE TABLE `milestone_tasks` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `project_milestone_id` bigint(20) UNSIGNED NOT NULL,
   `key_points` text NOT NULL,
+  `description` text DEFAULT NULL,
   `document` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -225,12 +233,18 @@ CREATE TABLE `milestone_tasks` (
 -- Dumping data for table `milestone_tasks`
 --
 
-INSERT INTO `milestone_tasks` (`id`, `project_milestone_id`, `key_points`, `document`, `created_at`, `updated_at`) VALUES
-(1, 1, 'vdsvd', 'uploads/tasks/1790163788_6ab3bb4c303d5.jpg', '2026-09-23 05:43:08', '2026-09-23 05:43:08'),
-(2, 1, 'test', 'uploads/tasks/1790163788_6ab3bb4c373a3.docx', '2026-09-23 05:43:08', '2026-09-23 05:43:08'),
-(3, 2, 'wqdwqddwd', 'uploads/tasks/1792864247_6adceff756c4e.webp', '2026-10-24 11:50:47', '2026-10-24 11:50:47'),
-(4, 2, 'dwqdwqd', NULL, '2026-10-24 11:50:47', '2026-10-24 11:50:47'),
-(5, 3, 'dwdwsd', NULL, '2026-10-26 11:23:14', '2026-10-26 11:23:14');
+INSERT INTO `milestone_tasks` (`id`, `project_milestone_id`, `key_points`, `description`, `document`, `created_at`, `updated_at`) VALUES
+(1, 1, 'vdsvd', NULL, 'uploads/tasks/1790163788_6ab3bb4c303d5.jpg', '2026-09-23 05:43:08', '2026-09-23 05:43:08'),
+(2, 1, 'test', NULL, 'uploads/tasks/1790163788_6ab3bb4c373a3.docx', '2026-09-23 05:43:08', '2026-09-23 05:43:08'),
+(3, 2, 'wqdwqddwd', NULL, 'uploads/tasks/1792864247_6adceff756c4e.webp', '2026-10-24 11:50:47', '2026-10-24 11:50:47'),
+(4, 2, 'dwqdwqd', NULL, NULL, '2026-10-24 11:50:47', '2026-10-24 11:50:47'),
+(5, 3, 'dwdwsd', 'ddd', NULL, '2026-10-26 11:23:14', '2026-10-27 01:14:27'),
+(6, 3, 'wq3fRE', NULL, NULL, '2026-10-27 01:25:07', '2026-10-27 01:25:07'),
+(7, 4, 'sdefe', 'grsevdg', NULL, '2026-10-27 01:31:43', '2026-10-27 01:32:47'),
+(8, 4, 'efrewf', 'rgd', NULL, '2026-10-27 01:31:43', '2026-10-27 01:32:47'),
+(9, 4, 'fedfde', 'grd', NULL, '2026-10-27 01:31:43', '2026-10-27 01:32:47'),
+(10, 4, 'gerd', 'grsdegt', NULL, '2026-10-27 01:32:07', '2026-10-27 01:32:47'),
+(11, 5, 'et3t', NULL, NULL, '2026-10-27 03:08:43', '2026-10-27 03:08:43');
 
 -- --------------------------------------------------------
 
@@ -256,6 +270,7 @@ CREATE TABLE `notifications` (
 INSERT INTO `notifications` (`id`, `type`, `notifiable_type`, `notifiable_id`, `data`, `read_at`, `created_at`, `updated_at`) VALUES
 ('08aef010-e6aa-4da1-b806-1136ab269d9f', 'App\\Notifications\\MeetingCreatedNotification', 'App\\Models\\User', 5, '{\"type\":\"meeting_created\",\"title\":\"New meeting\",\"message\":\"Meeting \\\"dewdfwe\\\" scheduled for 07 Oct 2026, 09:51 PM in project \\\"ewddfcef\\\".\",\"project_id\":4,\"meeting_id\":2}', NULL, '2026-10-07 09:51:16', '2026-10-07 09:51:16'),
 ('187fe9b3-fe66-4c85-93ea-bde462312aee', 'App\\Notifications\\MeetingCreatedNotification', 'App\\Models\\User', 9, '{\"type\":\"meeting_created\",\"title\":\"New meeting\",\"message\":\"Meeting \\\"Introduction Meeting\\\" scheduled for 24 Oct 2026, 12:00 PM in project \\\"Attendance Management System\\\".\",\"project_id\":5,\"meeting_id\":3}', NULL, '2026-10-24 11:48:13', '2026-10-24 11:48:13'),
+('255af4c7-e1dd-4b24-85bf-c3ec69815178', 'App\\Notifications\\ProjectCreatedNotification', 'App\\Models\\User', 2, '{\"type\":\"project_created\",\"title\":\"New project\",\"message\":\"Project \\\"Test Project\\\" has been created.\",\"project_id\":6}', NULL, '2026-10-27 02:05:36', '2026-10-27 02:05:36'),
 ('2ccdcb2f-b8d1-468b-ae45-7ae606668b2f', 'App\\Notifications\\ProjectCreatedNotification', 'App\\Models\\User', 9, '{\"type\":\"project_created\",\"title\":\"New project\",\"message\":\"Project \\\"Attendance Management System\\\" has been created.\",\"project_id\":5}', NULL, '2026-10-24 11:35:14', '2026-10-24 11:35:14'),
 ('2e2d163d-e476-49b4-b4fa-7147a5cad964', 'App\\Notifications\\ProjectCreatedNotification', 'App\\Models\\User', 6, '{\"type\":\"project_created\",\"title\":\"New project\",\"message\":\"Project \\\"Attendance Management System\\\" has been created.\",\"project_id\":5}', NULL, '2026-10-24 11:35:14', '2026-10-24 11:35:14'),
 ('425efeb5-de15-477c-ab8b-b58a59708c94', 'App\\Notifications\\MeetingCreatedNotification', 'App\\Models\\User', 3, '{\"type\":\"meeting_created\",\"title\":\"New meeting\",\"message\":\"Meeting \\\"dewdfwe\\\" scheduled for 07 Oct 2026, 09:51 PM in project \\\"ewddfcef\\\".\",\"project_id\":4,\"meeting_id\":2}', NULL, '2026-10-07 09:51:16', '2026-10-07 09:51:16'),
@@ -263,10 +278,41 @@ INSERT INTO `notifications` (`id`, `type`, `notifiable_type`, `notifiable_id`, `
 ('5bb58ea4-09bb-4e37-b572-59fd989ea1c7', 'App\\Notifications\\MeetingCreatedNotification', 'App\\Models\\User', 6, '{\"type\":\"meeting_created\",\"title\":\"New meeting\",\"message\":\"Meeting \\\"Introduction Meeting\\\" scheduled for 24 Oct 2026, 12:00 PM in project \\\"Attendance Management System\\\".\",\"project_id\":5,\"meeting_id\":3}', NULL, '2026-10-24 11:48:13', '2026-10-24 11:48:13'),
 ('5df58e49-aeed-40eb-836d-076f645f957b', 'App\\Notifications\\MeetingCreatedNotification', 'App\\Models\\User', 8, '{\"type\":\"meeting_created\",\"title\":\"New meeting\",\"message\":\"Meeting \\\"Introduction Meeting\\\" scheduled for 24 Oct 2026, 12:00 PM in project \\\"Attendance Management System\\\".\",\"project_id\":5,\"meeting_id\":3}', NULL, '2026-10-24 11:48:13', '2026-10-24 11:48:13'),
 ('5e2476e2-32c1-4940-9691-57aaff1bd84e', 'App\\Notifications\\ProjectCreatedNotification', 'App\\Models\\User', 2, '{\"type\":\"project_created\",\"title\":\"New project\",\"message\":\"Project \\\"Attendance Management System\\\" has been created.\",\"project_id\":5}', '2026-10-24 11:37:39', '2026-10-24 11:35:14', '2026-10-24 11:37:39'),
+('8fb116df-20dd-41d4-ba5d-11c69067a3ff', 'App\\Notifications\\MilestoneCreatedNotification', 'App\\Models\\User', 6, '{\"type\":\"milestone_created\",\"title\":\"New milestone\",\"message\":\"Poly Bhowmik created milestone \\\"weet\\\" for project \\\"Test Project\\\".\",\"project_id\":6,\"milestone_id\":5,\"url\":\"http:\\/\\/127.0.0.1:8001\\/students\\/milestones\\/5\"}', '2026-10-27 03:09:14', '2026-10-27 03:08:43', '2026-10-27 03:09:14'),
 ('93329087-990e-4ff6-a5ef-b62c1a082202', 'App\\Notifications\\ProjectAssignedNotification', 'App\\Models\\User', 8, '{\"type\":\"project_assigned\",\"title\":\"Project assigned to you\",\"message\":\"You have been assigned to project \\\"Attendance Management System\\\".\",\"project_id\":5}', '2026-10-24 11:39:33', '2026-10-24 11:38:48', '2026-10-24 11:39:33'),
+('be7df41a-7d56-473d-821d-815d9167c9f3', 'App\\Notifications\\ProjectCreatedNotification', 'App\\Models\\User', 4, '{\"type\":\"project_created\",\"title\":\"New project\",\"message\":\"Project \\\"Test Project\\\" has been created.\",\"project_id\":6}', '2026-10-27 02:05:36', '2026-10-27 02:05:36', '2026-10-27 02:05:36'),
 ('c42b26b9-5c1e-4abd-b834-7a5424fcd2aa', 'App\\Notifications\\ProjectCreatedNotification', 'App\\Models\\User', 2, '{\"type\":\"project_created\",\"title\":\"New project\",\"message\":\"Project \\\"ewddfcef\\\" has been created.\",\"project_id\":4}', NULL, '2026-10-07 09:48:32', '2026-10-07 09:48:32'),
+('d633e106-daac-485f-8af4-4901ab14e582', 'App\\Notifications\\MilestoneCreatedNotification', 'App\\Models\\User', 4, '{\"type\":\"milestone_created\",\"title\":\"New milestone\",\"message\":\"Poly Bhowmik created milestone \\\"weet\\\" for project \\\"Test Project\\\".\",\"project_id\":6,\"milestone_id\":5,\"url\":\"http:\\/\\/127.0.0.1:8001\\/students\\/milestones\\/5\"}', NULL, '2026-10-27 03:08:43', '2026-10-27 03:08:43'),
 ('db2910e5-1a3c-4056-bdcd-d72198c4e7fb', 'App\\Notifications\\ProjectCreatedNotification', 'App\\Models\\User', 6, '{\"type\":\"project_created\",\"title\":\"New project\",\"message\":\"Project \\\"ewddfcef\\\" has been created.\",\"project_id\":4}', NULL, '2026-10-07 09:48:32', '2026-10-07 09:48:32'),
-('e2778e57-e597-4c2d-aa69-be1fa9c27061', 'App\\Notifications\\MeetingCreatedNotification', 'App\\Models\\User', 6, '{\"type\":\"meeting_created\",\"title\":\"New meeting\",\"message\":\"Meeting \\\"dewdfwe\\\" scheduled for 07 Oct 2026, 09:51 PM in project \\\"ewddfcef\\\".\",\"project_id\":4,\"meeting_id\":2}', NULL, '2026-10-07 09:51:16', '2026-10-07 09:51:16');
+('e2778e57-e597-4c2d-aa69-be1fa9c27061', 'App\\Notifications\\MeetingCreatedNotification', 'App\\Models\\User', 6, '{\"type\":\"meeting_created\",\"title\":\"New meeting\",\"message\":\"Meeting \\\"dewdfwe\\\" scheduled for 07 Oct 2026, 09:51 PM in project \\\"ewddfcef\\\".\",\"project_id\":4,\"meeting_id\":2}', NULL, '2026-10-07 09:51:16', '2026-10-07 09:51:16'),
+('e788e33d-f0f9-4cb7-b4b0-c1b7dee3ada8', 'App\\Notifications\\ProjectCreatedNotification', 'App\\Models\\User', 6, '{\"type\":\"project_created\",\"title\":\"New project\",\"message\":\"Project \\\"Test Project\\\" has been created.\",\"project_id\":6}', '2026-10-27 03:09:14', '2026-10-27 02:05:36', '2026-10-27 03:09:14'),
+('f95d0470-6df4-4524-9e5e-e03d2f975440', 'App\\Notifications\\ProjectAssignedNotification', 'App\\Models\\User', 8, '{\"type\":\"project_assigned\",\"title\":\"Project assigned to you\",\"message\":\"You have been assigned to project \\\"Test Project\\\".\",\"project_id\":6}', NULL, '2026-10-27 02:07:33', '2026-10-27 02:07:33'),
+('febd87cb-ee59-43e6-8267-bd8e9316db6f', 'App\\Notifications\\PartnerApprovalRequestNotification', 'App\\Models\\User', 4, '{\"type\":\"partner_approval_request\",\"title\":\"Team invitation\",\"message\":\"Sweety assigned you to project \\\"Test Project\\\". Please accept or decline.\",\"project_id\":6}', '2026-10-27 02:05:29', '2026-10-27 02:02:45', '2026-10-27 02:05:29'),
+('ff3b0ece-5655-4570-9db5-48283f3a0a0b', 'App\\Notifications\\PartnerApprovalResponseNotification', 'App\\Models\\User', 6, '{\"type\":\"partner_approval_response\",\"title\":\"Invitation accepted\",\"message\":\"Test Student accepted the invitation for \\\"Test Project\\\".\",\"project_id\":6}', '2026-10-27 03:09:14', '2026-10-27 02:05:36', '2026-10-27 03:09:14');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `partner_approvals`
+--
+
+CREATE TABLE `partner_approvals` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `project_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `invited_by` bigint(20) UNSIGNED DEFAULT NULL,
+  `approve` enum('Pending','Yes','No') NOT NULL DEFAULT 'Pending',
+  `for_creation` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `partner_approvals`
+--
+
+INSERT INTO `partner_approvals` (`id`, `project_id`, `user_id`, `invited_by`, `approve`, `for_creation`, `created_at`, `updated_at`) VALUES
+(1, 6, 4, 6, 'Yes', 1, '2026-10-27 02:02:44', '2026-10-27 02:05:36');
 
 -- --------------------------------------------------------
 
@@ -294,7 +340,6 @@ CREATE TABLE `presentations` (
   `key_points` text DEFAULT NULL,
   `supervisor_feedback` text DEFAULT NULL,
   `date_of_presentation` date NOT NULL,
-  `marks` decimal(5,2) DEFAULT NULL,
   `presentation_file` varchar(255) DEFAULT NULL,
   `status` enum('pending','completed','approved','rejected') NOT NULL DEFAULT 'pending',
   `created_at` timestamp NULL DEFAULT NULL,
@@ -305,9 +350,9 @@ CREATE TABLE `presentations` (
 -- Dumping data for table `presentations`
 --
 
-INSERT INTO `presentations` (`id`, `project_id`, `title`, `done_by`, `key_points`, `supervisor_feedback`, `date_of_presentation`, `marks`, `presentation_file`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Test Presentation', 6, 'scdsefdc', NULL, '2026-09-26', NULL, 'uploads/presentations/1790434883_6ab7de43ea194.pdf', 'pending', '2026-09-26 09:01:23', '2026-09-26 09:01:23'),
-(2, 5, 'saxdwsd', 9, 'cxsacaesd', NULL, '2026-10-24', NULL, 'uploads/presentations/1792864423_6adcf0a720eb2.docx', 'pending', '2026-10-24 11:53:43', '2026-10-24 11:53:43');
+INSERT INTO `presentations` (`id`, `project_id`, `title`, `done_by`, `key_points`, `supervisor_feedback`, `date_of_presentation`, `presentation_file`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Test Presentation', 6, 'scdsefdc', NULL, '2026-09-26', 'uploads/presentations/1790434883_6ab7de43ea194.pdf', 'pending', '2026-09-26 09:01:23', '2026-09-26 09:01:23'),
+(2, 5, 'saxdwsd', 9, 'cxsacaesd', NULL, '2026-10-24', 'uploads/presentations/1792864423_6adcf0a720eb2.docx', 'completed', '2026-10-24 11:53:43', '2026-10-27 05:08:47');
 
 -- --------------------------------------------------------
 
@@ -338,7 +383,8 @@ INSERT INTO `projects` (`id`, `group_number`, `project_name`, `project_topic`, `
 (2, '02', 'Test Project', NULL, NULL, 3, '2026-09-21', NULL, 'pending', '2026-09-22 03:20:19', '2026-10-06 09:46:49'),
 (3, '04', 'IOT Project', 'IOT', 'dwqdwd', 3, '2026-10-07', '2026-10-22', 'pending', '2026-10-07 01:16:19', '2026-10-07 01:27:45'),
 (4, '05', 'ewddfcef', 'ewfcew', 'ffewfef', 3, '2026-10-21', '2026-10-29', 'pending', '2026-10-07 09:48:28', '2026-10-07 09:50:02'),
-(5, '10', 'Attendance Management System', 'Web Based', 'Attendance Management System', 8, '2026-10-25', '2026-12-24', 'working', '2026-10-24 11:35:11', '2026-10-24 11:40:11');
+(5, '10', 'Attendance Management System', 'Web Based', 'Attendance Management System', 8, '2026-10-25', '2026-12-24', 'working', '2026-10-24 11:35:11', '2026-10-24 11:40:11'),
+(6, '06', 'Test Project', 'Test sdewff', 'wefwef', 8, '2026-10-30', '2026-10-30', 'pending', '2026-10-27 02:02:44', '2026-10-27 02:07:33');
 
 -- --------------------------------------------------------
 
@@ -359,8 +405,8 @@ CREATE TABLE `project_books` (
 --
 
 INSERT INTO `project_books` (`id`, `project_id`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'pending', '2026-09-22 07:16:27', '2026-09-22 07:16:27'),
-(2, 5, 'pending', '2026-10-24 11:45:07', '2026-10-24 11:45:07');
+(1, 1, 'completed', '2026-09-22 07:16:27', '2026-10-27 04:59:20'),
+(2, 5, 'completed', '2026-10-24 11:45:07', '2026-10-27 04:59:53');
 
 -- --------------------------------------------------------
 
@@ -383,11 +429,11 @@ CREATE TABLE `project_book_chapters` (
 --
 
 INSERT INTO `project_book_chapters` (`id`, `project_book_id`, `chapter_no`, `chapter_title`, `chapter_description`, `created_at`, `updated_at`) VALUES
-(2, 1, 1, 'Introduction', 'Intro', '2026-09-22 07:17:57', '2026-09-22 07:17:57'),
-(3, 1, 2, 'Literature Review', 'Literature Review Chapter', '2026-09-22 07:17:57', '2026-09-22 07:17:57'),
-(6, 2, 1, 'Introduction', 'Test 1', '2026-10-24 11:46:25', '2026-10-24 11:46:25'),
-(7, 2, 2, 'Literature Review', 'wed', '2026-10-24 11:46:25', '2026-10-24 11:46:25'),
-(8, 2, 3, 'Methodology', 'wsdwd', '2026-10-24 11:46:25', '2026-10-24 11:46:25');
+(9, 1, 1, 'Introduction', 'Intro', '2026-10-27 04:59:20', '2026-10-27 04:59:20'),
+(10, 1, 2, 'Literature Review', 'Literature Review Chapter', '2026-10-27 04:59:20', '2026-10-27 04:59:20'),
+(11, 2, 1, 'Introduction', 'Test 1', '2026-10-27 04:59:53', '2026-10-27 04:59:53'),
+(12, 2, 2, 'Literature Review', 'wed', '2026-10-27 04:59:53', '2026-10-27 04:59:53'),
+(13, 2, 3, 'Methodology', 'wsdwd', '2026-10-27 04:59:53', '2026-10-27 04:59:53');
 
 -- --------------------------------------------------------
 
@@ -412,7 +458,11 @@ CREATE TABLE `project_marks` (
 INSERT INTO `project_marks` (`id`, `project_id`, `supervisor_id`, `student_id`, `remarks`, `created_at`, `updated_at`) VALUES
 (1, 2, 3, 4, 'aa', '2026-10-07 12:31:24', '2026-10-07 12:31:24'),
 (2, 5, 8, 9, 'dwsdwqd', '2026-10-24 11:55:57', '2026-10-24 11:55:57'),
-(3, 5, 8, 6, NULL, '2026-10-24 11:57:09', '2026-10-24 11:57:09');
+(3, 5, 8, 6, NULL, '2026-10-24 11:57:09', '2026-10-24 11:57:09'),
+(4, 6, 8, 4, 'asd', '2026-10-27 04:22:43', '2026-10-27 04:22:43'),
+(5, 6, 8, 6, 'ddws', '2026-10-27 04:22:43', '2026-10-27 04:22:43'),
+(6, 1, 8, 6, NULL, '2026-10-27 04:59:20', '2026-10-27 04:59:20'),
+(7, 1, 8, 7, NULL, '2026-10-27 04:59:20', '2026-10-27 04:59:20');
 
 -- --------------------------------------------------------
 
@@ -427,7 +477,6 @@ CREATE TABLE `project_milestones` (
   `tentative_time` timestamp NULL DEFAULT NULL,
   `supervisor_note` text DEFAULT NULL,
   `status` enum('pending','need_correction','completed','rejected') NOT NULL DEFAULT 'pending',
-  `marks` int(10) UNSIGNED DEFAULT NULL,
   `done_by` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -437,10 +486,12 @@ CREATE TABLE `project_milestones` (
 -- Dumping data for table `project_milestones`
 --
 
-INSERT INTO `project_milestones` (`id`, `project_id`, `title`, `tentative_time`, `supervisor_note`, `status`, `marks`, `done_by`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Project Setup', '2026-09-24 11:41:00', 'Good', 'pending', 8, 6, '2026-09-23 05:43:08', '2026-10-26 11:21:12'),
-(2, 5, 'Frontend Complete', '2026-10-29 05:50:00', 'hushduwhd', 'completed', NULL, 9, '2026-10-24 11:50:47', '2026-10-24 11:52:02'),
-(3, 5, 'wefewsf', '2026-10-23 17:26:00', 'dwsdw', 'pending', NULL, 8, '2026-10-26 11:23:13', '2026-10-26 11:23:13');
+INSERT INTO `project_milestones` (`id`, `project_id`, `title`, `tentative_time`, `supervisor_note`, `status`, `done_by`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Project Setup', '2026-09-24 11:41:00', 'Good', 'pending', 6, '2026-09-23 05:43:08', '2026-10-26 11:21:12'),
+(2, 5, 'Frontend Complete', '2026-10-29 05:50:00', 'hushduwhd', 'completed', 9, '2026-10-24 11:50:47', '2026-10-24 11:52:02'),
+(3, 5, 'wefewsf', '2026-10-23 17:26:00', 'dwsdw', 'pending', 8, '2026-10-26 11:23:13', '2026-10-26 11:23:13'),
+(4, 5, 'sdffsdef', '2026-10-22 07:35:00', 'fesdf', 'pending', 8, '2026-10-27 01:31:43', '2026-10-27 01:31:43'),
+(5, 6, 'weet', '2026-10-26 21:12:00', NULL, 'completed', 8, '2026-10-27 03:08:43', '2026-10-27 04:22:43');
 
 -- --------------------------------------------------------
 
@@ -470,7 +521,9 @@ INSERT INTO `project_user` (`id`, `project_id`, `user_id`, `created_at`, `update
 (8, 4, 5, '2026-10-07 09:48:28', '2026-10-07 09:48:28'),
 (9, 4, 6, '2026-10-07 09:48:28', '2026-10-07 09:48:28'),
 (10, 5, 6, '2026-10-24 11:35:11', '2026-10-24 11:35:11'),
-(11, 5, 9, '2026-10-24 11:35:11', '2026-10-24 11:35:11');
+(11, 5, 9, '2026-10-24 11:35:11', '2026-10-24 11:35:11'),
+(12, 6, 6, '2026-10-27 02:02:44', '2026-10-27 02:02:44'),
+(13, 6, 4, '2026-10-27 02:05:36', '2026-10-27 02:05:36');
 
 -- --------------------------------------------------------
 
@@ -492,8 +545,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('flO3x8ViOvXxx5sYMCxmid3OMfdKN2PNJO8scFVy', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoidFFOOGpENG11R0loeUdLZ2xrajgwd0hpVUxMczVZNVM5TFlYUVp3bSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9kYXNoYm9hcmQiO3M6NToicm91dGUiO3M6MTU6ImFkbWluLmRhc2hib2FyZCI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7fQ==', 1793039512),
-('OH9g7LHipo0jZmPwF1bIqwyYHZxiRwKErVbW1znA', 6, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiOXB5TUcxSVpCOTRGb3Y2OE50eVRqT2NiWDd5M1BZWHVuRnUwTkdUNSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MzE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9kYXNoYm9hcmQiO3M6NToicm91dGUiO3M6OToiZGFzaGJvYXJkIjt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Njt9', 1792864677);
+('psC4SY2UGRPzBonLhFabpch1Q0rzHx1KZxiFdn2q', 8, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiUHlzN1BmTDAxNGYyNWhZcVZEUEdEM2RsQ25CY3NOdjFWcTNvQkhQQSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6NDQ6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMS90ZWFjaGVycy9wcm9qZWN0LWJvb2tzIjtzOjU6InJvdXRlIjtzOjI4OiJ0ZWFjaGVycy5wcm9qZWN0LWJvb2tzLmluZGV4Ijt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6ODt9', 1793107265);
 
 -- --------------------------------------------------------
 
@@ -506,6 +558,7 @@ CREATE TABLE `users` (
   `name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `role` enum('admin','teacher','student') NOT NULL DEFAULT 'student',
+  `class_id` bigint(20) UNSIGNED DEFAULT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
   `password` varchar(255) NOT NULL,
   `remember_token` varchar(100) DEFAULT NULL,
@@ -517,15 +570,15 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `role`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
-(2, 'Administrator', 'admin@spms.com', 'admin', '2026-09-21 10:15:48', '$2y$12$e22O6bscG9sOmK1I4J2rT.MmT68gWcClXmPkncMloX2WseJKIPLnW', NULL, '2026-09-20 00:57:15', '2026-09-22 03:02:14'),
-(3, 'Test Teacher', 'teacher@spms.com', 'teacher', '2026-09-21 10:15:38', '$2y$12$cBdiyuIyGxE7X/qbYRmmG.PJb.m9rj/X.7cmNYJPBdgcrBwAaC2A.', NULL, '2026-09-20 10:40:17', '2026-09-21 10:15:38'),
-(4, 'Test Student', 'student1@spms.com', 'student', '2026-09-21 10:15:30', '$2y$12$hTfNoZ5xy4LnUkJj1OjVXuu27gygQo3NASvUozKZkA1mYiaKElQ5C', NULL, '2026-09-20 10:42:37', '2026-09-21 10:15:58'),
-(5, 'Student 2', 'student2@spms.com', 'student', '2026-09-21 10:17:13', '$2y$12$jpuBy/.9sp/Ac2nPnA.qu.Ck8S0K9/QvmUoayr9jFssqYa4GQomVS', NULL, '2026-09-21 10:16:39', '2026-09-21 10:17:13'),
-(6, 'Sweety', 'sweety@spms.com', 'student', '2026-09-22 03:00:38', '$2y$12$DLxKwgP5ETbKqzNdMOFYP./NEhe8JRXxqosAEYInI41Ru8Mxk5Iou', NULL, '2026-09-22 02:58:04', '2026-09-22 03:00:38'),
-(7, 'Tithi', 'tithi@spms.com', 'student', '2026-09-22 03:00:33', '$2y$12$TBZcAwsh4oURA9b2t/tMa.DiyYoK7qDRNBa2haUpUHAyDzvgz3kJS', NULL, '2026-09-22 02:59:22', '2026-09-22 03:00:33'),
-(8, 'Poly Bhowmik', 'poly@spms.com', 'teacher', '2026-09-22 03:00:27', '$2y$12$EC6THEscDFUq1wRcAJQJR.jNkf7GPdtmaDYO1./HEhk6wSJPyCdIS', NULL, '2026-09-22 03:00:15', '2026-09-22 03:00:27'),
-(9, 'Sweety Tithi', 'sweetytithi@spms.com', 'student', NULL, '$2y$12$/BnSn3EoSrFnnbmZgVCv7O8a6Za7VdL/fQuSd5weCmwmGhMyzJCF6', NULL, '2026-10-24 11:31:22', '2026-10-24 11:31:22');
+INSERT INTO `users` (`id`, `name`, `email`, `role`, `class_id`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
+(2, 'Administrator', 'admin@spms.com', 'admin', NULL, '2026-09-21 10:15:48', '$2y$12$e22O6bscG9sOmK1I4J2rT.MmT68gWcClXmPkncMloX2WseJKIPLnW', NULL, '2026-09-20 00:57:15', '2026-09-22 03:02:14'),
+(3, 'Test Teacher', 'teacher@spms.com', 'teacher', NULL, '2026-09-21 10:15:38', '$2y$12$cBdiyuIyGxE7X/qbYRmmG.PJb.m9rj/X.7cmNYJPBdgcrBwAaC2A.', NULL, '2026-09-20 10:40:17', '2026-09-21 10:15:38'),
+(4, 'Test Student', 'student1@spms.com', 'student', NULL, '2026-09-21 10:15:30', '$2y$12$hTfNoZ5xy4LnUkJj1OjVXuu27gygQo3NASvUozKZkA1mYiaKElQ5C', NULL, '2026-09-20 10:42:37', '2026-09-21 10:15:58'),
+(5, 'Student 2', 'student2@spms.com', 'student', NULL, '2026-09-21 10:17:13', '$2y$12$jpuBy/.9sp/Ac2nPnA.qu.Ck8S0K9/QvmUoayr9jFssqYa4GQomVS', NULL, '2026-09-21 10:16:39', '2026-09-21 10:17:13'),
+(6, 'Sweety', 'sweety@spms.com', 'student', NULL, '2026-09-22 03:00:38', '$2y$12$DLxKwgP5ETbKqzNdMOFYP./NEhe8JRXxqosAEYInI41Ru8Mxk5Iou', NULL, '2026-09-22 02:58:04', '2026-09-22 03:00:38'),
+(7, 'Tithi', 'tithi@spms.com', 'student', NULL, '2026-09-22 03:00:33', '$2y$12$TBZcAwsh4oURA9b2t/tMa.DiyYoK7qDRNBa2haUpUHAyDzvgz3kJS', NULL, '2026-09-22 02:59:22', '2026-09-22 03:00:33'),
+(8, 'Poly Bhowmik', 'poly@spms.com', 'teacher', NULL, '2026-09-22 03:00:27', '$2y$12$EC6THEscDFUq1wRcAJQJR.jNkf7GPdtmaDYO1./HEhk6wSJPyCdIS', NULL, '2026-09-22 03:00:15', '2026-09-22 03:00:27'),
+(9, 'Sweety Tithi', 'sweetytithi@spms.com', 'student', 210001, NULL, '$2y$12$/BnSn3EoSrFnnbmZgVCv7O8a6Za7VdL/fQuSd5weCmwmGhMyzJCF6', NULL, '2026-10-24 11:31:22', '2026-10-27 07:07:13');
 
 -- --------------------------------------------------------
 
@@ -622,6 +675,15 @@ ALTER TABLE `milestone_tasks`
 ALTER TABLE `notifications`
   ADD PRIMARY KEY (`id`),
   ADD KEY `notifications_notifiable_type_notifiable_id_index` (`notifiable_type`,`notifiable_id`);
+
+--
+-- Indexes for table `partner_approvals`
+--
+ALTER TABLE `partner_approvals`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `partner_approvals_project_id_user_id_unique` (`project_id`,`user_id`),
+  ADD KEY `partner_approvals_user_id_foreign` (`user_id`),
+  ADD KEY `partner_approvals_invited_by_foreign` (`invited_by`);
 
 --
 -- Indexes for table `password_reset_tokens`
@@ -732,13 +794,19 @@ ALTER TABLE `meetings`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `milestone_tasks`
 --
 ALTER TABLE `milestone_tasks`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `partner_approvals`
+--
+ALTER TABLE `partner_approvals`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `presentations`
@@ -750,7 +818,7 @@ ALTER TABLE `presentations`
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `project_books`
@@ -762,25 +830,25 @@ ALTER TABLE `project_books`
 -- AUTO_INCREMENT for table `project_book_chapters`
 --
 ALTER TABLE `project_book_chapters`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `project_marks`
 --
 ALTER TABLE `project_marks`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `project_milestones`
 --
 ALTER TABLE `project_milestones`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `project_user`
 --
 ALTER TABLE `project_user`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -815,6 +883,14 @@ ALTER TABLE `meetings`
 --
 ALTER TABLE `milestone_tasks`
   ADD CONSTRAINT `milestone_tasks_project_milestone_id_foreign` FOREIGN KEY (`project_milestone_id`) REFERENCES `project_milestones` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `partner_approvals`
+--
+ALTER TABLE `partner_approvals`
+  ADD CONSTRAINT `partner_approvals_invited_by_foreign` FOREIGN KEY (`invited_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `partner_approvals_project_id_foreign` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `partner_approvals_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `presentations`

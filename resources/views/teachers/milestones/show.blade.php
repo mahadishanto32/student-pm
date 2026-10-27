@@ -51,13 +51,13 @@
                 </div>
 
                 <div class="row" style="padding: 0 15px 15px 15px;">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label>Tentative Time</label>
                             <p>{{ $milestone->tentative_time?->format('d M Y, h:i A') ?? '—' }}</p>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label>Status</label>
                             <p>
@@ -76,16 +76,10 @@
                             </p>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label>Done By</label>
                             <p>{{ $milestone->doneBy->name ?? '—' }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Marks</label>
-                            <p>{{ $milestone->marks ?? '—' }}</p>
                         </div>
                     </div>
 
@@ -103,6 +97,66 @@
                     </div>
                 </div>
 
+                {{-- Individual student marks (only for completed milestones) --}}
+                @if ($milestone->status === \App\Models\ProjectMilestone::STATUS_COMPLETED)
+                    @php $perTopic = \App\Models\ProjectMark::MARKS_PER_TOPIC; @endphp
+
+                    <div class="row" style="padding: 0 15px;">
+                        <div class="col-md-12">
+                            <h5>Student Marks (out of {{ $perTopic }})</h5>
+                            <hr>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive" style="padding: 0 15px 15px 15px;">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">#</th>
+                                    <th>Student</th>
+                                    <th style="width: 150px;">Marks</th>
+                                    <th style="width: 120px;">Percentage</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($students as $student)
+                                    @php
+                                        $pm    = $marks[$student->id] ?? null;
+                                        $dist  = $pm?->distributions->firstWhere('topic', 'Milestones');
+                                        $given = $dist?->given_marks;
+                                        $outOf = $dist?->out_of ?? $perTopic;
+                                    @endphp
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $student->name }}</td>
+                                        <td>
+                                            @if ($given !== null)
+                                                <strong>{{ rtrim(rtrim(number_format((float) $given, 2), '0'), '.') }}</strong>
+                                                / {{ rtrim(rtrim(number_format((float) $outOf, 2), '0'), '.') }}
+                                            @else
+                                                <span class="label label-default">Not marked</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($given !== null && $outOf > 0)
+                                                {{ number_format(($given / $outOf) * 100, 1) }}%
+                                            @else
+                                                <span class="text-muted">—</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $pm?->remarks ?: '—' }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center">No students found in this project's team.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+
                 <div class="row" style="padding: 0 15px 15px 15px;">
                     <div class="col-md-12">
                         <h5>Milestone Tasks ({{ $milestone->tasks->count() }})</h5>
@@ -116,6 +170,7 @@
                             <tr>
                                 <th style="width: 60px;">#</th>
                                 <th>Key Points</th>
+                                <th>Description</th>
                                 <th style="width: 200px;">Document</th>
                             </tr>
                         </thead>
@@ -125,9 +180,16 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $task->key_points }}</td>
                                     <td>
+                                        @if ($task->description)
+                                            {{ $task->description }}
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
+                                    <td>
                                         @if ($task->document)
                                             <a href="{{ asset($task->document) }}" target="_blank"
-                                               class="btn btn-sm btn-default">
+                                            class="btn btn-sm btn-default">
                                                 <i class="fa fa-download"></i> Open
                                             </a>
                                         @else
@@ -137,7 +199,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="text-center">No tasks added yet.</td>
+                                    <td colspan="4" class="text-center">No tasks added yet.</td>
                                 </tr>
                             @endforelse
                         </tbody>

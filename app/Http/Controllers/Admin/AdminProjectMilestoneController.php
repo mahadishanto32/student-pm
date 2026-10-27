@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\ProjectMilestone;
 use App\Models\User;
+use App\Models\ProjectMark;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -33,7 +34,7 @@ class AdminProjectMilestoneController extends Controller
      */
     public function index(Request $request)
     {
-        $milestones = ProjectMilestone::with(['project', 'doneBy', 'tasks'])
+        $milestones = ProjectMilestone::with(['project.teamMembers', 'doneBy', 'tasks'])
             ->when($request->filled('project_id'), fn ($q) =>
                 $q->where('project_id', $request->project_id))
             ->when($request->filled('status'), fn ($q) =>
@@ -46,7 +47,24 @@ class AdminProjectMilestoneController extends Controller
 
         $projects = Project::orderBy('group_number')->get();
 
-        return view('admin.milestones.index', compact('milestones', 'projects'));
+        // project_id => ['marked' => n, 'avg' => x] for the "Milestones" topic
+        $marksSummary = ProjectMark::with(['distributions' => fn ($q) => $q->where('topic', 'Milestones')])
+            ->whereIn('project_id', $milestones->pluck('project_id')->unique())
+            ->get()
+            ->groupBy('project_id')
+            ->map(function ($rows) {
+                $given = $rows
+                    ->map(fn ($m) => $m->distributions->first()?->given_marks)
+                    ->filter(fn ($v) => $v !== null)
+                    ->map(fn ($v) => (float) $v);
+
+                return [
+                    'marked' => $given->count(),
+                    'avg'    => $given->count() ? round($given->avg(), 2) : null,
+                ];
+            });
+
+        return view('admin.milestones.index', compact('milestones', 'projects', 'marksSummary'));
     }
 
     /**
@@ -110,10 +128,18 @@ class AdminProjectMilestoneController extends Controller
      */
     public function show(string $id)
     {
-        $milestone = ProjectMilestone::with(['project', 'doneBy', 'tasks'])
+        $milestone = ProjectMilestone::with(['project.teamMembers', 'doneBy', 'tasks'])
             ->findOrFail($id);
 
-        return view('admin.milestones.show', compact('milestone'));
+        $students = $milestone->project->teamMembers;
+
+        $marks = ProjectMark::with(['distributions', 'supervisor'])
+            ->where('project_id', $milestone->project_id)
+            ->whereIn('student_id', $students->pluck('id'))
+            ->get()
+            ->keyBy('student_id');
+
+        return view('admin.milestones.show', compact('milestone', 'students', 'marks'));
     }
 
     /**

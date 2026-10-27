@@ -50,6 +50,7 @@ class AdminUserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'role' => $validated['role'],
+            'class_id' => $validated['class_id'] ?? null,
             'password' => Hash::make($validated['password']),
             'email_verified_at' => $request->boolean('email_verified') ? now() : null,
         ]);
@@ -77,7 +78,10 @@ class AdminUserController extends Controller
         $user->name = $validated['name'];
         $user->email = $validated['email'];
         $user->role = $validated['role'];
-        $user->email_verified_at = $request->boolean('email_verified') ? ($user->email_verified_at ?? now()) : null;
+        $user->class_id = $validated['class_id'] ?? null;
+        $user->email_verified_at = $request->boolean('email_verified')
+            ? ($user->email_verified_at ?? now())
+            : null;
 
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
@@ -125,6 +129,7 @@ class AdminUserController extends Controller
                 'unique:users,email' . ($userId ? ",{$userId}" : ''),
             ],
             'role' => ['required', 'in:admin,teacher,student'],
+            'class_id' => ['nullable', 'integer', 'min:1'],
             'password' => [$passwordRule, 'string', 'min:8', 'confirmed'],
         ]);
 

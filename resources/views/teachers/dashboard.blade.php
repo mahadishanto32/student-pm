@@ -69,6 +69,9 @@
                     @endforelse
                 </x-dx.panel>
             </div>
+            <div class="row">
+                <div class="col-md-12">@include('dashboard.partials.marks-teacher')</div>
+            </div>
         </div>
     </div>
 @endsection

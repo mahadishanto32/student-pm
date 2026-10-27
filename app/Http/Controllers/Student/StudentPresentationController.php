@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Presentation;
 use App\Models\Project;
+use App\Models\ProjectMark;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -51,7 +52,15 @@ class StudentPresentationController extends Controller
         $projects = Project::whereIn('id', $projectIds)->get();
         $statuses = ['pending', 'completed', 'approved', 'rejected'];
 
-        return view('student.presentations.index', compact('presentations', 'projects', 'statuses'));
+        // project_id => this student's ProjectMark with the "Presentation" distribution
+        $myMarks = ProjectMark::with(['distributions' => fn ($q) => $q->where('topic', 'Presentation')])
+            ->where('student_id', Auth::id())
+            ->whereIn('project_id', $projectIds)
+            ->get()
+            ->keyBy('project_id');
+
+        return view('student.presentations.index', compact('presentations', 'projects', 'statuses', 'myMarks'));
+
     }
 
     public function create()
@@ -94,7 +103,12 @@ class StudentPresentationController extends Controller
 
         $presentation->load(['project', 'presenter']);
 
-        return view('student.presentations.show', compact('presentation'));
+        $myMark = ProjectMark::with(['distributions' => fn ($q) => $q->where('topic', 'Presentation')])
+            ->where('project_id', $presentation->project_id)
+            ->where('student_id', Auth::id())
+            ->first();
+
+        return view('student.presentations.show', compact('presentation', 'myMark'));
     }
 
     public function edit(Presentation $presentation)

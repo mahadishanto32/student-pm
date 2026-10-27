@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\ProjectMilestone;
+use App\Models\ProjectMark;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
@@ -49,7 +50,14 @@ class StudentProjectMilestoneController extends Controller
             ->orderBy('group_number')
             ->get();
 
-        return view('student.milestones.index', compact('milestones', 'projects'));
+        // project_id => ProjectMark (with the "Milestones" distribution) for this student only
+        $myMarks = ProjectMark::with(['distributions' => fn ($q) => $q->where('topic', 'Milestones')])
+            ->where('student_id', Auth::id())
+            ->whereIn('project_id', $projectIds)
+            ->get()
+            ->keyBy('project_id');
+
+        return view('student.milestones.index', compact('milestones', 'projects', 'myMarks'));
     }
 
     /**
@@ -61,7 +69,16 @@ class StudentProjectMilestoneController extends Controller
             ->whereIn('project_id', $this->assignedProjectIds())
             ->findOrFail($id);
 
-        return view('student.milestones.show', compact('milestone'));
+        Auth::user()->unreadNotifications
+            ->filter(fn ($n) => ($n->data['milestone_id'] ?? null) === $milestone->id)
+            ->each->markAsRead();
+
+        $myMark = ProjectMark::with(['distributions' => fn ($q) => $q->where('topic', 'Milestones')])
+            ->where('project_id', $milestone->project_id)
+            ->where('student_id', Auth::id())
+            ->first();
+
+        return view('student.milestones.show', compact('milestone', 'myMark'));
     }
 
     /**
@@ -102,13 +119,11 @@ class StudentProjectMilestoneController extends Controller
                 ->with('error', 'Completed milestones cannot be edited.');
         }
 
+        // Students can only update task descriptions and documents.
         $validated = $request->validate([
-            'title'                   => ['required', 'string', 'max:255'],
-            'tentative_time'          => ['nullable', 'date'],
-
             'tasks'                   => ['required', 'array', 'min:1'],
-            'tasks.*.id'              => ['nullable', 'integer'],
-            'tasks.*.key_points'      => ['required', 'string', 'max:1000'],
+            'tasks.*.id'              => ['required', 'integer'],
+            'tasks.*.description'     => ['nullable', 'string', 'max:5000'],
             'tasks.*.document'        => ['nullable', 'file', 'mimes:' . implode(',', $this->allowedMimes), 'max:5120'],
             'tasks.*.remove_document' => ['nullable', 'boolean'],
         ]);
@@ -116,21 +131,16 @@ class StudentProjectMilestoneController extends Controller
         DB::beginTransaction();
 
         try {
-            $milestone->update([
-                'title'          => $validated['title'],
-                'tentative_time' => $validated['tentative_time'] ?? null,
-            ]);
-
             $this->syncTasks($milestone, $request);
 
             DB::commit();
 
             return redirect()
                 ->route('student.milestones.show', $milestone->id)
-                ->with('success', 'Milestone updated successfully.');
+                ->with('success', 'Tasks updated successfully.');
         } catch (\Throwable $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Failed to update milestone: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Failed to update tasks: ' . $e->getMessage());
         }
     }
 
@@ -143,19 +153,21 @@ class StudentProjectMilestoneController extends Controller
      */
     protected function syncTasks(ProjectMilestone $milestone, Request $request): void
     {
-        $rows        = $request->input('tasks', []);
-        $files       = $request->file('tasks', []);
-        $keptTaskIds = [];
+        $rows  = $request->input('tasks', []);
+        $files = $request->file('tasks', []);
 
         foreach ($rows as $index => $row) {
-            $task = null;
-
-            if (!empty($row['id'])) {
-                // Scoped to this milestone, so tasks of other milestones can't be touched.
-                $task = $milestone->tasks()->where('id', $row['id'])->first();
+            if (empty($row['id'])) {
+                continue; // students cannot add new tasks
             }
 
-            $documentPath = $task->document ?? null;
+            // Scoped to this milestone so tasks from other milestones can't be touched.
+            $task = $milestone->tasks()->where('id', $row['id'])->first();
+            if (!$task) {
+                continue;
+            }
+
+            $documentPath = $task->document;
 
             if (!empty($row['remove_document'])) {
                 $this->deleteDocument($documentPath);
@@ -167,25 +179,10 @@ class StudentProjectMilestoneController extends Controller
                 $documentPath = $this->uploadDocument($files[$index]['document']);
             }
 
-            if ($task) {
-                $task->update([
-                    'key_points' => $row['key_points'],
-                    'document'   => $documentPath,
-                ]);
-                $keptTaskIds[] = $task->id;
-            } else {
-                $newTask = $milestone->tasks()->create([
-                    'key_points' => $row['key_points'],
-                    'document'   => $documentPath,
-                ]);
-                $keptTaskIds[] = $newTask->id;
-            }
-        }
-
-        $removed = $milestone->tasks()->whereNotIn('id', $keptTaskIds)->get();
-        foreach ($removed as $task) {
-            $this->deleteDocument($task->document);
-            $task->delete();
+            $task->update([
+                'description' => $row['description'] ?? null,
+                'document'    => $documentPath,
+            ]);
         }
     }
 

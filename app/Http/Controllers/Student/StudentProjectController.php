@@ -8,6 +8,9 @@ use App\Models\User;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Services\ProjectNotificationService;
+use App\Models\PartnerApproval;
+use App\Notifications\PartnerApprovalRequestNotification;
+use Illuminate\Support\Facades\DB;
 
 class StudentProjectController extends Controller
 {
@@ -67,24 +70,48 @@ class StudentProjectController extends Controller
             'tentative_end_date'      => ['nullable', 'date', 'after_or_equal:start_date'],
         ]);
 
-        $members = $validated['assigned_team_member'] ?? [];
-        unset($validated['assigned_team_member']);
+        $invitees = collect($validated['assigned_team_member'] ?? [])
+            ->map(fn ($id) => (int) $id)
+            ->reject(fn ($id) => $id === auth()->id())
+            ->unique();
 
-        // Auto-set status to pending for student submissions
+        unset($validated['assigned_team_member']);
         $validated['status'] = 'pending';
 
-        $project = Project::create($validated);
+        $project = DB::transaction(function () use ($validated, $invitees) {
+            $project = Project::create($validated);
 
-        // Always include the creating student as a team member
-        $memberIds = array_unique(array_merge($members, [auth()->id()]));
-        $project->teamMembers()->sync($memberIds);
+            // Only the creator is a member until the others approve
+            $project->teamMembers()->sync([auth()->id()]);
 
-        // Notify admins + the selected team members
-        app(ProjectNotificationService::class)->projectCreated($project);
+            foreach ($invitees as $userId) {
+                PartnerApproval::create([
+                    'project_id'   => $project->id,
+                    'user_id'      => $userId,
+                    'invited_by'   => auth()->id(),
+                    'approve'      => 'Pending',
+                    'for_creation' => true,
+                ]);
+            }
+
+            return $project;
+        });
+
+        // Send approval requests
+        User::whereIn('id', $invitees)->get()->each(
+            fn (User $u) => $u->notify(new PartnerApprovalRequestNotification($project, auth()->user()))
+        );
+
+        // No invitees -> nothing to wait for, notify admins right away
+        if ($invitees->isEmpty()) {
+            app(ProjectNotificationService::class)->projectCreated($project);
+        }
 
         return redirect()
             ->route('student.projects.index')
-            ->with('success', 'Project created successfully. It is now pending approval.');
+            ->with('success', $invitees->isEmpty()
+                ? 'Project created successfully. It is now pending approval.'
+                : 'Project saved. Approval requests were sent to the selected members; the project is created once they all accept.');
     }
 
     /**
@@ -92,11 +119,23 @@ class StudentProjectController extends Controller
      */
     public function show(Project $project)
     {
-        $this->authorizeProject($project);
+        $myApproval = $project->partnerApprovals()
+            ->where('user_id', auth()->id())
+            ->pending()
+            ->first();
+
+        if (! $myApproval) {
+            $this->authorizeProject($project);
+        }
+
+        // Mark invitation notifications for this project as read
+        auth()->user()->unreadNotifications
+            ->filter(fn ($n) => ($n->data['project_id'] ?? null) === $project->id)
+            ->each->markAsRead();
 
         $project->load(['teacher', 'teamMembers']);
 
-        return view('student.projects.show', compact('project'));
+        return view('student.projects.show', compact('project', 'myApproval'));
     }
 
     /**
@@ -108,12 +147,11 @@ class StudentProjectController extends Controller
 
         $project->load(['teacher', 'teamMembers']);
 
-        // Students can only be team members
-        $members = User::where('role', 'student')
-                    ->orderBy('name')
-                    ->get();
+        $pendingIds = $project->partnerApprovals()->pending()->pluck('user_id')->toArray();
 
-        return view('student.projects.edit', compact('project', 'members'));
+        $members = User::where('role', 'student')->orderBy('name')->get();
+
+        return view('student.projects.edit', compact('project', 'members', 'pendingIds'));
     }
 
     /**
@@ -131,17 +169,50 @@ class StudentProjectController extends Controller
             'assigned_team_member.*'  => ['exists:users,id'],
         ]);
 
-        $members = $validated['assigned_team_member'] ?? [];
+        $requested = collect($validated['assigned_team_member'] ?? [])
+            ->map(fn ($id) => (int) $id)->unique();
         unset($validated['assigned_team_member']);
 
-        $project->update($validated);
+        $current = $project->teamMembers()->pluck('users.id');
+        $pending = $project->partnerApprovals()->pending()->pluck('user_id');
 
-        // Sync team members — this adds AND removes members as needed
-        $project->teamMembers()->sync($members);
+        $toRemove = $current->diff($requested);                  // existing members deselected
+        $toCancel = $pending->diff($requested);                  // pending invites deselected
+        $toInvite = $requested->diff($current)->diff($pending);  // brand-new (or re-invited)
+
+        DB::transaction(function () use ($project, $validated, $toRemove, $toCancel, $toInvite) {
+            $project->update($validated);
+
+            if ($toRemove->isNotEmpty()) {
+                $project->teamMembers()->detach($toRemove->all());
+                $project->partnerApprovals()->whereIn('user_id', $toRemove)->delete();
+            }
+
+            if ($toCancel->isNotEmpty()) {
+                $project->partnerApprovals()->whereIn('user_id', $toCancel)->delete();
+            }
+
+            foreach ($toInvite as $userId) {
+                PartnerApproval::updateOrCreate(
+                    ['project_id' => $project->id, 'user_id' => $userId],
+                    [
+                        'invited_by'   => auth()->id(),
+                        'approve'      => 'Pending',
+                        'for_creation' => false,
+                    ]
+                );
+            }
+        });
+
+        User::whereIn('id', $toInvite)->get()->each(
+            fn (User $u) => $u->notify(new PartnerApprovalRequestNotification($project, auth()->user()))
+        );
 
         return redirect()
             ->route('student.projects.index')
-            ->with('success', 'Project updated successfully.');
+            ->with('success', $toInvite->isEmpty()
+                ? 'Project updated successfully.'
+                : 'Project updated. New members will be added once they accept the invitation.');
     }
 
     /**

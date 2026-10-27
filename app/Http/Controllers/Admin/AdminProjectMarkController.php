@@ -2,73 +2,59 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\BuildsProjectMarkSheets;
 use App\Http\Controllers\Controller;
+use App\Models\Project;
 use App\Models\ProjectMark;
-use App\Models\MarksDistribution;
 use Illuminate\Http\Request;
 
 class AdminProjectMarkController extends Controller
 {
-    /**
-     * Display a listing of all project marks.
-     */
+    use BuildsProjectMarkSheets;
+
     public function index(Request $request)
     {
-        $query = ProjectMark::with(['project', 'supervisor', 'student', 'distributions']);
+        $projects = Project::with(['teamMembers', 'teacher'])
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $s = $request->search;
 
-        // Search filter (project fields + student/supervisor name)
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->whereHas('project', function ($pq) use ($search) {
-                    $pq->where('group_number', 'like', "%{$search}%")
-                       ->orWhere('project_name', 'like', "%{$search}%")
-                       ->orWhere('project_topic', 'like', "%{$search}%");
-                })
-                ->orWhereHas('student', function ($sq) use ($search) {
-                    $sq->where('name', 'like', "%{$search}%");
-                })
-                ->orWhereHas('supervisor', function ($sq) use ($search) {
-                    $sq->where('name', 'like', "%{$search}%");
+                $q->where(function ($q) use ($s) {
+                    $q->where('project_name', 'like', "%{$s}%")
+                      ->orWhere('project_topic', 'like', "%{$s}%")
+                      ->orWhere('group_number', 'like', "%{$s}%")
+                      // NEW: match projects whose team members have this class_id
+                      ->orWhereHas('teamMembers', function ($q) use ($s) {
+                          $q->where('class_id', 'like', "%{$s}%");
+                      });
                 });
-            });
+            })
+            ->orderBy('group_number')
+            ->paginate(10)
+            ->withQueryString();
+
+        // Build summaries and attach student names for the view
+        $summaries = $this->summaries($projects->getCollection());
+
+        foreach ($projects as $project) {
+            $names = $project->teamMembers
+                ->pluck('name')
+                ->filter()
+                ->values()
+                ->all();
+
+            $summaries[$project->id]['student_names'] = $names;
         }
 
-        // Filter by project
-        if ($request->filled('project_id')) {
-            $query->where('project_id', $request->project_id);
-        }
-
-        $projectMarks = $query->latest()->paginate(15);
-
-        // Apply grade filter (post-query since grade is a computed attribute)
-        if ($request->filled('grade')) {
-            $grade = $request->grade;
-            $filtered = $projectMarks->getCollection()->filter(function ($mark) use ($grade) {
-                return $mark->grade_info['grade'] === $grade;
-            });
-            $projectMarks->setCollection($filtered);
-        }
-
-        // For the project dropdown
-        $projects = \App\Models\Project::orderBy('group_number')->get();
-
-        return view('admin.project-marks.index', compact('projectMarks', 'projects'));
+        return view('admin.project-marks.index', compact('projects', 'summaries'));
     }
 
-    /**
-     * Display the specified project mark with grading details.
-     */
-    public function show(ProjectMark $projectMark)
+    public function show(string $id)
     {
-        $projectMark->load(['project', 'supervisor', 'student', 'distributions']);
+        $project  = Project::with(['teamMembers', 'teacher'])->findOrFail($id);
+        $rows     = $this->buildSheets(collect([$project]))[$project->id];
+        $topicMap = $this->topicMap();
+        $perTopic = ProjectMark::MARKS_PER_TOPIC;
 
-        // Grading scale for reference table
-        $gradingScale = ProjectMark::GRADING_SCALE;
-
-        // All topics
-        $topics = MarksDistribution::TOPICS;
-
-        return view('admin.project-marks.show', compact('projectMark', 'gradingScale', 'topics'));
+        return view('admin.project-marks.show', compact('project', 'rows', 'topicMap', 'perTopic'));
     }
 }

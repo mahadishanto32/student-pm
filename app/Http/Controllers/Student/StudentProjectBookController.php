@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\ProjectBook;
+use App\Models\ProjectMark;
 use App\Models\ProjectBookChapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -41,7 +42,14 @@ class StudentProjectBookController extends Controller
 
         $projectBooks = $query->latest()->paginate(10);
 
-        return view('student.project-book.index', compact('projectBooks'));
+        // project_id => this student's ProjectMark with the "Project Book" distribution
+        $myMarks = ProjectMark::with(['distributions' => fn ($q) => $q->where('topic', 'Project Book')])
+            ->where('student_id', Auth::id())
+            ->whereIn('project_id', $projectIds)
+            ->get()
+            ->keyBy('project_id');
+
+        return view('student.project-book.index', compact('projectBooks', 'myMarks'));
     }
 
     /**
@@ -106,7 +114,12 @@ class StudentProjectBookController extends Controller
             $q->orderBy('chapter_no');
         }]);
 
-        return view('student.project-book.show', compact('projectBook'));
+        $myMark = ProjectMark::with(['distributions' => fn ($q) => $q->where('topic', 'Project Book')])
+            ->where('project_id', $projectBook->project_id)
+            ->where('student_id', Auth::id())
+            ->first();
+
+        return view('student.project-book.show', compact('projectBook', 'myMark'));
     }
 
     /**

@@ -66,6 +66,7 @@
                                 <th>Team Members</th>
                                 <th>Chapters</th>
                                 <th>Status</th>
+                                <th>Marks</th>
                                 <th>Created</th>
                                 <th style="width: 180px;">Actions</th>
                             </tr>
@@ -99,6 +100,19 @@
                                         @endphp
                                         <span class="label {{ $badge }}">{{ ucfirst($book->status) }}</span>
                                     </td>
+                                    <td>
+                                        @if ($book->status === 'completed')
+                                            @php $summary = $marksSummary[$book->project_id] ?? null; @endphp
+                                            @if ($summary && $summary['marked'] > 0)
+                                                <strong>{{ $summary['avg'] }}</strong> / {{ \App\Models\ProjectMark::MARKS_PER_TOPIC }}
+                                                <br><small class="text-muted">avg · {{ $summary['marked'] }} marked</small>
+                                            @else
+                                                <span class="label label-default">Not marked</span>
+                                            @endif
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $book->created_at?->format('d M Y') }}</td>
                                     <td>
                                         <a href="{{ route('teachers.project-books.show', $book->id) }}"
@@ -122,7 +136,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center">No project books found.</td>
+                                    <td colspan="10" class="text-center">No project books found.</td>
                                 </tr>
                             @endforelse
                         </tbody>

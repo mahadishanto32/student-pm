@@ -79,10 +79,38 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label>Marks</label>
-                            <p>{{ $milestone->marks ?? '—' }}</p>
-                        </div>
+                            <label>My Marks</label>
+                            @php
+                                $dist = $milestone->status === 'completed'
+                                    ? $myMark?->distributions->first()
+                                    : null;
+                            @endphp
+                            <p>
+                                @if ($dist)
+                                    <strong>{{ rtrim(rtrim(number_format((float) $dist->given_marks, 2), '0'), '.') }}</strong>
+                                    / {{ rtrim(rtrim(number_format((float) $dist->out_of, 2), '0'), '.') }}
+                                    <small class="text-muted">
+                                        ({{ number_format(($dist->given_marks / $dist->out_of) * 100, 1) }}%)
+                                    </small>
+                                @elseif ($milestone->status === 'completed')
+                                    <span class="label label-default">Not marked yet</span>
+                                @else
+                                    —
+                                @endif
+                            </p>
+                        </div>                       
                     </div>
+
+                    @if ($milestone->status === 'completed' && $myMark?->remarks)
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Remarks for You</label>
+                                <div class="alert alert-success" style="margin-bottom: 0;">
+                                    {{ $myMark->remarks }}
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
                     @if ($milestone->supervisor_note)
                         <div class="col-md-12">
@@ -109,6 +137,7 @@
                             <tr>
                                 <th style="width: 60px;">#</th>
                                 <th>Key Points</th>
+                                <th>Description</th>
                                 <th style="width: 200px;">Document</th>
                             </tr>
                         </thead>
@@ -118,9 +147,16 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $task->key_points }}</td>
                                     <td>
+                                        @if ($task->description)
+                                            {{ $task->description }}
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
+                                    <td>
                                         @if ($task->document)
                                             <a href="{{ asset($task->document) }}" target="_blank"
-                                               class="btn btn-sm btn-default">
+                                            class="btn btn-sm btn-default">
                                                 <i class="fa fa-download"></i> Open
                                             </a>
                                         @else
@@ -130,7 +166,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="text-center">No tasks added yet.</td>
+                                    <td colspan="4" class="text-center">No tasks added yet.</td>
                                 </tr>
                             @endforelse
                         </tbody>

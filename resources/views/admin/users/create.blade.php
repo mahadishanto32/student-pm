@@ -49,6 +49,13 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="class_id">Class ID</label>
+                        <input type="number" name="class_id" id="class_id" class="form-control" min="1"
+                               value="{{ old('class_id') }}" placeholder="Optional — only for students">
+                        <small class="help-block">Leave blank if not applicable.</small>
+                    </div>
+
+                    <div class="form-group">
                         <label for="password">Password</label>
                         <input type="password" name="password" id="password" class="form-control" required>
                     </div>

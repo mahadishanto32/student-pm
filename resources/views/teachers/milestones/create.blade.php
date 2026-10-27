@@ -105,14 +105,22 @@
                         @endphp
                         @foreach ($oldTasks as $i => $task)
                             <div class="row task-row" style="margin-bottom: 10px; border-bottom: 1px dashed #eee; padding-bottom: 10px;">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Key Points <span class="text-danger">*</span></label>
-                                        <textarea name="tasks[{{ $i }}][key_points]" class="form-control" rows="2"
+                                        <textarea name="tasks[{{ $i }}][key_points]" class="form-control" rows="3"
                                                   required>{{ $task['key_points'] ?? '' }}</textarea>
                                     </div>
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <textarea name="tasks[{{ $i }}][description]" class="form-control" rows="3"
+                                            placeholder="Describe the task details...">{{ old("tasks.$i.description") }}</textarea>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
                                     <div class="form-group">
                                         <label>Document (image / pdf / docx)</label>
                                         <input type="file" name="tasks[{{ $i }}][document]" class="form-control"
@@ -167,13 +175,19 @@
                 const i = container.querySelectorAll('.task-row').length;
                 const html = `
                     <div class="row task-row" style="margin-bottom: 10px; border-bottom: 1px dashed #eee; padding-bottom: 10px;">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label>Key Points <span class="text-danger">*</span></label>
-                                <textarea name="tasks[${i}][key_points]" class="form-control" rows="2" required></textarea>
+                                <textarea name="tasks[${i}][key_points]" class="form-control" rows="3" required></textarea>
                             </div>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea name="tasks[${i}][description]" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>Document (image / pdf / docx)</label>
                                 <input type="file" name="tasks[${i}][document]" class="form-control"

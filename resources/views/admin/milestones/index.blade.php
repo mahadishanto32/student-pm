@@ -112,7 +112,23 @@
                                             {{ ucwords(str_replace('_', ' ', $milestone->status)) }}
                                         </span>
                                     </td>
-                                    <td>{{ $milestone->marks ?? '—' }}</td>
+                                    <td>
+                                        @if ($milestone->status === 'completed')
+                                            @php
+                                                $summary = $marksSummary[$milestone->project_id] ?? null;
+                                                $total   = $milestone->project?->teamMembers->count() ?? 0;
+                                            @endphp
+                                            @if ($summary && $summary['marked'] > 0)
+                                                <strong>{{ $summary['avg'] }}</strong> / {{ \App\Models\ProjectMark::MARKS_PER_TOPIC }}
+                                                <br>
+                                                <small class="text-muted">avg · {{ $summary['marked'] }}/{{ $total }} marked</small>
+                                            @else
+                                                <span class="label label-default">Not marked</span>
+                                            @endif
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $milestone->doneBy->name ?? '—' }}</td>
                                     <td>
                                         @if ($milestone->supervisor_note)

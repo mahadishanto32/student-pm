@@ -111,7 +111,22 @@
                                             {{ ucwords(str_replace('_', ' ', $milestone->status)) }}
                                         </span>
                                     </td>
-                                    <td>{{ $milestone->marks ?? '—' }}</td>
+                                    <td>
+                                        @php
+                                            $dist  = $milestone->status === 'completed'
+                                                ? ($myMarks[$milestone->project_id] ?? null)?->distributions->first()
+                                                : null;
+                                        @endphp
+
+                                        @if ($dist)
+                                            <strong>{{ rtrim(rtrim(number_format((float) $dist->given_marks, 2), '0'), '.') }}</strong>
+                                            / {{ rtrim(rtrim(number_format((float) $dist->out_of, 2), '0'), '.') }}
+                                        @elseif ($milestone->status === 'completed')
+                                            <span class="label label-default">Not marked</span>
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $milestone->doneBy->name ?? '—' }}</td>
                                     <td>
                                         <a href="{{ route('student.milestones.show', $milestone->id) }}"

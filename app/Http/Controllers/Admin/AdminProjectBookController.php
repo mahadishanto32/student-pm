@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\ProjectBook;
+use App\Models\ProjectMark;
 use App\Models\ProjectBookChapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -38,7 +39,24 @@ class AdminProjectBookController extends Controller
 
         $projectBooks = $query->latest()->paginate(10);
 
-        return view('admin.project-book.index', compact('projectBooks'));
+        // project_id => ['marked' => n, 'avg' => x] for the "Project Book" topic
+        $marksSummary = ProjectMark::with(['distributions' => fn ($q) => $q->where('topic', 'Project Book')])
+            ->whereIn('project_id', $projectBooks->pluck('project_id')->unique())
+            ->get()
+            ->groupBy('project_id')
+            ->map(function ($rows) {
+                $given = $rows
+                    ->map(fn ($m) => $m->distributions->first()?->given_marks)
+                    ->filter(fn ($v) => $v !== null)
+                    ->map(fn ($v) => (float) $v);
+
+                return [
+                    'marked' => $given->count(),
+                    'avg'    => $given->count() ? round($given->avg(), 2) : null,
+                ];
+        });
+
+        return view('admin.project-book.index', compact('projectBooks', 'marksSummary'));
     }
 
     /* ------------------------------------------------------------------ */
@@ -101,7 +119,20 @@ class AdminProjectBookController extends Controller
             'chapters' => fn ($q) => $q->orderBy('chapter_no'),
         ]);
 
-        return view('admin.project-book.show', compact('projectBook'));
+        $students = $projectBook->project->teamMembers
+            ->where('role', 'student')
+            ->values();
+
+        $marks = ProjectMark::with([
+                'distributions' => fn ($q) => $q->where('topic', 'Project Book'),
+                'supervisor',
+            ])
+            ->where('project_id', $projectBook->project_id)
+            ->whereIn('student_id', $students->pluck('id'))
+            ->get()
+            ->keyBy('student_id');
+
+        return view('admin.project-book.show', compact('projectBook', 'students', 'marks'));
     }
 
     /* ------------------------------------------------------------------ */

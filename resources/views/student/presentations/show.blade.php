@@ -44,9 +44,33 @@
                                 <td>{!! nl2br(e($presentation->supervisor_feedback ?? '—')) !!}</td>
                             </tr>
                             <tr>
-                                <th>Marks</th>
-                                <td>{{ $presentation->marks !== null ? $presentation->marks : '—' }}</td>
+                                <th>My Marks</th>
+                                <td>
+                                    @php
+                                        $dist = $presentation->status === 'completed'
+                                            ? $myMark?->distributions->first()
+                                            : null;
+                                    @endphp
+
+                                    @if ($dist)
+                                        <strong>{{ rtrim(rtrim(number_format((float) $dist->given_marks, 2), '0'), '.') }}</strong>
+                                        / {{ rtrim(rtrim(number_format((float) $dist->out_of, 2), '0'), '.') }}
+                                        <small class="text-muted">
+                                            ({{ number_format(($dist->given_marks / $dist->out_of) * 100, 1) }}%)
+                                        </small>
+                                    @elseif ($presentation->status === 'completed')
+                                        <span class="label label-default">Not marked yet</span>
+                                    @else
+                                        —
+                                    @endif
+                                </td>
                             </tr>
+                            @if ($presentation->status === 'completed' && $myMark?->remarks)
+                                <tr>
+                                    <th>Remarks</th>
+                                    <td>{{ $myMark->remarks }}</td>
+                                </tr>
+                            @endif
                             <tr>
                                 <th>Status</th>
                                 <td>{{ ucfirst($presentation->status) }}</td>

@@ -14,6 +14,7 @@ class MilestoneTask extends Model
     protected $fillable = [
         'project_milestone_id',
         'key_points',
+        'description',
         'document',
     ];
 

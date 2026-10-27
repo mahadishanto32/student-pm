@@ -70,6 +70,7 @@
                                 <th>Topic</th>
                                 <th>Chapters</th>
                                 <th>Status</th>
+                                <th>Marks</th>
                                 <th>Created</th>
                                 <th style="width: 180px;">Actions</th>
                             </tr>
@@ -95,6 +96,22 @@
                                             };
                                         @endphp
                                         <span class="label {{ $badge }}">{{ ucfirst($book->status) }}</span>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $dist = $book->status === 'completed'
+                                                ? ($myMarks[$book->project_id] ?? null)?->distributions->first()
+                                                : null;
+                                        @endphp
+
+                                        @if ($dist)
+                                            <strong>{{ rtrim(rtrim(number_format((float) $dist->given_marks, 2), '0'), '.') }}</strong>
+                                            / {{ rtrim(rtrim(number_format((float) $dist->out_of, 2), '0'), '.') }}
+                                        @elseif ($book->status === 'completed')
+                                            <span class="label label-default">Not marked</span>
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
                                     </td>
                                     <td>{{ $book->created_at?->format('d M Y') }}</td>
                                     <td>

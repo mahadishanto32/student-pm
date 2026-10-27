@@ -17,14 +17,12 @@ class Presentation extends Model
         'key_points',
         'supervisor_feedback',
         'date_of_presentation',
-        'marks',
         'presentation_file',
         'status',
     ];
 
     protected $casts = [
         'date_of_presentation' => 'date',
-        'marks'                => 'decimal:2',
     ];
 
     /**

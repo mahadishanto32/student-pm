@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Milestone')
+@section('title', 'Update Milestone Tasks')
 
 @section('content')
     <div class="row column_title">
         <div class="col-md-12">
             <div class="page_title">
-                <h2>Edit Milestone</h2>
+                <h2>Update Milestone Tasks</h2>
             </div>
         </div>
     </div>
@@ -30,42 +30,37 @@
                     @csrf
                     @method('PUT')
 
+                    {{-- Read-only milestone info --}}
                     <div class="row" style="padding: 15px;">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Project <span class="text-danger">*</span></label>
-                                <select name="project_id" class="form-control" required>
-                                    @foreach ($projects as $project)
-                                        <option value="{{ $project->id }}"
-                                            @selected(old('project_id', $milestone->project_id) == $project->id)>
-                                            Group {{ $project->group_number }} — {{ $project->project_name }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <label>Project</label>
+                                <input type="text" class="form-control" disabled
+                                       value="Group {{ $milestone->project->group_number ?? '—' }} — {{ $milestone->project->project_name ?? '—' }}">
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Title <span class="text-danger">*</span></label>
-                                <input type="text" name="title" class="form-control"
-                                       value="{{ old('title', $milestone->title) }}" required>
+                                <label>Title</label>
+                                <input type="text" class="form-control" disabled
+                                       value="{{ $milestone->title }}">
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Tentative Time</label>
-                                <input type="datetime-local" name="tentative_time" class="form-control"
-                                       value="{{ old('tentative_time', $milestone->tentative_time?->format('Y-m-d\TH:i')) }}">
+                                <input type="text" class="form-control" disabled
+                                       value="{{ $milestone->tentative_time?->format('d M Y, h:i A') ?? '—' }}">
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Status</label>
-                                <input type="text" class="form-control"
-                                       value="{{ ucwords(str_replace('_', ' ', $milestone->status)) }}" disabled>
+                                <input type="text" class="form-control" disabled
+                                       value="{{ ucwords(str_replace('_', ' ', $milestone->status)) }}">
                                 <small class="text-muted">Status is set by the supervisor.</small>
                             </div>
                         </div>
@@ -84,6 +79,7 @@
                     <div class="row" style="padding: 0 15px;">
                         <div class="col-md-12">
                             <h5>Milestone Tasks</h5>
+                            <small class="text-muted">You can update the description and document for each task. Key points are set by the supervisor.</small>
                             <hr>
                         </div>
                     </div>
@@ -94,6 +90,7 @@
                             $tasks = $oldTasks ?: $milestone->tasks->map(fn ($t) => [
                                 'id'              => $t->id,
                                 'key_points'      => $t->key_points,
+                                'description'     => $t->description,
                                 'document'        => $t->document,
                                 'remove_document' => false,
                             ])->toArray();
@@ -103,14 +100,23 @@
                             <div class="row task-row" style="margin-bottom: 10px; border-bottom: 1px dashed #eee; padding-bottom: 10px;">
                                 <input type="hidden" name="tasks[{{ $i }}][id]" value="{{ $task['id'] ?? '' }}">
 
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-group">
-                                        <label>Key Points <span class="text-danger">*</span></label>
-                                        <textarea name="tasks[{{ $i }}][key_points]" class="form-control" rows="2"
-                                                  required>{{ $task['key_points'] ?? '' }}</textarea>
+                                        <label>Key Points</label>
+                                        <textarea class="form-control" rows="3" disabled>{{ $task['key_points'] ?? '' }}</textarea>
+                                        <small class="text-muted">Key points are set by the supervisor.</small>
                                     </div>
                                 </div>
-                                <div class="col-md-5">
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <textarea name="tasks[{{ $i }}][description]" class="form-control"
+                                                  rows="3" placeholder="Describe your progress for this task...">{{ $task['description'] ?? '' }}</textarea>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Document (image / pdf / docx)</label>
                                         <input type="file" name="tasks[{{ $i }}][document]" class="form-control"
@@ -130,27 +136,14 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div class="col-md-1" style="padding-top: 28px;">
-                                    <button type="button" class="btn btn-danger btn-sm remove-task">
-                                        <i class="fa fa-times"></i>
-                                    </button>
-                                </div>
                             </div>
                         @endforeach
                     </div>
 
                     <div class="row" style="padding: 0 15px 15px 15px;">
-                        <div class="col-md-12">
-                            <button type="button" id="add-task" class="btn btn-default">
-                                <i class="fa fa-plus"></i> Add Task
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="row" style="padding: 0 15px 15px 15px;">
                         <div class="col-md-12 text-right">
                             <a href="{{ route('student.milestones.show', $milestone->id) }}" class="btn btn-default">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Update Milestone</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
                         </div>
                     </div>
                 </form>
@@ -158,60 +151,4 @@
             </div>
         </div>
     </div>
-
-    <script>
-        (function () {
-            const container = document.getElementById('tasks-container');
-            const addBtn    = document.getElementById('add-task');
-
-            function reindex() {
-                container.querySelectorAll('.task-row').forEach((row, i) => {
-                    row.querySelectorAll('input, textarea, select').forEach(el => {
-                        const name = el.getAttribute('name');
-                        if (!name) return;
-                        el.setAttribute('name', name.replace(/tasks\[\d+\]/, `tasks[${i}]`));
-                    });
-                });
-            }
-
-            addBtn.addEventListener('click', () => {
-                const i = container.querySelectorAll('.task-row').length;
-                const html = `
-                    <div class="row task-row" style="margin-bottom: 10px; border-bottom: 1px dashed #eee; padding-bottom: 10px;">
-                        <input type="hidden" name="tasks[${i}][id]" value="">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Key Points <span class="text-danger">*</span></label>
-                                <textarea name="tasks[${i}][key_points]" class="form-control" rows="2" required></textarea>
-                            </div>
-                        </div>
-                        <div class="col-md-5">
-                            <div class="form-group">
-                                <label>Document (image / pdf / docx)</label>
-                                <input type="file" name="tasks[${i}][document]" class="form-control"
-                                       accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx">
-                            </div>
-                        </div>
-                        <div class="col-md-1" style="padding-top: 28px;">
-                            <button type="button" class="btn btn-danger btn-sm remove-task">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </div>
-                    </div>`;
-                container.insertAdjacentHTML('beforeend', html);
-            });
-
-            container.addEventListener('click', (e) => {
-                const btn = e.target.closest('.remove-task');
-                if (!btn) return;
-                const rows = container.querySelectorAll('.task-row');
-                if (rows.length <= 1) {
-                    alert('At least one task is required.');
-                    return;
-                }
-                btn.closest('.task-row').remove();
-                reindex();
-            });
-        })();
-    </script>
 @endsection

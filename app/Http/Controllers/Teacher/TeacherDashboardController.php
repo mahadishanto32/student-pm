@@ -7,9 +7,13 @@ use App\Models\Project;
 use App\Support\DashboardMetrics;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Concerns\BuildsProjectMarkSheets;
+use App\Models\ProjectMark;
 
 class TeacherDashboardController extends Controller
 {
+    use BuildsProjectMarkSheets;
+
     public function index()
     {
         $teacher    = Auth::user();
@@ -38,6 +42,10 @@ class TeacherDashboardController extends Controller
         $stats['students'] = $students->pluck('id')->unique()->count();
         $stats['marked']   = $marking->where('marked', true)->count();
 
+        // Full mark sheet per assigned project
+        $markProjects = Project::with('teamMembers')->whereIn('id', $projectIds)->orderBy('group_number')->get();
+        $markSheets   = $this->buildSheets($markProjects);
+
         return view('teachers.dashboard', [
             'stats'          => $stats,
             'marking'        => $marking,
@@ -49,6 +57,10 @@ class TeacherDashboardController extends Controller
             'updates'        => $metrics->recentUpdates(5),
             'schedule'       => $metrics->schedule(5),
             'notifications'  => DashboardMetrics::notifications($teacher),
+            'markProjects'   => $markProjects,
+            'markSheets'     => $markSheets,
+            'topicMap'       => $this->topicMap(),
+            'perTopic'       => ProjectMark::MARKS_PER_TOPIC,
         ]);
     }
 }

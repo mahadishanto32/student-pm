@@ -62,6 +62,48 @@
 
                     <hr>
 
+                    {{-- Individual student marks: only visible when status = completed --}}
+                    <div id="marks-section" style="display: none;">
+                        <h4>Student Marks (out of {{ \App\Models\ProjectMark::MARKS_PER_TOPIC }})</h4>
+                        <p class="text-muted">Required for every student when the status is Completed.</p>
+
+                        @forelse ($students as $student)
+                            @php
+                                $pm    = $existingMarks[$student->id] ?? null;
+                                $given = $pm?->distributions->first()?->given_marks;
+                            @endphp
+                            <div class="row" style="margin-bottom: 10px;">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Student</label>
+                                        <input type="text" class="form-control" value="{{ $student->name }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Marks (0 - {{ \App\Models\ProjectMark::MARKS_PER_TOPIC }})</label>
+                                        <input type="number" name="marks[{{ $student->id }}][given_marks]"
+                                               class="form-control" min="0"
+                                               max="{{ \App\Models\ProjectMark::MARKS_PER_TOPIC }}" step="0.25"
+                                               value="{{ old("marks.{$student->id}.given_marks", $given) }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group">
+                                        <label>Remarks</label>
+                                        <input type="text" name="marks[{{ $student->id }}][remarks]"
+                                               class="form-control" placeholder="Optional remarks"
+                                               value="{{ old("marks.{$student->id}.remarks", $pm?->remarks) }}">
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-muted">No students found in this project's team.</p>
+                        @endforelse
+
+                        <hr>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-12">
                             <h4>Chapters</h4>
@@ -142,6 +184,18 @@
         let index = {{ count(old('chapters', $projectBook->chapters)) ?: 1 }};
         const wrapper = document.getElementById('chapters-wrapper');
         const addBtn  = document.getElementById('add-chapter');
+
+        const statusSelect = document.getElementById('status');
+        const marksSection = document.getElementById('marks-section');
+
+        function toggleMarks() {
+            const show = statusSelect.value === 'completed';
+            marksSection.style.display = show ? '' : 'none';
+            // Disabled inputs are not submitted or validated by the browser
+            marksSection.querySelectorAll('input[name^="marks"]').forEach(el => el.disabled = !show);
+        }
+        statusSelect.addEventListener('change', toggleMarks);
+        toggleMarks();
 
         addBtn.addEventListener('click', function () {
             const row = document.createElement('div');

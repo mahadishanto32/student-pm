@@ -1,12 +1,12 @@
 @extends('teachers.layouts.app')
 
-@section('title', 'Review Milestone')
+@section('title', 'Edit Milestone')
 
 @section('content')
     <div class="row column_title">
         <div class="col-md-12">
             <div class="page_title">
-                <h2>Review Milestone</h2>
+                <h2>Edit Milestone</h2>
             </div>
         </div>
     </div>
@@ -25,102 +25,21 @@
                     </div>
                 @endif
 
-                <form action="{{ route('teachers.milestones.update', $milestone->id) }}" method="POST">
+                <form action="{{ route('teachers.milestones.update', $milestone->id) }}"
+                      method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
-                    {{-- Read-only milestone info --}}
+                    {{-- Editable milestone fields --}}
                     <div class="row" style="padding: 15px;">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Project</label>
-                                <input type="text" class="form-control"
-                                       value="Group {{ $milestone->project->group_number ?? '—' }} — {{ $milestone->project->project_name ?? '—' }}"
-                                       disabled>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Title</label>
-                                <input type="text" class="form-control" value="{{ $milestone->title }}" disabled>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Tentative Time</label>
-                                <input type="text" class="form-control"
-                                       value="{{ $milestone->tentative_time?->format('d M Y, h:i A') ?? '—' }}"
-                                       disabled>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Done By</label>
-                                <input type="text" class="form-control"
-                                       value="{{ $milestone->doneBy->name ?? '—' }}" disabled>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Read-only tasks --}}
-                    <div class="row" style="padding: 0 15px;">
-                        <div class="col-md-12">
-                            <h5>Milestone Tasks ({{ $milestone->tasks->count() }})</h5>
-                            <hr>
-                        </div>
-                    </div>
-
-                    <div class="table-responsive" style="padding: 0 15px 15px 15px;">
-                        <table class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th style="width: 60px;">#</th>
-                                    <th>Key Points</th>
-                                    <th style="width: 200px;">Document</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($milestone->tasks as $task)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $task->key_points }}</td>
-                                        <td>
-                                            @if ($task->document)
-                                                <a href="{{ asset($task->document) }}" target="_blank"
-                                                   class="btn btn-sm btn-default">
-                                                    <i class="fa fa-download"></i> Open
-                                                </a>
-                                            @else
-                                                <span class="text-muted">—</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="3" class="text-center">No tasks added yet.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {{-- Editable fields: status + supervisor_note --}}
-                    <div class="row" style="padding: 15px;">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Status <span class="text-danger">*</span></label>
-                                <select name="status" class="form-control" required>
-                                    @foreach ([
-                                        'pending'         => 'Pending',
-                                        'need_correction' => 'Need Correction',
-                                        'completed'       => 'Completed',
-                                        'rejected'        => 'Rejected',
-                                    ] as $value => $label)
-                                        <option value="{{ $value }}"
-                                            @selected(old('status', $milestone->status) === $value)>
-                                            {{ $label }}
+                                <label>Project <span class="text-danger">*</span></label>
+                                <select name="project_id" class="form-control" required>
+                                    @foreach ($projects as $project)
+                                        <option value="{{ $project->id }}"
+                                            @selected(old('project_id', $milestone->project_id) == $project->id)>
+                                            Group {{ $project->group_number }} — {{ $project->project_name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -129,20 +48,162 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Marks (out of 10)</label>
-                                <input type="number" name="marks" class="form-control"
-                                    min="0" max="10" step="1"
-                                    placeholder="0 - 10"
-                                    value="{{ old('marks', $milestone->marks) }}">
+                                <label>Title <span class="text-danger">*</span></label>
+                                <input type="text" name="title" class="form-control"
+                                       value="{{ old('title', $milestone->title) }}" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Tentative Time</label>
+                                <input type="datetime-local" name="tentative_time" class="form-control"
+                                       value="{{ old('tentative_time', $milestone->tentative_time?->format('Y-m-d\TH:i')) }}">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Status <span class="text-danger">*</span></label>
+                                <select name="status" id="status-select" class="form-control" required>
+                                    @foreach ([
+                                        'pending'         => 'Pending',
+                                        'need_correction' => 'Need Correction',
+                                        'completed'       => 'Completed',
+                                        'rejected'        => 'Rejected',
+                                    ] as $value => $label)
+                                        <option value="{{ $value }}" @selected(old('status', $milestone->status) === $value)>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
 
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>Supervisor Note</label>
-                                <textarea name="supervisor_note" class="form-control" rows="4"
+                                <textarea name="supervisor_note" class="form-control" rows="3"
                                           placeholder="Add feedback for the students...">{{ old('supervisor_note', $milestone->supervisor_note) }}</textarea>
                             </div>
+                        </div>
+                    </div>
+
+                    {{-- Individual student marks: only visible when status = completed --}}
+                    <div id="marks-section" style="padding: 0 15px; display: none;">
+                        <h5>Student Marks (out of {{ \App\Models\ProjectMark::MARKS_PER_TOPIC }})</h5>
+                        <hr>
+
+                        @forelse ($students as $student)
+                            @php
+                                $pm      = $existingMarks[$student->id] ?? null;
+                                $given   = $pm?->distributions->firstWhere('topic', 'Milestones')?->given_marks;
+                                $remarks = $pm?->remarks;
+                            @endphp
+                            <div class="row" style="margin-bottom: 10px;">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Student</label>
+                                        <input type="text" class="form-control" value="{{ $student->name }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Marks (0 - {{ \App\Models\ProjectMark::MARKS_PER_TOPIC }})</label>
+                                        <input type="number" name="marks[{{ $student->id }}][given_marks]"
+                                            class="form-control" min="0"
+                                            max="{{ \App\Models\ProjectMark::MARKS_PER_TOPIC }}" step="0.25"
+                                            value="{{ old("marks.{$student->id}.given_marks", $given) }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group">
+                                        <label>Remarks</label>
+                                        <input type="text" name="marks[{{ $student->id }}][remarks]"
+                                            class="form-control" placeholder="Optional remarks"
+                                            value="{{ old("marks.{$student->id}.remarks", $remarks) }}">
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-muted">No students found in this project's team.</p>
+                        @endforelse
+                    </div>
+
+                    <div class="row" style="padding: 0 15px;">
+                        <div class="col-md-12">
+                            <h5>Milestone Tasks</h5>
+                            <hr>
+                        </div>
+                    </div>
+
+                    <div id="tasks-container" style="padding: 0 15px;">
+                        @php
+                            $oldTasks = old('tasks');
+                            $tasks = $oldTasks ?: $milestone->tasks->map(fn ($t) => [
+                                'id'              => $t->id,
+                                'key_points'      => $t->key_points,
+                                'description'     => $t->description,
+                                'document'        => $t->document,
+                                'remove_document' => false,
+                            ])->toArray();
+                        @endphp
+
+                        @foreach ($tasks as $i => $task)
+                            <div class="row task-row" style="margin-bottom: 10px; border-bottom: 1px dashed #eee; padding-bottom: 10px;">
+                                <input type="hidden" name="tasks[{{ $i }}][id]" value="{{ $task['id'] ?? '' }}">
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Key Points <span class="text-danger">*</span></label>
+                                        <textarea name="tasks[{{ $i }}][key_points]" class="form-control" rows="3"
+                                                  required>{{ $task['key_points'] ?? '' }}</textarea>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <textarea name="tasks[{{ $i }}][description]" class="form-control"
+                                                  rows="3" placeholder="Describe the task details...">{{ $task['description'] ?? '' }}</textarea>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Document (image / pdf / docx)</label>
+                                        <input type="file" name="tasks[{{ $i }}][document]" class="form-control"
+                                               accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx">
+
+                                        @if (!empty($task['document']))
+                                            <div class="checkbox" style="margin-top: 5px;">
+                                                <label>
+                                                    <input type="checkbox"
+                                                           name="tasks[{{ $i }}][remove_document]"
+                                                           value="1"> Remove existing document
+                                                </label>
+                                                <a href="{{ asset($task['document']) }}" target="_blank">
+                                                    <i class="fa fa-file"></i> View current file
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="col-md-1" style="padding-top: 28px;">
+                                    <button type="button" class="btn btn-danger btn-sm remove-task">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="row" style="padding: 0 15px 15px 15px;">
+                        <div class="col-md-12">
+                            <button type="button" id="add-task" class="btn btn-default">
+                                <i class="fa fa-plus"></i> Add Task
+                            </button>
                         </div>
                     </div>
 
@@ -151,7 +212,7 @@
                             <a href="{{ route('teachers.milestones.show', $milestone->id) }}"
                                class="btn btn-default">Cancel</a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fa fa-save"></i> Save Review
+                                <i class="fa fa-save"></i> Update Milestone
                             </button>
                         </div>
                     </div>
@@ -160,4 +221,79 @@
             </div>
         </div>
     </div>
+
+    <script>
+        (function () {
+            const container = document.getElementById('tasks-container');
+            const addBtn    = document.getElementById('add-task');
+
+            function reindex() {
+                container.querySelectorAll('.task-row').forEach((row, i) => {
+                    row.querySelectorAll('input, textarea, select').forEach(el => {
+                        const name = el.getAttribute('name');
+                        if (!name) return;
+                        el.setAttribute('name', name.replace(/tasks\[\d+\]/, `tasks[${i}]`));
+                    });
+                });
+            }
+
+            const statusSelect = document.getElementById('status-select');
+            const marksSection = document.getElementById('marks-section');
+
+            function toggleMarks() {
+                const show = statusSelect.value === 'completed';
+                marksSection.style.display = show ? '' : 'none';
+                // Disabled inputs aren't submitted or validated by the browser
+                marksSection.querySelectorAll('input[name^="marks"]').forEach(el => el.disabled = !show);
+            }
+            statusSelect.addEventListener('change', toggleMarks);
+            toggleMarks();
+
+            addBtn.addEventListener('click', () => {
+                const i = container.querySelectorAll('.task-row').length;
+                const html = `
+                    <div class="row task-row" style="margin-bottom: 10px; border-bottom: 1px dashed #eee; padding-bottom: 10px;">
+                        <input type="hidden" name="tasks[${i}][id]" value="">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Key Points <span class="text-danger">*</span></label>
+                                <textarea name="tasks[${i}][key_points]" class="form-control" rows="2" required></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea name="tasks[${i}][description]" class="form-control" rows="2"
+                                          placeholder="Describe the task details..."></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Document (image / pdf / docx)</label>
+                                <input type="file" name="tasks[${i}][document]" class="form-control"
+                                       accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx">
+                            </div>
+                        </div>
+                        <div class="col-md-1" style="padding-top: 28px;">
+                            <button type="button" class="btn btn-danger btn-sm remove-task">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    </div>`;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+
+            container.addEventListener('click', (e) => {
+                const btn = e.target.closest('.remove-task');
+                if (!btn) return;
+                const rows = container.querySelectorAll('.task-row');
+                if (rows.length <= 1) {
+                    alert('At least one task is required.');
+                    return;
+                }
+                btn.closest('.task-row').remove();
+                reindex();
+            });
+        })();
+    </script>
 @endsection

@@ -99,7 +99,22 @@
                                         @endif
                                     </td>
                                     <td>{{ $presentation->date_of_presentation?->format('d M Y') ?? '—' }}</td>
-                                    <td>{{ $presentation->marks !== null ? $presentation->marks : '—' }}</td>
+                                    <td>
+                                        @php
+                                            $dist = $presentation->status === 'completed'
+                                                ? ($myMarks[$presentation->project_id] ?? null)?->distributions->first()
+                                                : null;
+                                        @endphp
+
+                                        @if ($dist)
+                                            <strong>{{ rtrim(rtrim(number_format((float) $dist->given_marks, 2), '0'), '.') }}</strong>
+                                            / {{ rtrim(rtrim(number_format((float) $dist->out_of, 2), '0'), '.') }}
+                                        @elseif ($presentation->status === 'completed')
+                                            <span class="label label-default">Not marked</span>
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         @php
                                             $statusBadge = match($presentation->status) {

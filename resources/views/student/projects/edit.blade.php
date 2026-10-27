@@ -41,7 +41,8 @@
                     @method('PUT')
 
                     @php
-                        $selectedMembers = old('assigned_team_member', $project->teamMembers->pluck('id')->toArray());
+                        $selectedMembers = old('assigned_team_member',
+                            array_merge($project->teamMembers->pluck('id')->toArray(), $pendingIds));
                     @endphp
 
                     {{-- ---------- Read-only block ---------- --}}
@@ -73,11 +74,13 @@
                                     @selected(in_array($member->id, $selectedMembers))>
                                     {{ $member->name }} ({{ $member->email }})
                                     @if ($member->id === auth()->id()) — You @endif
+                                    @if (in_array($member->id, $pendingIds)) — Pending approval @endif
                                 </option>
                             @endforeach
                         </select>
                         <small class="text-muted">
                             Hold Ctrl (Cmd) to select multiple members. Deselect a member to remove them from the project.
+                            Newly added members must accept the invitation before they join.
                         </small>
                     </div>
 

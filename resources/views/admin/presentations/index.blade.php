@@ -100,7 +100,22 @@
                                     <td>{{ $presentation->title ?? '—' }}</td>
                                     <td>{{ $presentation->presenter->name ?? '—' }}</td>
                                     <td>{{ $presentation->date_of_presentation?->format('d M Y') ?? '—' }}</td>
-                                    <td>{{ $presentation->marks !== null ? number_format($presentation->marks, 2) : '—' }}</td>
+                                    <td>
+                                        @if ($presentation->status === 'completed')
+                                            @php
+                                                $summary = $marksSummary[$presentation->project_id] ?? null;
+                                                $total   = $presentation->project?->teamMembers->where('role', 'student')->count() ?? 0;
+                                            @endphp
+                                            @if ($summary && $summary['marked'] > 0)
+                                                <strong>{{ $summary['avg'] }}</strong> / {{ \App\Models\ProjectMark::MARKS_PER_TOPIC }}
+                                                <br><small class="text-muted">avg · {{ $summary['marked'] }}/{{ $total }} marked</small>
+                                            @else
+                                                <span class="label label-default">Not marked</span>
+                                            @endif
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         @if ($presentation->presentation_file)
                                             <a href="{{ asset('' . $presentation->presentation_file) }}"

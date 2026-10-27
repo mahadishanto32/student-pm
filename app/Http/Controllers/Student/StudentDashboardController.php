@@ -6,9 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Support\DashboardMetrics;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Concerns\BuildsProjectMarkSheets;
+use App\Models\ProjectMark;
 
 class StudentDashboardController extends Controller
 {
+    use BuildsProjectMarkSheets;
+
     public function index()
     {
         $student    = Auth::user();
@@ -17,18 +21,16 @@ class StudentDashboardController extends Controller
 
         $projects = $metrics->projectCards(3);
 
-        // Marks given by the supervisor (project_marks + marks_distributions)
-        $marks = null;
-        $row   = DB::table('project_marks')->where('student_id', $student->id)->latest('id')->first();
-        if ($row) {
-            $rows  = DB::table('marks_distributions')->where('project_marks_id', $row->id)->get();
-            $marks = [
-                'remarks' => $row->remarks,
-                'rows'    => $rows,
-                'given'   => (float) $rows->sum('given_marks'),
-                'out_of'  => (float) $rows->sum('out_of'),
-            ];
-        }
+        // Own marks per project (project_marks + marks_distributions)
+        $markProjects = $student->projects()->with('teamMembers')->orderBy('projects.group_number')->get();
+        $markSheets   = $this->buildSheets($markProjects, $student->id);
+
+        $markCards = $markProjects->map(function ($p) use ($markSheets) {
+            $row = ($markSheets[$p->id] ?? collect())->first();
+            $any = $row && collect($row['marks'])->contains(fn ($v) => $v !== null);
+
+            return ['name' => $p->project_name, 'group' => $p->group_number, 'row' => $any ? $row : null];
+        });
 
         return view('student.dashboard', [
             'stats'          => $metrics->counters(),
@@ -40,7 +42,9 @@ class StudentDashboardController extends Controller
             'attention'      => $metrics->attention(5),
             'updates'        => $metrics->recentUpdates(5),
             'schedule'       => $metrics->schedule(5),
-            'marks'          => $marks,
+            'markCards' => $markCards,
+            'topicMap'  => $this->topicMap(),
+            'perTopic'  => ProjectMark::MARKS_PER_TOPIC,
             'notifications'  => DashboardMetrics::notifications($student),
         ]);
     }

@@ -31,5 +31,5 @@ Route::middleware(['auth', 'verified', 'role:teacher'])
         Route::resource('video-resumes', TeacherVideoResumeController::class)->only(['index', 'show']);
 
         // ---------- Teacher: give / manage marks for assigned projects ----------
-        Route::resource('project-marks', TeacherProjectMarkController::class);
+        Route::resource('project-marks', TeacherProjectMarkController::class)->only(['index', 'show', 'edit', 'update']);
     });

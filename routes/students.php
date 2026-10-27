@@ -9,6 +9,7 @@ use App\Http\Controllers\Student\StudentDashboardController;
 use App\Http\Controllers\Student\StudentPresentationController;
 use App\Http\Controllers\Student\StudentVideoResumeController;
 use App\Http\Controllers\Student\StudentProjectMarkController;
+use App\Http\Controllers\Student\StudentPartnerApprovalController;
 
 // ---------- Student / default dashboard ----------
 Route::get('/dashboard', [StudentDashboardController::class, 'index'])
@@ -42,4 +43,7 @@ Route::middleware(['auth', 'verified', 'role:student'])
     // Project Marks — READ ONLY for students
     Route::resource('project-marks', StudentProjectMarkController::class)
         ->only(['index', 'show']);
+
+    Route::patch('partner-approvals/{approval}', [StudentPartnerApprovalController::class, 'respond'])
+    ->name('partner-approvals.respond');
 });

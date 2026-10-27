@@ -91,6 +91,66 @@
                     </table>
                 </div>
 
+                @if ($projectBook->status === 'completed')
+                    @php $perTopic = \App\Models\ProjectMark::MARKS_PER_TOPIC; @endphp
+
+                    <div class="row" style="padding: 0 15px;">
+                        <div class="col-md-12">
+                            <h4>Student Marks (out of {{ $perTopic }})</h4>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive" style="padding: 15px;">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">#</th>
+                                    <th>Student</th>
+                                    <th style="width: 150px;">Marks</th>
+                                    <th style="width: 120px;">Percentage</th>
+                                    <th>Marked By</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($students as $student)
+                                    @php
+                                        $pm    = $marks[$student->id] ?? null;
+                                        $dist  = $pm?->distributions->first();
+                                        $given = $dist?->given_marks;
+                                        $outOf = $dist?->out_of ?? $perTopic;
+                                    @endphp
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $student->name }}</td>
+                                        <td>
+                                            @if ($given !== null)
+                                                <strong>{{ rtrim(rtrim(number_format((float) $given, 2), '0'), '.') }}</strong>
+                                                / {{ rtrim(rtrim(number_format((float) $outOf, 2), '0'), '.') }}
+                                            @else
+                                                <span class="label label-default">Not marked</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($given !== null && $outOf > 0)
+                                                {{ number_format(($given / $outOf) * 100, 1) }}%
+                                            @else
+                                                <span class="text-muted">—</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $given !== null ? ($pm?->supervisor?->name ?? '—') : '—' }}</td>
+                                        <td>{{ $pm?->remarks ?: '—' }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center">No students found in this project's team.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+
                 <div class="row" style="padding: 0 15px;">
                     <div class="col-md-12">
                         <h4>Chapters</h4>

@@ -66,6 +66,34 @@
                                 <td><span class="label {{ $badge }}">{{ ucfirst($projectBook->status) }}</span></td>
                             </tr>
                             <tr>
+                                <th>My Marks</th>
+                                <td>
+                                    @php
+                                        $dist = $projectBook->status === 'completed'
+                                            ? $myMark?->distributions->first()
+                                            : null;
+                                    @endphp
+
+                                    @if ($dist)
+                                        <strong>{{ rtrim(rtrim(number_format((float) $dist->given_marks, 2), '0'), '.') }}</strong>
+                                        / {{ rtrim(rtrim(number_format((float) $dist->out_of, 2), '0'), '.') }}
+                                        <small class="text-muted">
+                                            ({{ number_format(($dist->given_marks / $dist->out_of) * 100, 1) }}%)
+                                        </small>
+                                    @elseif ($projectBook->status === 'completed')
+                                        <span class="label label-default">Not marked yet</span>
+                                    @else
+                                        —
+                                    @endif
+                                </td>
+                            </tr>
+                            @if ($projectBook->status === 'completed' && $myMark?->remarks)
+                                <tr>
+                                    <th>Remarks</th>
+                                    <td>{{ $myMark->remarks }}</td>
+                                </tr>
+                            @endif
+                            <tr>
                                 <th>Created At</th>
                                 <td>{{ $projectBook->created_at?->format('d M Y, H:i') }}</td>
                             </tr>

@@ -72,6 +72,7 @@
                                 <th>Team Members</th>
                                 <th>Chapters</th>
                                 <th>Status</th>
+                                <th>Marks</th>
                                 <th style="width: 200px;">Actions</th>
                             </tr>
                         </thead>
@@ -106,6 +107,22 @@
                                         <span class="label {{ $badge }}">{{ ucfirst($book->status) }}</span>
                                     </td>
                                     <td>
+                                        @if ($book->status === 'completed')
+                                            @php
+                                                $summary = $marksSummary[$book->project_id] ?? null;
+                                                $total   = $book->project?->teamMembers->where('role', 'student')->count() ?? 0;
+                                            @endphp
+                                            @if ($summary && $summary['marked'] > 0)
+                                                <strong>{{ $summary['avg'] }}</strong> / {{ \App\Models\ProjectMark::MARKS_PER_TOPIC }}
+                                                <br><small class="text-muted">avg · {{ $summary['marked'] }}/{{ $total }} marked</small>
+                                            @else
+                                                <span class="label label-default">Not marked</span>
+                                            @endif
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
+                                    <td>
                                         <a href="{{ route('admin.project-books.show', $book->id) }}"
                                            class="btn btn-sm btn-default" title="View">
                                             <i class="fa fa-eye"></i>
@@ -127,7 +144,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center">No project books found.</td>
+                                    <td colspan="10" class="text-center">No project books found.</td>
                                 </tr>
                             @endforelse
                         </tbody>
