@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Concerns;
 
+use App\Models\MarksDistribution;
 use App\Models\ProjectMark;
 use Illuminate\Support\Collection;
 
@@ -26,9 +27,9 @@ trait BuildsProjectMarkSheets
      */
     protected function buildSheets(Collection $projects, ?int $onlyStudentId = null): array
     {
-        $topics   = array_values($this->topicMap());
-        $perTopic = ProjectMark::MARKS_PER_TOPIC;
-        $outOf    = $perTopic * count($topics);
+        $topics   = array_values($this->topicMap());     // ['Milestones','Project Book','Presentation']
+        $topicMax = MarksDistribution::TOPIC_MAX;        // ['Milestones'=>100,'Project Book'=>40,'Presentation'=>60]
+        $outOf    = MarksDistribution::TOTAL_MARKS;      // 200  <-- fix #1
 
         $marks = ProjectMark::with(['distributions', 'supervisor'])
             ->whereIn('project_id', $projects->pluck('id'))
@@ -77,7 +78,8 @@ trait BuildsProjectMarkSheets
 
                 $rows->push([
                     'student'    => $student,
-                    'marks'      => $given,
+                    'marks'      => $given,                   // keyed by topic name, values on their own scales
+                    'topic_max'  => $topicMax,                // handy for partials
                     'total'      => $total,
                     'out_of'     => $outOf,
                     'percentage' => $percentage,
@@ -95,26 +97,42 @@ trait BuildsProjectMarkSheets
         return $sheets;
     }
 
-    /** Per-project summary used by the admin/teacher index tables. */
+    /**
+     * Per-project summary used by the admin/teacher index tables.
+     *
+     * Milestone avg is the ONLY topic avg shown — Project Book and
+     * Presentation are intentionally excluded from the summary view.
+     */
     protected function summaries(Collection $projects): array
     {
         $summaries = [];
 
         foreach ($this->buildSheets($projects) as $projectId => $rows) {
-            $topicAvg = [];
-
-            foreach ($this->topicMap() as $topic) {
-                $vals = $rows->map(fn ($r) => $r['marks'][$topic])->filter(fn ($v) => $v !== null);
-                $topicAvg[$topic] = $vals->count() ? round($vals->avg(), 2) : null;
-            }
+            // Milestones average only (out of MarksDistribution::TOPIC_MAX['Milestones'])
+            $milestoneVals = $rows
+                ->map(fn ($r) => $r['marks']['Milestones'] ?? null)
+                ->filter(fn ($v) => $v !== null);
 
             $complete = $rows->where('complete', true);
 
             $summaries[$projectId] = [
-                'students'  => $rows->count(),
-                'complete'  => $complete->count(),
-                'topic_avg' => $topicAvg,
-                'avg_pct'   => $complete->count() ? round($complete->avg('percentage'), 2) : null,
+                'students'           => $rows->count(),
+                'complete'           => $complete->count(),
+                'milestones_avg'     => $milestoneVals->count()
+                                            ? round($milestoneVals->avg(), 2)
+                                            : null,
+                'milestones_marked'  => $milestoneVals->count(),
+                // Kept so other views don't break — but the summary table won't use them
+                'topic_avg'          => [
+                    'Milestones'   => $milestoneVals->count()
+                                            ? round($milestoneVals->avg(), 2)
+                                            : null,
+                    'Project Book' => null,
+                    'Presentation' => null,
+                ],
+                'avg_pct'            => $complete->count()
+                                            ? round($complete->avg('percentage'), 2)
+                                            : null,
             ];
         }
 
@@ -124,7 +142,7 @@ trait BuildsProjectMarkSheets
     /** Grade + point for a percentage (used for project averages). */
     protected function gradeFor(float $percentage): array
     {
-        foreach (\App\Models\ProjectMark::GRADING_SCALE as $g) {
+        foreach (ProjectMark::GRADING_SCALE as $g) {
             if ($percentage >= $g['min']) {
                 return ['grade' => $g['grade'], 'point' => $g['point']];
             }

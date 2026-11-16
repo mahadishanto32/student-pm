@@ -60,56 +60,6 @@ class AdminProjectBookController extends Controller
     }
 
     /* ------------------------------------------------------------------ */
-    /* CREATE — pick a project (student team) that has no book yet        */
-    /* ------------------------------------------------------------------ */
-    public function create()
-    {
-        // Projects without a book, whose team has at least one student
-        $projects = Project::with(['teamMembers' => function ($q) {
-                $q->where('role', 'student');
-            }])
-            ->whereDoesntHave('projectBook')
-            ->get();
-
-        $statuses = self::STATUSES;
-
-        return view('admin.project-book.create', compact('projects', 'statuses'));
-    }
-
-    /* ------------------------------------------------------------------ */
-    /* STORE                                                              */
-    /* ------------------------------------------------------------------ */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'project_id'                     => ['required', 'integer', 'exists:projects,id'],
-            'status'                         => ['required', Rule::in(self::STATUSES)],
-            'chapters'                       => ['nullable', 'array'],
-            'chapters.*.chapter_no'          => ['nullable', 'integer', 'min:1'],
-            'chapters.*.chapter_title'       => ['nullable', 'string', 'max:255'],
-            'chapters.*.chapter_description' => ['nullable', 'string'],
-        ]);
-
-        // One book per project
-        if (ProjectBook::where('project_id', $validated['project_id'])->exists()) {
-            return back()->withInput()->with('error', 'A book already exists for this project.');
-        }
-
-        DB::transaction(function () use ($validated) {
-            $book = ProjectBook::create([
-                'project_id' => $validated['project_id'],
-                'status'     => $validated['status'],
-            ]);
-
-            $this->syncChapters($book, $validated['chapters'] ?? []);
-        });
-
-        return redirect()
-            ->route('admin.project-books.index')
-            ->with('success', 'Project book created successfully.');
-    }
-
-    /* ------------------------------------------------------------------ */
     /* SHOW                                                               */
     /* ------------------------------------------------------------------ */
     public function show(ProjectBook $projectBook)
@@ -135,65 +85,7 @@ class AdminProjectBookController extends Controller
         return view('admin.project-book.show', compact('projectBook', 'students', 'marks'));
     }
 
-    /* ------------------------------------------------------------------ */
-    /* EDIT                                                               */
-    /* ------------------------------------------------------------------ */
-    public function edit(ProjectBook $projectBook)
-    {
-        $projectBook->load(['chapters' => fn ($q) => $q->orderBy('chapter_no')]);
 
-        // For the project dropdown: current project + any project without a book
-        $projects = Project::with(['teamMembers' => function ($q) {
-                $q->where('role', 'student');
-            }])
-            ->where(function ($q) use ($projectBook) {
-                $q->where('id', $projectBook->project_id)
-                  ->orWhereDoesntHave('projectBook');
-            })
-            ->get();
-
-        $statuses = self::STATUSES;
-
-        return view('admin.project-book.edit', compact('projectBook', 'projects', 'statuses'));
-    }
-
-    /* ------------------------------------------------------------------ */
-    /* UPDATE                                                             */
-    /* ------------------------------------------------------------------ */
-    public function update(Request $request, ProjectBook $projectBook)
-    {
-        $validated = $request->validate([
-            'project_id'                     => ['required', 'integer', 'exists:projects,id'],
-            'status'                         => ['required', Rule::in(self::STATUSES)],
-            'chapters'                       => ['nullable', 'array'],
-            'chapters.*.chapter_no'          => ['nullable', 'integer', 'min:1'],
-            'chapters.*.chapter_title'       => ['nullable', 'string', 'max:255'],
-            'chapters.*.chapter_description' => ['nullable', 'string'],
-        ]);
-
-        // Prevent duplicate book for a different project
-        $conflict = ProjectBook::where('project_id', $validated['project_id'])
-            ->where('id', '!=', $projectBook->id)
-            ->exists();
-
-        if ($conflict) {
-            return back()->withInput()->with('error', 'Another book already exists for that project.');
-        }
-
-        DB::transaction(function () use ($validated, $projectBook) {
-            $projectBook->update([
-                'project_id' => $validated['project_id'],
-                'status'     => $validated['status'],
-            ]);
-
-            $projectBook->chapters()->delete();
-            $this->syncChapters($projectBook, $validated['chapters'] ?? []);
-        });
-
-        return redirect()
-            ->route('admin.project-books.index')
-            ->with('success', 'Project book updated successfully.');
-    }
 
     /* ------------------------------------------------------------------ */
     /* DESTROY                                                            */
@@ -201,6 +93,9 @@ class AdminProjectBookController extends Controller
     public function destroy(ProjectBook $projectBook)
     {
         DB::transaction(function () use ($projectBook) {
+            foreach ($projectBook->chapters as $chapter) {
+                $this->deleteChapterFiles($chapter->documents ?? []);
+            }
             $projectBook->chapters()->delete();
             $projectBook->delete();
         });
@@ -208,6 +103,20 @@ class AdminProjectBookController extends Controller
         return redirect()
             ->route('admin.project-books.index')
             ->with('success', 'Project book deleted successfully.');
+    }
+
+    protected function deleteChapterFiles(array $paths): void
+    {
+        $uploadDir = 'uploads/book-chapters';
+        foreach ($paths as $path) {
+            if (!str_starts_with($path, $uploadDir . '/')) {
+                continue;
+            }
+            $full = public_path($path);
+            if (\Illuminate\Support\Facades\File::exists($full)) {
+                \Illuminate\Support\Facades\File::delete($full);
+            }
+        }
     }
 
     /* ------------------------------------------------------------------ */

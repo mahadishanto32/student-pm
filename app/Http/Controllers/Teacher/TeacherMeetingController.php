@@ -7,6 +7,7 @@ use App\Models\Meeting;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class TeacherMeetingController extends Controller
 {
@@ -206,5 +207,73 @@ class TeacherMeetingController extends Controller
         return redirect()
             ->route('teachers.meetings.index')
             ->with('success', 'Meeting deleted successfully.');
+    }
+
+        /**
+     * Show the form for creating the same meeting across all assigned projects.
+     */
+    public function bulkCreate()
+    {
+        $projects = Project::where('assigned_teacher', auth()->id())
+            ->orderBy('project_name')
+            ->get();
+
+        if ($projects->isEmpty()) {
+            return redirect()
+                ->route('teachers.meetings.index')
+                ->with('error', 'You have no assigned projects yet.');
+        }
+
+        return view('teachers.meetings.bulk-create', [
+            'projects'  => $projects,
+            'types'     => self::TYPES,
+            'platforms' => self::PLATFORMS,
+        ]);
+    }
+
+    /**
+     * Store the same meeting for every assigned project.
+     */
+    public function bulkStore(Request $request)
+    {
+        $allowedProjectIds = $this->assignedProjectIds()->all();
+
+        if (empty($allowedProjectIds)) {
+            return redirect()
+                ->route('teachers.meetings.index')
+                ->with('error', 'You have no assigned projects yet.');
+        }
+
+        $validated = $request->validate([
+            'meeting_date_and_time'                => ['required', 'date'],
+            'title'                                => ['required', 'string', 'max:255'],
+            'description'                          => ['nullable', 'string'],
+            'supervisor_note'                      => ['nullable', 'string'],
+            'platform'                             => ['required', Rule::in(self::PLATFORMS)],
+            'type'                                 => ['required', Rule::in(self::TYPES)],
+            'tentative_next_meeting_date_and_time' => ['nullable', 'date', 'after:meeting_date_and_time'],
+        ]);
+
+        $created = 0;
+
+        DB::transaction(function () use ($validated, $allowedProjectIds, &$created) {
+            foreach ($allowedProjectIds as $projectId) {
+                Meeting::create([
+                    'project_id'                           => $projectId,
+                    'meeting_date_and_time'                => $validated['meeting_date_and_time'],
+                    'title'                                => $validated['title'],
+                    'description'                          => $validated['description'] ?? null,
+                    'supervisor_note'                      => $validated['supervisor_note'] ?? null,
+                    'platform'                             => $validated['platform'],
+                    'type'                                 => $validated['type'],
+                    'tentative_next_meeting_date_and_time' => $validated['tentative_next_meeting_date_and_time'] ?? null,
+                ]);
+                $created++;
+            }
+        });
+
+        return redirect()
+            ->route('teachers.meetings.index')
+            ->with('success', "Meeting created for {$created} project(s).");
     }
 }

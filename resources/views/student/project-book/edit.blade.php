@@ -30,7 +30,9 @@
                 @endif
 
                 <form action="{{ route('student.project-books.update', $projectBook->id) }}"
-                      method="POST" style="padding: 15px;">
+                      method="POST"
+                      enctype="multipart/form-data"
+                      style="padding: 15px;">
                     @csrf
                     @method('PUT')
 
@@ -56,7 +58,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <h4>Chapters</h4>
-                            <p class="text-muted">Leave the title empty to remove a chapter.</p>
+                            <p class="text-muted">Leave the title empty to remove a chapter. Existing documents are listed; new uploads are added to the chapter.</p>
                         </div>
                     </div>
 
@@ -64,33 +66,67 @@
                         @php
                             $oldChapters = old('chapters', $projectBook->chapters->map(function ($c) {
                                 return [
+                                    'id'                  => $c->id,
                                     'chapter_no'          => $c->chapter_no,
                                     'chapter_title'       => $c->chapter_title,
                                     'chapter_description' => $c->chapter_description,
+                                    'documents'           => $c->documents ?? [],
                                 ];
                             })->toArray());
 
                             if (empty($oldChapters)) {
-                                $oldChapters = [['chapter_no' => 1, 'chapter_title' => '', 'chapter_description' => '']];
+                                $oldChapters = [['chapter_no' => 1, 'chapter_title' => '', 'chapter_description' => '', 'documents' => []]];
                             }
                         @endphp
 
                         @foreach ($oldChapters as $i => $chapter)
                             <div class="row chapter-row" style="margin-bottom: 10px;">
+                                <input type="hidden"
+                                       name="chapters[{{ $i }}][id]"
+                                       value="{{ $chapter['id'] ?? '' }}">
+
                                 <div class="col-md-1">
                                     <input type="number" name="chapters[{{ $i }}][chapter_no]"
                                            class="form-control" placeholder="No"
                                            value="{{ $chapter['chapter_no'] ?? ($i + 1) }}" min="1">
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <input type="text" name="chapters[{{ $i }}][chapter_title]"
                                            class="form-control" placeholder="Chapter title"
                                            value="{{ $chapter['chapter_title'] ?? '' }}">
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <input type="text" name="chapters[{{ $i }}][chapter_description]"
                                            class="form-control" placeholder="Description (optional)"
                                            value="{{ $chapter['chapter_description'] ?? '' }}">
+                                </div>
+                                <div class="col-md-4">
+                                    @php $existingDocs = $chapter['documents'] ?? []; @endphp
+                                    @if (!empty($existingDocs))
+                                        <div style="margin-bottom: 5px;">
+                                            <small class="text-muted d-block">Existing documents:</small>
+                                            @foreach ($existingDocs as $doc)
+                                                <div class="d-flex align-items-center" style="margin-bottom: 2px;">
+                                                    <a href="{{ asset($doc) }}" target="_blank"
+                                                       style="margin-right: 6px;">
+                                                        <i class="fa fa-file"></i>
+                                                        {{ basename($doc) }}
+                                                    </a>
+                                                    <label style="font-size: 11px; color: #c00; margin-left: 6px;">
+                                                        <input type="checkbox"
+                                                               name="chapters[{{ $i }}][remove_documents][]"
+                                                               value="{{ $doc }}">
+                                                        remove
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                    <input type="file"
+                                           name="chapters[{{ $i }}][documents][]"
+                                           class="form-control"
+                                           multiple>
+                                    <small class="text-muted">Add more files</small>
                                 </div>
                                 <div class="col-md-1">
                                     <button type="button" class="btn btn-danger btn-remove-chapter">
@@ -139,14 +175,19 @@
             row.className = 'row chapter-row';
             row.style.marginBottom = '10px';
             row.innerHTML = `
+                <input type="hidden" name="chapters[${index}][id]" value="">
                 <div class="col-md-1">
                     <input type="number" name="chapters[${index}][chapter_no]" class="form-control" value="${wrapper.querySelectorAll('.chapter-row').length + 1}" min="1">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <input type="text" name="chapters[${index}][chapter_title]" class="form-control" placeholder="Chapter title">
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <input type="text" name="chapters[${index}][chapter_description]" class="form-control" placeholder="Description (optional)">
+                </div>
+                <div class="col-md-4">
+                    <input type="file" name="chapters[${index}][documents][]" class="form-control" multiple>
+                    <small class="text-muted">Multiple files allowed</small>
                 </div>
                 <div class="col-md-1">
                     <button type="button" class="btn btn-danger btn-remove-chapter">

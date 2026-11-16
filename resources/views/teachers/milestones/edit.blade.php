@@ -15,6 +15,10 @@
         <div class="col-md-12">
             <div class="full white_shadow_bg margin_bottom_30">
 
+                @if (session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
+
                 @if ($errors->any())
                     <div class="alert alert-danger">
                         <ul class="mb-0">
@@ -91,14 +95,19 @@
 
                     {{-- Individual student marks: only visible when status = completed --}}
                     <div id="marks-section" style="padding: 0 15px; display: none;">
-                        <h5>Student Marks (out of {{ \App\Models\ProjectMark::MARKS_PER_TOPIC }})</h5>
+                        <h5>Student Marks (out of {{ \App\Models\ProjectMark::MARKS_PER_MILESTONE }})</h5>
+                        <p class="text-muted">
+                            Only this milestone's marks are entered here. All completed milestones are
+                            added up and converted to a score out of
+                            {{ \App\Models\MarksDistribution::TOPIC_MAX['Milestones'] }} automatically.
+                        </p>
                         <hr>
 
                         @forelse ($students as $student)
                             @php
-                                $pm      = $existingMarks[$student->id] ?? null;
-                                $given   = $pm?->distributions->firstWhere('topic', 'Milestones')?->given_marks;
-                                $remarks = $pm?->remarks;
+                                $mm      = $existingMarks[$student->id] ?? null;
+                                $given   = $mm?->given_marks;
+                                $remarks = $mm?->remarks;
                             @endphp
                             <div class="row" style="margin-bottom: 10px;">
                                 <div class="col-md-4">
@@ -109,10 +118,10 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
-                                        <label>Marks (0 - {{ \App\Models\ProjectMark::MARKS_PER_TOPIC }})</label>
+                                        <label>Marks (0 - {{ \App\Models\ProjectMark::MARKS_PER_MILESTONE }})</label>
                                         <input type="number" name="marks[{{ $student->id }}][given_marks]"
                                             class="form-control" min="0"
-                                            max="{{ \App\Models\ProjectMark::MARKS_PER_TOPIC }}" step="0.25"
+                                            max="{{ \App\Models\ProjectMark::MARKS_PER_MILESTONE }}" step="0.25"
                                             value="{{ old("marks.{$student->id}.given_marks", $given) }}">
                                     </div>
                                 </div>

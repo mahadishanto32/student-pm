@@ -30,6 +30,9 @@
                         <a href="{{ route('admin.project-marks.index') }}" class="btn btn-default">
                             <i class="fa fa-arrow-left"></i> Back
                         </a>
+                        <a href="{{ route('admin.project-marks.edit', $project->id) }}" class="btn btn-primary">
+                            <i class="fa fa-pencil"></i> Edit Book / Presentation
+                        </a>
                     </div>
                 </div>
 

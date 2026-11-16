@@ -45,17 +45,26 @@
                     @csrf
                     @method('PUT')
 
+                    @php
+                        $topicMax = \App\Models\MarksDistribution::TOPIC_MAX;
+                        $perTopic = $topicMax; // keys: Milestones, Project Book, Presentation
+                    @endphp
+
                     <div class="table-responsive" style="padding: 15px;">
                         <table class="table table-bordered table-striped">
                             <thead>
                                 <tr>
                                     <th style="width: 50px;">#</th>
                                     <th>Student</th>
-                                    @foreach ($topicMap as $topic)
-                                        <th style="width: 130px;">{{ $topic }}<br>
-                                            <small class="text-muted">0 - {{ $perTopic }}</small>
-                                        </th>
-                                    @endforeach
+                                    <th style="width: 130px;">Milestones<br>
+                                        <small class="text-muted">0 - {{ $perTopic['Milestones'] }} (auto from milestones)</small>
+                                    </th>
+                                    <th style="width: 130px;">Project Book<br>
+                                        <small class="text-muted">0 - {{ $perTopic['Project Book'] }} (read-only)</small>
+                                    </th>
+                                    <th style="width: 130px;">Presentation<br>
+                                        <small class="text-muted">0 - {{ $perTopic['Presentation'] }} (read-only)</small>
+                                    </th>
                                     <th>Remarks</th>
                                 </tr>
                             </thead>
@@ -65,26 +74,28 @@
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $row['student']->name }}</td>
-                                        @foreach ($topicMap as $key => $topic)
-                                            <td>
-                                                <input type="number" class="form-control"
-                                                       name="marks[{{ $sid }}][{{ $key }}]"
-                                                       min="0" max="{{ $perTopic }}" step="0.25"
-                                                       value="{{ old("marks.{$sid}.{$key}", $row['marks'][$topic]) }}">
-                                            </td>
-                                        @endforeach
+                                        <td>
+                                            <input type="text" class="form-control" readonly
+                                                value="{{ $row['marks']['Milestones'] ?? '—' }}">
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" readonly
+                                                value="{{ $row['marks']['Project Book'] ?? '—' }}">
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" readonly
+                                                value="{{ $row['marks']['Presentation'] ?? '—' }}">
+                                        </td>
                                         <td>
                                             <input type="text" class="form-control"
-                                                   name="marks[{{ $sid }}][remarks]"
-                                                   placeholder="Optional remarks"
-                                                   value="{{ old("marks.{$sid}.remarks", $row['remarks']) }}">
+                                                name="marks[{{ $sid }}][remarks]"
+                                                placeholder="Optional remarks"
+                                                value="{{ old("marks.{$sid}.remarks", $row['remarks']) }}">
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="{{ 3 + count($topicMap) }}" class="text-center">
-                                            No students found in this project's team.
-                                        </td>
+                                        <td colspan="6" class="text-center">No students found in this project's team.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

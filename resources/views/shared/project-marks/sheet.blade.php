@@ -1,4 +1,6 @@
 @php
+    use App\Models\MarksDistribution;
+
     $fmt = fn ($n) => rtrim(rtrim(number_format((float) $n, 2), '0'), '.');
     $gradeBadge = fn ($g) => match (true) {
         in_array($g, ['A+', 'A', 'A-']) => 'label-success',
@@ -8,6 +10,14 @@
         default                         => 'label-default',
     };
     $showSupervisor = $showSupervisor ?? false;
+
+    // Per-topic max comes from the single source of truth
+    $topicMax   = MarksDistribution::TOPIC_MAX;
+    $grandTotal = MarksDistribution::TOTAL_MARKS;
+    $partial = $partial ?? false;
+
+    // Column count for the empty row: # + Student + topics + Total + % + Grade + Remarks + (Supervisor?)
+    $colCount = 2 + count($topicMap) + 3 + 1 + ($showSupervisor ? 1 : 0);
 @endphp
 
 <div class="table-responsive" style="padding: 15px;">
@@ -17,9 +27,18 @@
                 <th style="width: 50px;">#</th>
                 <th>Student</th>
                 @foreach ($topicMap as $topic)
-                    <th>{{ $topic }}<br><small class="text-muted">/ {{ $perTopic }}</small></th>
+                    <th>
+                        {{ $topic }}<br>
+                        <small class="text-muted">/ {{ $topicMax[$topic] ?? '—' }}</small>
+                    </th>
                 @endforeach
-                <th>Total<br><small class="text-muted">/ {{ $perTopic * count($topicMap) }}</small></th>
+                {{-- Total header --}}
+                <th>
+                    Total<br>
+                    <small class="text-muted">
+                        / {{ $partial ? array_sum(array_map(fn ($t) => $topicMax[$t] ?? 0, $topicMap)) : $grandTotal }}
+                    </small>
+                </th>
                 <th>%</th>
                 <th>Grade</th>
                 <th>Remarks</th>
@@ -55,12 +74,14 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="{{ 7 + count($topicMap) - 1 + ($showSupervisor ? 1 : 0) }}" class="text-center">
+                    <td colspan="{{ $colCount }}" class="text-center">
                         No students found in this project's team.
                     </td>
                 </tr>
             @endforelse
         </tbody>
     </table>
-    <small class="text-muted">Grade <strong>I</strong> = Incomplete (not every topic has been marked yet).</small>
+    <small class="text-muted">
+        Grade <strong>I</strong> = Incomplete (not every topic has been marked yet).
+    </small>
 </div>

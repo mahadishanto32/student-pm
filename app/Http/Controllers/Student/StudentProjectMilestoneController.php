@@ -32,32 +32,50 @@ class StudentProjectMilestoneController extends Controller
      */
     public function index(Request $request)
     {
-        $projectIds = $this->assignedProjectIds();
+        $projectIds = $this->myProjectIds();
 
-        $milestones = ProjectMilestone::with(['project', 'doneBy', 'tasks'])
-            ->whereIn('project_id', $projectIds)
+        // Paginate only the projects this student belongs to
+        $projects = Project::whereIn('id', $projectIds)
             ->when($request->filled('project_id'), fn ($q) =>
-                $q->where('project_id', $request->project_id))
-            ->when($request->filled('status'), fn ($q) =>
-                $q->where('status', $request->status))
+                $q->where('id', $request->project_id))
             ->when($request->filled('search'), fn ($q) =>
-                $q->where('title', 'like', '%' . $request->search . '%'))
-            ->latest()
+                $q->whereHas('milestones', fn ($sub) =>
+                    $sub->where('title', 'like', '%' . $request->search . '%')))
+            ->when($request->filled('status'), fn ($q) =>
+                $q->whereHas('milestones', fn ($sub) =>
+                    $sub->where('status', $request->status)))
+            ->orderBy('group_number')
             ->paginate(10)
             ->withQueryString();
 
-        $projects = Project::whereIn('id', $projectIds)
-            ->orderBy('group_number')
-            ->get();
+        $milestonesByProject = ProjectMilestone::with(['doneBy', 'tasks'])
+            ->whereIn('project_id', $projects->pluck('id'))
+            ->when($request->filled('search'), fn ($q) =>
+                $q->where('title', 'like', '%' . $request->search . '%'))
+            ->when($request->filled('status'), fn ($q) =>
+                $q->where('status', $request->status))
+            ->orderBy('created_at')
+            ->get()
+            ->groupBy('project_id');
 
-        // project_id => ProjectMark (with the "Milestones" distribution) for this student only
+        // This student's Milestones distributions, keyed by project_id
         $myMarks = ProjectMark::with(['distributions' => fn ($q) => $q->where('topic', 'Milestones')])
             ->where('student_id', Auth::id())
-            ->whereIn('project_id', $projectIds)
+            ->whereIn('project_id', $projects->pluck('id'))
             ->get()
             ->keyBy('project_id');
 
-        return view('student.milestones.index', compact('milestones', 'projects', 'myMarks'));
+        // Dropdown: only this student's projects
+        $allProjects = Project::whereIn('id', $projectIds)
+            ->orderBy('group_number')
+            ->get();
+
+        return view('student.milestones.index', compact(
+            'projects',
+            'allProjects',
+            'milestonesByProject',
+            'myMarks'
+        ));
     }
 
     /**
@@ -65,9 +83,15 @@ class StudentProjectMilestoneController extends Controller
      */
     public function show(string $id)
     {
-        $milestone = ProjectMilestone::with(['project', 'doneBy', 'tasks'])
-            ->whereIn('project_id', $this->assignedProjectIds())
+        // Wrong: $id is a milestone id, not a project id
+        // $project = Project::whereIn('id', $this->myProjectIds())->findOrFail($id);
+
+        // Right: find the milestone inside one of this student's projects
+        $milestone = ProjectMilestone::with(['doneBy', 'tasks', 'project.teamMembers'])
+            ->whereIn('project_id', $this->myProjectIds())
             ->findOrFail($id);
+
+        $project = $milestone->project;
 
         Auth::user()->unreadNotifications
             ->filter(fn ($n) => ($n->data['milestone_id'] ?? null) === $milestone->id)
@@ -78,7 +102,7 @@ class StudentProjectMilestoneController extends Controller
             ->where('student_id', Auth::id())
             ->first();
 
-        return view('student.milestones.show', compact('milestone', 'myMark'));
+        return view('student.milestones.show', compact('milestone', 'project', 'myMark'));
     }
 
     /**
@@ -211,5 +235,10 @@ class StudentProjectMilestoneController extends Controller
         if (File::exists($full)) {
             File::delete($full);
         }
+    }
+
+    protected function myProjectIds(): array
+    {
+        return Auth::user()->projects()->pluck('projects.id')->toArray();
     }
 }

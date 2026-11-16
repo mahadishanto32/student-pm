@@ -21,7 +21,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
         Route::resource('users', AdminUserController::class)->except(['show']);
         Route::resource('projects', AdminProjectController::class)->except(['create', 'store']);
-        Route::resource('project-books', AdminProjectBookController::class);
+        Route::resource('project-books', AdminProjectBookController::class)->only(['index', 'show', 'destroy']);
         Route::resource('meetings', AdminMeetingController::class);
 
         // ---------- Admin: manage milestones (full CRUD) ----------
@@ -29,7 +29,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::resource('presentations', AdminPresentationController::class);
         Route::resource('video-resumes', AdminVideoResumeController::class)->only(['index', 'show', 'edit', 'update']);
 
-        // Project Marks — READ ONLY for admin
+        // Project Marks — admin edits Presentation + Project Book only
         Route::resource('project-marks', AdminProjectMarkController::class)
-            ->only(['index', 'show']);
+            ->only(['index', 'show', 'edit', 'update']);
     });

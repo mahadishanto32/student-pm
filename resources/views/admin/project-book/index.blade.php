@@ -26,11 +26,6 @@
                     <div class="col-md-6">
                         <h4>All Project Books</h4>
                     </div>
-                    <div class="col-md-6 text-right">
-                        <a href="{{ route('admin.project-books.create') }}" class="btn btn-success">
-                            <i class="fa fa-plus"></i> New Project Book
-                        </a>
-                    </div>
                 </div>
 
                 <div class="row" style="padding: 15px;">
@@ -126,10 +121,6 @@
                                         <a href="{{ route('admin.project-books.show', $book->id) }}"
                                            class="btn btn-sm btn-default" title="View">
                                             <i class="fa fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('admin.project-books.edit', $book->id) }}"
-                                           class="btn btn-sm btn-primary" title="Edit">
-                                            <i class="fa fa-pencil"></i>
                                         </a>
                                         <form action="{{ route('admin.project-books.destroy', $book->id) }}"
                                               method="POST" style="display:inline-block"

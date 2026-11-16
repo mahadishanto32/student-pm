@@ -164,6 +164,7 @@
                                 <th style="width: 80px;">No</th>
                                 <th>Title</th>
                                 <th>Description</th>
+                                <th style="width: 260px;">Documents</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -172,10 +173,25 @@
                                     <td>{{ $chapter->chapter_no }}</td>
                                     <td>{{ $chapter->chapter_title }}</td>
                                     <td>{{ $chapter->chapter_description ?? '—' }}</td>
+                                    <td>
+                                        @php $docs = $chapter->documents ?? []; @endphp
+                                        @if (!empty($docs))
+                                            @foreach ($docs as $doc)
+                                                <div style="margin-bottom: 3px;">
+                                                    <a href="{{ asset($doc) }}" target="_blank">
+                                                        <i class="fa fa-file"></i>
+                                                        {{ basename($doc) }}
+                                                    </a>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="text-center">No chapters added yet.</td>
+                                    <td colspan="4" class="text-center">No chapters added yet.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -184,10 +200,6 @@
 
                 <div class="row" style="padding: 0 15px 15px 15px;">
                     <div class="col-md-12">
-                        <a href="{{ route('admin.project-books.edit', $projectBook->id) }}"
-                           class="btn btn-primary">
-                            <i class="fa fa-pencil"></i> Edit
-                        </a>
                         <form action="{{ route('admin.project-books.destroy', $projectBook->id) }}"
                               method="POST" style="display:inline-block"
                               onsubmit="return confirm('Delete this project book?');">

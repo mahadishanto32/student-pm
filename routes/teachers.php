@@ -21,6 +21,11 @@ Route::middleware(['auth', 'verified', 'role:teacher'])
 
         Route::resource('project-books', TeacherProjectBookController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
 
+        Route::get('meetings/bulk-create',  [TeacherMeetingController::class, 'bulkCreate'])
+            ->name('meetings.bulk-create');
+        Route::post('meetings/bulk-store',  [TeacherMeetingController::class, 'bulkStore'])
+            ->name('meetings.bulk-store');
+
         Route::resource('meetings', TeacherMeetingController::class);
 
         // ---------- Teacher: manage milestones for assigned projects (no create / store) ----------

@@ -10,9 +10,22 @@ use App\Models\ProjectBookChapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class StudentProjectBookController extends Controller
 {
+    /** Directory (relative to public/) where chapter files are stored. */
+    private const UPLOAD_DIR = 'uploads/book-chapters';
+
+    /**
+     * Allowed extensions for chapter documents.
+     */
+    private const ALLOWED_EXTS = [
+        'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx',
+        'txt', 'csv', 'zip', 'rar', 'png', 'jpg', 'jpeg', 'gif',
+    ];
+
     /**
      * Display a listing of project books for the logged-in student's projects.
      */
@@ -20,13 +33,11 @@ class StudentProjectBookController extends Controller
     {
         $user = Auth::user();
 
-        // Get project ids the student is part of
         $projectIds = $user->projects()->pluck('projects.id');
 
         $query = ProjectBook::with('project')
             ->whereIn('project_id', $projectIds);
 
-        // Search by project name / topic / group number
         if ($search = $request->input('search')) {
             $query->whereHas('project', function ($q) use ($search) {
                 $q->where('project_name', 'like', "%{$search}%")
@@ -35,14 +46,12 @@ class StudentProjectBookController extends Controller
             });
         }
 
-        // Filter by status
         if ($status = $request->input('status')) {
             $query->where('status', $status);
         }
 
         $projectBooks = $query->latest()->paginate(10);
 
-        // project_id => this student's ProjectMark with the "Project Book" distribution
         $myMarks = ProjectMark::with(['distributions' => fn ($q) => $q->where('topic', 'Project Book')])
             ->where('student_id', Auth::id())
             ->whereIn('project_id', $projectIds)
@@ -60,7 +69,6 @@ class StudentProjectBookController extends Controller
         $user = Auth::user();
         $projectIds = $user->projects()->pluck('projects.id');
 
-        // Only projects that don't yet have a book
         $projects = Project::whereIn('id', $projectIds)
             ->whereDoesntHave('projectBook')
             ->get();
@@ -69,7 +77,7 @@ class StudentProjectBookController extends Controller
     }
 
     /**
-     * Store a newly created project book (with chapters).
+     * Store a newly created project book (with chapters + documents).
      */
     public function store(Request $request)
     {
@@ -77,14 +85,19 @@ class StudentProjectBookController extends Controller
         $projectIds = $user->projects()->pluck('projects.id');
 
         $validated = $request->validate([
-            'project_id'                       => ['required', 'integer', 'in:' . $projectIds->implode(',')],
-            'chapters'                         => ['nullable', 'array'],
-            'chapters.*.chapter_no'            => ['nullable', 'integer', 'min:1'],
-            'chapters.*.chapter_title'         => ['nullable', 'string', 'max:255'],
-            'chapters.*.chapter_description'   => ['nullable', 'string'],
+            'project_id'                     => ['required', 'integer', 'in:' . $projectIds->implode(',')],
+            'chapters'                       => ['nullable', 'array'],
+            'chapters.*.chapter_no'          => ['nullable', 'integer', 'min:1'],
+            'chapters.*.chapter_title'       => ['nullable', 'string', 'max:255'],
+            'chapters.*.chapter_description' => ['nullable', 'string'],
+            'chapters.*.documents'           => ['nullable', 'array'],
+            'chapters.*.documents.*'         => [
+                'file',
+                'max:20480', // 20 MB each
+                'mimes:' . implode(',', self::ALLOWED_EXTS),
+            ],
         ]);
 
-        // Prevent duplicate book for same project
         if (ProjectBook::where('project_id', $validated['project_id'])->exists()) {
             return back()->withInput()->with('error', 'A book already exists for this project.');
         }
@@ -92,7 +105,6 @@ class StudentProjectBookController extends Controller
         DB::transaction(function () use ($validated) {
             $book = ProjectBook::create([
                 'project_id' => $validated['project_id'],
-                // status is NOT set by the user; DB default = pending
             ]);
 
             $this->syncChapters($book, $validated['chapters'] ?? []);
@@ -142,27 +154,34 @@ class StudentProjectBookController extends Controller
     }
 
     /**
-     * Update the specified project book (and its chapters).
+     * Update the specified project book (chapters + documents).
      */
     public function update(Request $request, ProjectBook $projectBook)
     {
         $this->authorizeBook($projectBook);
 
         $validated = $request->validate([
-            'project_id'                       => ['required', 'integer', 'exists:projects,id'],
-            'chapters'                         => ['nullable', 'array'],
-            'chapters.*.chapter_no'            => ['nullable', 'integer', 'min:1'],
-            'chapters.*.chapter_title'         => ['nullable', 'string', 'max:255'],
-            'chapters.*.chapter_description'   => ['nullable', 'string'],
+            'project_id'                     => ['required', 'integer', 'exists:projects,id'],
+            'chapters'                       => ['nullable', 'array'],
+            'chapters.*.id'                  => ['nullable', 'integer'],
+            'chapters.*.chapter_no'          => ['nullable', 'integer', 'min:1'],
+            'chapters.*.chapter_title'       => ['nullable', 'string', 'max:255'],
+            'chapters.*.chapter_description' => ['nullable', 'string'],
+            'chapters.*.documents'           => ['nullable', 'array'],
+            'chapters.*.documents.*'         => [
+                'file',
+                'max:20480',
+                'mimes:' . implode(',', self::ALLOWED_EXTS),
+            ],
+            'chapters.*.remove_documents'    => ['nullable', 'array'],
+            'chapters.*.remove_documents.*'  => ['string'],
         ]);
 
         DB::transaction(function () use ($validated, $projectBook) {
-            // Update project_id only (status is never touched here)
             $projectBook->update([
                 'project_id' => $validated['project_id'],
             ]);
 
-            // Remove old chapters, re-insert
             $projectBook->chapters()->delete();
             $this->syncChapters($projectBook, $validated['chapters'] ?? []);
         });
@@ -173,13 +192,17 @@ class StudentProjectBookController extends Controller
     }
 
     /**
-     * Remove the specified project book (and its chapters).
+     * Remove the specified project book (and its chapters + files).
      */
     public function destroy(ProjectBook $projectBook)
     {
         $this->authorizeBook($projectBook);
 
         DB::transaction(function () use ($projectBook) {
+            foreach ($projectBook->chapters as $chapter) {
+                $this->deleteChapterFiles($chapter->documents ?? []);
+            }
+
             $projectBook->chapters()->delete();
             $projectBook->delete();
         });
@@ -194,7 +217,7 @@ class StudentProjectBookController extends Controller
     /* ------------------------------------------------------------------ */
 
     /**
-     * Insert chapters into the given book, ignoring rows with no title.
+     * Insert chapters into the given book (with documents) ignoring rows with no title.
      */
     protected function syncChapters(ProjectBook $book, array $chapters): void
     {
@@ -205,11 +228,47 @@ class StudentProjectBookController extends Controller
                 continue;
             }
 
+            // Start with any existing (kept) docs from the edit form
+            $documents = [];
+
+            // If the form supplied an id (edit mode), pull existing docs from DB
+            if (!empty($chapter['id'])) {
+                $existing = ProjectBookChapter::find($chapter['id']);
+                if ($existing) {
+                    $existingDocs = $existing->documents ?? [];
+
+                    // Remove the ones the user marked for deletion
+                    $toRemove = $chapter['remove_documents'] ?? [];
+                    if (!empty($toRemove)) {
+                        $this->deleteChapterFiles($toRemove);
+                        $existingDocs = array_values(array_diff($existingDocs, $toRemove));
+                    }
+
+                    $documents = $existingDocs;
+                }
+            }
+
+            // Handle newly uploaded files
+            $uploaded = $chapter['documents'] ?? [];
+            // Laravel gives us an array under [documents] only when multiple=True,
+            // but normalize in case a single file was sent.
+            if (!is_array($uploaded)) {
+                $uploaded = $uploaded ? [$uploaded] : [];
+            }
+
+            foreach ($uploaded as $file) {
+                if (!$file || !$file->isValid()) {
+                    continue;
+                }
+                $documents[] = $this->storeChapterFile($file);
+            }
+
             $rows[] = [
                 'project_book_id'     => $book->id,
                 'chapter_no'          => (int) ($chapter['chapter_no'] ?? (count($rows) + 1)),
                 'chapter_title'       => $title,
                 'chapter_description' => $chapter['chapter_description'] ?? null,
+                'documents'           => !empty($documents) ? json_encode($documents) : null,
                 'created_at'          => now(),
                 'updated_at'          => now(),
             ];
@@ -217,6 +276,39 @@ class StudentProjectBookController extends Controller
 
         if (! empty($rows)) {
             ProjectBookChapter::insert($rows);
+        }
+    }
+
+    /**
+     * Save an uploaded file to public/uploads/book-chapters/ and return the relative path.
+     */
+    protected function storeChapterFile($file): string
+    {
+        $dir = public_path(self::UPLOAD_DIR);
+        if (!File::isDirectory($dir)) {
+            File::makeDirectory($dir, 0755, true);
+        }
+
+        $name = now()->format('Ymd_His') . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
+        $file->move($dir, $name);
+
+        return self::UPLOAD_DIR . '/' . $name;
+    }
+
+    /**
+     * Delete files (relative paths inside public/) from disk.
+     */
+    protected function deleteChapterFiles(array $paths): void
+    {
+        foreach ($paths as $path) {
+            // Only ever delete inside our upload directory
+            if (!str_starts_with($path, self::UPLOAD_DIR . '/')) {
+                continue;
+            }
+            $full = public_path($path);
+            if (File::exists($full)) {
+                File::delete($full);
+            }
         }
     }
 

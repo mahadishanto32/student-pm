@@ -29,7 +29,10 @@
                     </div>
                 @endif
 
-                <form action="{{ route('student.project-books.store') }}" method="POST" style="padding: 15px;">
+                <form action="{{ route('student.project-books.store') }}"
+                      method="POST"
+                      enctype="multipart/form-data"
+                      style="padding: 15px;">
                     @csrf
 
                     <div class="row">
@@ -57,7 +60,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <h4>Chapters</h4>
-                            <p class="text-muted">Add the chapters for this book. Leave the title empty to skip a row.</p>
+                            <p class="text-muted">Add the chapters for this book. Leave the title empty to skip a row. You can attach multiple documents (PDF, DOC, DOCX, etc.) to each chapter.</p>
                         </div>
                     </div>
 
@@ -74,15 +77,22 @@
                                            class="form-control" placeholder="No"
                                            value="{{ $chapter['chapter_no'] ?? ($i + 1) }}" min="1">
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <input type="text" name="chapters[{{ $i }}][chapter_title]"
                                            class="form-control" placeholder="Chapter title"
                                            value="{{ $chapter['chapter_title'] ?? '' }}">
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <input type="text" name="chapters[{{ $i }}][chapter_description]"
                                            class="form-control" placeholder="Description (optional)"
                                            value="{{ $chapter['chapter_description'] ?? '' }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="file"
+                                           name="chapters[{{ $i }}][documents][]"
+                                           class="form-control"
+                                           multiple>
+                                    <small class="text-muted">Multiple files allowed</small>
                                 </div>
                                 <div class="col-md-1">
                                     <button type="button" class="btn btn-danger btn-remove-chapter">
@@ -127,7 +137,6 @@
         const addBtn  = document.getElementById('add-chapter');
 
         function renumber() {
-            // Optionally auto-update chapter_no fields based on position
             wrapper.querySelectorAll('.chapter-row').forEach((row, i) => {
                 const noInput = row.querySelector('input[name$="[chapter_no]"]');
                 if (noInput && (!noInput.value || noInput.dataset.auto === 'true')) {
@@ -145,11 +154,15 @@
                 <div class="col-md-1">
                     <input type="number" name="chapters[${index}][chapter_no]" class="form-control" value="${wrapper.querySelectorAll('.chapter-row').length + 1}" min="1">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <input type="text" name="chapters[${index}][chapter_title]" class="form-control" placeholder="Chapter title">
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <input type="text" name="chapters[${index}][chapter_description]" class="form-control" placeholder="Description (optional)">
+                </div>
+                <div class="col-md-4">
+                    <input type="file" name="chapters[${index}][documents][]" class="form-control" multiple>
+                    <small class="text-muted">Multiple files allowed</small>
                 </div>
                 <div class="col-md-1">
                     <button type="button" class="btn btn-danger btn-remove-chapter">

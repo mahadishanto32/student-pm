@@ -45,7 +45,7 @@
 
                 @include('shared.project-marks.summary-table', [
                     'routePrefix' => 'admin.project-marks',
-                    'canEdit'     => false,
+                    'canEdit'     => true,
                     'showTeacher' => true,
                 ])
 

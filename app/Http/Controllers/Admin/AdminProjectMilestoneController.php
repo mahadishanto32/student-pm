@@ -34,22 +34,33 @@ class AdminProjectMilestoneController extends Controller
      */
     public function index(Request $request)
     {
-        $milestones = ProjectMilestone::with(['project.teamMembers', 'doneBy', 'tasks'])
+        // Paginate projects so a project's milestones stay on one page
+        $projects = Project::with('teamMembers')
             ->when($request->filled('project_id'), fn ($q) =>
-                $q->where('project_id', $request->project_id))
-            ->when($request->filled('status'), fn ($q) =>
-                $q->where('status', $request->status))
+                $q->where('id', $request->project_id))
             ->when($request->filled('search'), fn ($q) =>
-                $q->where('title', 'like', '%' . $request->search . '%'))
-            ->latest()
+                $q->whereHas('milestones', fn ($sub) =>
+                    $sub->where('title', 'like', '%' . $request->search . '%')))
+            ->when($request->filled('status'), fn ($q) =>
+                $q->whereHas('milestones', fn ($sub) =>
+                    $sub->where('status', $request->status)))
+            ->orderBy('group_number')
             ->paginate(10)
             ->withQueryString();
 
-        $projects = Project::orderBy('group_number')->get();
+        $milestonesByProject = ProjectMilestone::with(['doneBy', 'tasks'])
+            ->whereIn('project_id', $projects->pluck('id'))
+            ->when($request->filled('search'), fn ($q) =>
+                $q->where('title', 'like', '%' . $request->search . '%'))
+            ->when($request->filled('status'), fn ($q) =>
+                $q->where('status', $request->status))
+            ->orderBy('created_at')
+            ->get()
+            ->groupBy('project_id');
 
-        // project_id => ['marked' => n, 'avg' => x] for the "Milestones" topic
+        // Milestones-only avg, on the /100 scale written by syncMilestoneScore
         $marksSummary = ProjectMark::with(['distributions' => fn ($q) => $q->where('topic', 'Milestones')])
-            ->whereIn('project_id', $milestones->pluck('project_id')->unique())
+            ->whereIn('project_id', $projects->pluck('id'))
             ->get()
             ->groupBy('project_id')
             ->map(function ($rows) {
@@ -64,7 +75,15 @@ class AdminProjectMilestoneController extends Controller
                 ];
             });
 
-        return view('admin.milestones.index', compact('milestones', 'projects', 'marksSummary'));
+        // Filter dropdown
+        $allProjects = Project::orderBy('group_number')->get();
+
+        return view('admin.milestones.index', compact(
+            'projects',
+            'allProjects',
+            'milestonesByProject',
+            'marksSummary'
+        ));
     }
 
     /**

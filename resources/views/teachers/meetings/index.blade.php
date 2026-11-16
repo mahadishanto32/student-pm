@@ -30,6 +30,9 @@
                         <a href="{{ route('teachers.meetings.create') }}" class="btn btn-success">
                             <i class="fa fa-plus"></i> New Meeting
                         </a>
+                        <a href="{{ route('teachers.meetings.bulk-create') }}" class="btn btn-primary">
+                            <i class="fa fa-layer-group"></i> Bulk Meeting (All Projects)
+                        </a>
                     </div>
                 </div>
 

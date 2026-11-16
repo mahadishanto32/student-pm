@@ -4,12 +4,28 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Concerns\BuildsProjectMarkSheets;
 use App\Http\Controllers\Controller;
-use App\Models\ProjectMark;
+use App\Models\MarksDistribution;
 use Illuminate\Support\Facades\Auth;
 
 class StudentProjectMarkController extends Controller
 {
     use BuildsProjectMarkSheets;
+
+    /** Show all topics only when the project is completed */
+    protected function visibleTopicsFor($project): array
+    {
+        $all = array_values($this->topicMap());
+
+        if (($project->status ?? null) === 'completed') {
+            return $all;
+        }
+
+        // Only Milestones until the project is completed
+        return array_values(array_filter(
+            $all,
+            fn ($t) => $t === 'Milestones'
+        ));
+    }
 
     public function index()
     {
@@ -19,12 +35,17 @@ class StudentProjectMarkController extends Controller
             ->orderBy('projects.group_number')
             ->get();
 
-        // project_id => one row (this student only)
         $sheets   = $this->buildSheets($projects, Auth::id());
         $topicMap = $this->topicMap();
-        $perTopic = ProjectMark::MARKS_PER_TOPIC;
 
-        return view('student.project-marks.index', compact('projects', 'sheets', 'topicMap', 'perTopic'));
+        // project_id => array of visible topics
+        $visibleTopics = [];
+        foreach ($projects as $project) {
+            $visibleTopics[$project->id] = $this->visibleTopicsFor($project);
+        }
+
+        return view('student.project-marks.index',
+            compact('projects', 'sheets', 'topicMap', 'visibleTopics'));
     }
 
     public function show(string $id)
@@ -37,8 +58,9 @@ class StudentProjectMarkController extends Controller
 
         $rows     = $this->buildSheets(collect([$project]), Auth::id())[$project->id];
         $topicMap = $this->topicMap();
-        $perTopic = ProjectMark::MARKS_PER_TOPIC;
+        $visibleTopics = $this->visibleTopicsFor($project);
 
-        return view('student.project-marks.show', compact('project', 'rows', 'topicMap', 'perTopic'));
+        return view('student.project-marks.show',
+            compact('project', 'rows', 'topicMap', 'visibleTopics'));
     }
 }

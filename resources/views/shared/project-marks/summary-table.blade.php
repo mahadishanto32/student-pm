@@ -1,8 +1,23 @@
 @php
+    use App\Models\MarksDistribution;
+
     $fmt = fn ($n) => $n === null ? '—' : rtrim(rtrim(number_format((float) $n, 2), '0'), '.');
+
     $showTeacher = $showTeacher ?? false;
     $canEdit     = $canEdit ?? false;
-    $perTopic    = \App\Models\ProjectMark::MARKS_PER_TOPIC;
+
+    // Summary view: Milestones only
+    $milestoneMax = MarksDistribution::TOPIC_MAX['Milestones'];   // 100
+    $grandTotal   = MarksDistribution::TOTAL_MARKS;               // 200
+
+    // Columns: #, Group, Project, [Teacher], Students, Milestones avg, Overall %, Fully Marked, Actions
+    $colCount = 3
+              + ($showTeacher ? 1 : 0)
+              + 1   // Students
+              + 1   // Milestones avg
+              + 1   // Overall %
+              + 1   // Fully Marked
+              + 1;  // Actions
 @endphp
 
 <div class="table-responsive" style="padding: 15px;">
@@ -16,9 +31,10 @@
                     <th>Teacher</th>
                 @endif
                 <th>Students</th>
-                <th>Milestones<br><small class="text-muted">avg / {{ $perTopic }}</small></th>
-                <th>Project Book<br><small class="text-muted">avg / {{ $perTopic }}</small></th>
-                <th>Presentation<br><small class="text-muted">avg / {{ $perTopic }}</small></th>
+                <th>
+                    Milestones<br>
+                    <small class="text-muted">avg / {{ $milestoneMax }}</small>
+                </th>
                 <th>Overall %</th>
                 <th>Fully Marked</th>
                 <th style="width: 110px;">Actions</th>
@@ -43,7 +59,6 @@
                         <td>{{ $project->teacher->name ?? '—' }}</td>
                     @endif
 
-                    {{-- Students: one name per line --}}
                     <td>
                         @if (count($names))
                             @foreach ($names as $name)
@@ -54,10 +69,15 @@
                         @endif
                     </td>
 
-                    @foreach (['Milestones', 'Project Book', 'Presentation'] as $topic)
-                        <td>{{ $fmt($s['topic_avg'][$topic] ?? null) }}</td>
-                    @endforeach
-                    <td>{{ $s && $s['avg_pct'] !== null ? $s['avg_pct'] . '%' : '—' }}</td>
+                    <td>
+                        {{ $fmt($s['milestones_avg'] ?? null) }}
+                        @if (($s['milestones_marked'] ?? 0) > 0)
+                            <br><small class="text-muted">({{ $s['milestones_marked'] }} marked)</small>
+                        @endif
+                    </td>
+
+                    <td>{{ $s && ($s['avg_pct'] ?? null) !== null ? number_format($s['avg_pct'], 1) . '%' : '—' }}</td>
+
                     <td>
                         @if ($s)
                             <span class="label {{ $s['students'] > 0 && $s['complete'] === $s['students'] ? 'label-success' : 'label-warning' }}">
@@ -67,6 +87,7 @@
                             —
                         @endif
                     </td>
+
                     <td>
                         <a href="{{ route($routePrefix . '.show', $project->id) }}"
                            class="btn btn-sm btn-default" title="View">
@@ -82,10 +103,13 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="{{ $showTeacher ? 11 : 10 }}" class="text-center">No projects found.</td>
+                    <td colspan="{{ $colCount }}" class="text-center">No projects found.</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
-    <small class="text-muted">Overall % is averaged over students who have marks in all three topics.</small>
+    <small class="text-muted">
+        Milestones avg is scaled to /{{ $milestoneMax }} from completed milestone marks.
+        Overall % is the full total (out of {{ $grandTotal }}) averaged over fully-marked students.
+    </small>
 </div>

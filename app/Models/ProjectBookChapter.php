@@ -17,6 +17,11 @@ class ProjectBookChapter extends Model
         'chapter_no',
         'chapter_title',
         'chapter_description',
+        'documents',
+    ];
+
+    protected $casts = [
+        'documents' => 'array',
     ];
 
     public function projectBook(): BelongsTo

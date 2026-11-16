@@ -28,11 +28,16 @@ class MarksDistribution extends Model
         'out_of'      => 'decimal:2',
     ];
 
-    public const TOPICS = [
-        'Milestones',
-        'Project Book',
-        'Presentation',
+    public const TOPICS = ['Milestones', 'Project Book', 'Presentation'];
+
+    /** Max marks per topic. Total = 200 */
+    public const TOPIC_MAX = [
+        'Milestones'   => 100, // teacher: average of milestone marks, scaled to 100
+        'Project Book' => 40,  // not editable by the teacher
+        'Presentation' => 60,  // not editable by the teacher
     ];
+
+    public const TOTAL_MARKS = 200;
 
     public function projectMark(): BelongsTo
     {

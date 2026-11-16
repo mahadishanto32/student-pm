@@ -83,93 +83,44 @@ class TeacherProjectMarkController extends Controller
     {
         $project  = $this->findProject($id);
         $students = $project->teamMembers->where('role', 'student');
-        $max      = ProjectMark::MARKS_PER_TOPIC;
 
-        $rules    = [
+        $request->validate([
             'marks'           => ['required', 'array'],
             'marks.*.remarks' => ['nullable', 'string', 'max:2000'],
-        ];
-        $messages = [];
+            // NOTE: no marks.*.milestones rule — it's auto-computed
+        ], [
+            'marks.required' => 'No marks payload received.',
+        ]);
 
-        foreach ($this->topicMap() as $key => $topic) {
-            $rules["marks.*.{$key}"]          = ['nullable', 'numeric', 'min:0', "max:{$max}"];
-            $messages["marks.*.{$key}.max"]   = "{$topic} marks cannot exceed {$max}.";
-            $messages["marks.*.{$key}.min"]   = "{$topic} marks cannot be negative.";
-            $messages["marks.*.{$key}.numeric"] = "{$topic} marks must be a number.";
-        }
+        DB::transaction(function () use ($request, $project, $students) {
+            foreach ($students as $student) {
+                $input   = $request->input("marks.{$student->id}");
+                if (! is_array($input)) continue;
 
-        $request->validate($rules, $messages);
+                $remarks = trim((string) ($input['remarks'] ?? ''));
 
-        try {
-            DB::transaction(function () use ($request, $project, $students, $max) {
-                $now = now();
+                $pm = ProjectMark::firstOrCreate(
+                    ['project_id' => $project->id, 'student_id' => $student->id],
+                    ['supervisor_id' => Auth::id()]
+                );
+                $pm->supervisor_id = Auth::id();
+                $pm->remarks       = $remarks !== '' ? $remarks : null;
+                $pm->save();
 
-                foreach ($students as $student) {
-                    $input = $request->input("marks.{$student->id}");
-                    if (! is_array($input)) {
-                        continue;
-                    }
-
-                    $remarks = trim((string) ($input['remarks'] ?? ''));
-                    $values  = [];
-
-                    foreach ($this->topicMap() as $key => $topic) {
-                        $v = $input[$key] ?? null;
-                        $values[$topic] = ($v === null || $v === '') ? null : $v;
-                    }
-
-                    $hasAny = collect($values)->contains(fn ($v) => $v !== null) || $remarks !== '';
-
-                    $pm = ProjectMark::where('project_id', $project->id)
-                        ->where('student_id', $student->id)
-                        ->first();
-
-                    if (! $pm && ! $hasAny) {
-                        continue; // nothing to store
-                    }
-
-                    $pm ??= new ProjectMark([
-                        'project_id' => $project->id,
-                        'student_id' => $student->id,
-                    ]);
-                    $pm->supervisor_id = Auth::id();
-                    $pm->remarks       = $remarks !== '' ? $remarks : null;
-                    $pm->save();
-
-                    foreach ($values as $topic => $given) {
-                        $query = DB::table('marks_distributions')
-                            ->where('project_marks_id', $pm->id)
-                            ->where('topic', $topic);
-
-                        if ($given === null) {
-                            $query->delete(); // blank = clear this topic's mark
-                            continue;
-                        }
-
-                        $data = [
-                            'given_marks' => $given,
-                            'out_of'      => $max,
-                            'updated_at'  => $now,
-                        ];
-
-                        if ($query->exists()) {
-                            $query->update($data);
-                        } else {
-                            DB::table('marks_distributions')->insert($data + [
-                                'project_marks_id' => $pm->id,
-                                'topic'            => $topic,
-                                'created_at'       => $now,
-                            ]);
-                        }
-                    }
-                }
-            });
-        } catch (\Throwable $e) {
-            return back()->withInput()->with('error', 'Failed to save marks: ' . $e->getMessage());
-        }
+                // Re-derive Milestones from source of truth
+                ProjectMark::syncMilestoneScore($project->id, $student->id);
+            }
+        });
 
         return redirect()
             ->route('teachers.project-marks.show', $project->id)
-            ->with('success', 'Project marks updated successfully.');
+            ->with('success', 'Remarks updated. Milestones score refreshed from milestone marks.');
+    }
+
+    // Editable topics only — teacher can only change Milestones,
+    // and even that value should really come from milestones, not be typed.
+    protected function editableTopicMap(): array
+    {
+        return ['milestones' => 'Milestones'];
     }
 }

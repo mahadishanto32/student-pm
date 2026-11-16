@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Validation\Rule;
 use App\Notifications\MilestoneCreatedNotification;
 use Illuminate\Support\Facades\Notification;
+use App\Models\MilestoneMark;
 
 class TeacherProjectMilestoneController extends Controller
 {
@@ -47,25 +48,32 @@ class TeacherProjectMilestoneController extends Controller
     {
         $projectIds = $this->assignedProjectIds();
 
-        $milestones = ProjectMilestone::with(['project.teamMembers', 'doneBy', 'tasks'])
-            ->whereIn('project_id', $projectIds)
-            ->when($request->filled('project_id'), fn ($q) =>
-                $q->where('project_id', $request->project_id))
-            ->when($request->filled('status'), fn ($q) =>
-                $q->where('status', $request->status))
-            ->when($request->filled('search'), fn ($q) =>
-                $q->where('title', 'like', '%' . $request->search . '%'))
-            ->latest()
+        // Paginate PROJECTS (so a project's milestones always stay together)
+        $projects = Project::with(['teamMembers'])
+            ->whereIn('id', $projectIds)
+            ->when($request->filled('project_id'), fn ($q) => $q->where('id', $request->project_id))
+            ->when($request->filled('search'), fn ($q) => $q->whereHas('milestones', function ($sub) use ($request) {
+                $sub->where('title', 'like', '%' . $request->search . '%');
+            }))
+            ->when($request->filled('status'), fn ($q) => $q->whereHas('milestones', function ($sub) use ($request) {
+                $sub->where('status', $request->status);
+            }))
+            ->orderBy('group_number')
             ->paginate(10)
             ->withQueryString();
 
-        $projects = Project::whereIn('id', $projectIds)
-            ->orderBy('group_number')
-            ->get();
+        // Load only the milestones for the projects on this page
+        $milestonesByProject = ProjectMilestone::with(['doneBy', 'tasks'])
+            ->whereIn('project_id', $projects->pluck('id'))
+            ->when($request->filled('search'), fn ($q) => $q->where('title', 'like', '%' . $request->search . '%'))
+            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
+            ->orderBy('created_at')
+            ->get()
+            ->groupBy('project_id');
 
-        // project_id => ['marked' => n, 'avg' => x] for the "Milestones" topic
+        // Marks summary for the "Milestones" topic (already scaled to /100)
         $marksSummary = ProjectMark::with(['distributions' => fn ($q) => $q->where('topic', 'Milestones')])
-            ->whereIn('project_id', $milestones->pluck('project_id')->unique())
+            ->whereIn('project_id', $projects->pluck('id'))
             ->get()
             ->groupBy('project_id')
             ->map(function ($rows) {
@@ -80,7 +88,17 @@ class TeacherProjectMilestoneController extends Controller
                 ];
             });
 
-        return view('teachers.milestones.index', compact('milestones', 'projects', 'marksSummary'));
+        // For the project filter dropdown
+        $allProjects = Project::whereIn('id', $projectIds)
+            ->orderBy('group_number')
+            ->get();
+
+        return view('teachers.milestones.index', compact(
+            'projects',
+            'allProjects',
+            'milestonesByProject',
+            'marksSummary'
+        ));
     }
 
     /**
@@ -182,11 +200,8 @@ class TeacherProjectMilestoneController extends Controller
 
         $students = $milestone->project->teamMembers;
 
-        $existingMarks = ProjectMark::with('distributions')
-            ->where('project_id', $milestone->project_id)
-            ->whereIn('student_id', $students->pluck('id'))
-            ->get()
-            ->keyBy('student_id');
+        $existingMarks = MilestoneMark::where('project_milestone_id', $milestone->id)
+                        ->get()->keyBy('student_id');
 
         return view('teachers.milestones.edit', compact('milestone', 'projects', 'students', 'existingMarks'));
     }
@@ -242,10 +257,11 @@ class TeacherProjectMilestoneController extends Controller
 
             $this->syncTasks($milestone, $request);
 
+            $milestone->load('project.teamMembers');
             if ($isCompleted) {
-                $milestone->load('project.teamMembers');
                 $this->saveStudentMarks($milestone, $request->input('marks', []));
             }
+            $this->resyncScores($milestone);
 
             DB::commit();
 
@@ -259,13 +275,18 @@ class TeacherProjectMilestoneController extends Controller
     }
 
     /**
-     * Delete a milestone and its tasks/documents.
+     * Delete a milestone, its tasks/documents and its student marks,
+     * then recalculate each student's Milestones score (out of 100).
      */
     public function destroy(string $id)
     {
-        $milestone = ProjectMilestone::with('tasks')
+        $milestone = ProjectMilestone::with(['tasks', 'project.teamMembers'])
             ->whereIn('project_id', $this->assignedProjectIds())
             ->findOrFail($id);
+
+        // Capture these before deleting, as they're needed for the resync
+        $projectId  = $milestone->project_id;
+        $studentIds = $milestone->project->teamMembers->pluck('id');
 
         DB::beginTransaction();
 
@@ -274,8 +295,14 @@ class TeacherProjectMilestoneController extends Controller
                 $this->deleteDocument($task->document);
             }
 
+            MilestoneMark::where('project_milestone_id', $milestone->id)->delete();
             $milestone->tasks()->delete();
             $milestone->delete();
+
+            // The deleted milestone no longer counts, so the average is recalculated
+            foreach ($studentIds as $studentId) {
+                ProjectMark::syncMilestoneScore($projectId, $studentId);
+            }
 
             DB::commit();
 
@@ -391,45 +418,27 @@ class TeacherProjectMilestoneController extends Controller
     protected function saveStudentMarks(ProjectMilestone $milestone, array $marks): void
     {
         $studentIds = $milestone->project->teamMembers->pluck('id')->map(fn ($v) => (int) $v)->all();
-        $now        = now();
 
         foreach ($marks as $studentId => $data) {
-            // Ignore anyone who isn't a member of this project
             if (! in_array((int) $studentId, $studentIds, true)) {
                 continue;
             }
 
-            $projectMark = ProjectMark::updateOrCreate(
+            MilestoneMark::updateOrCreate(
+                ['project_milestone_id' => $milestone->id, 'student_id' => $studentId],
                 [
-                    'project_id' => $milestone->project_id,
-                    'student_id' => $studentId,
-                ],
-                [
-                    'supervisor_id' => Auth::id(),
-                    'remarks'       => $data['remarks'] ?? null,
+                    'given_marks' => $data['given_marks'],
+                    'out_of'      => ProjectMark::MARKS_PER_MILESTONE,
+                    'remarks'     => $data['remarks'] ?? null,
                 ]
             );
+        }
+    }
 
-            // marks_distributions has no single primary key, so use the query builder
-            $query = DB::table('marks_distributions')
-                ->where('project_marks_id', $projectMark->id)
-                ->where('topic', 'Milestones');
-
-            $values = [
-                'given_marks' => $data['given_marks'],
-                'out_of'      => ProjectMark::MARKS_PER_TOPIC,
-                'updated_at'  => $now,
-            ];
-
-            if ($query->exists()) {
-                $query->update($values);
-            } else {
-                DB::table('marks_distributions')->insert($values + [
-                    'project_marks_id' => $projectMark->id,
-                    'topic'            => 'Milestones',
-                    'created_at'       => $now,
-                ]);
-            }
+    protected function resyncScores(ProjectMilestone $milestone): void
+    {
+        foreach ($milestone->project->teamMembers as $student) {
+            ProjectMark::syncMilestoneScore($milestone->project_id, $student->id);
         }
     }
 }

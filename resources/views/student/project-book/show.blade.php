@@ -118,6 +118,7 @@
                                 <th style="width: 80px;">No</th>
                                 <th>Title</th>
                                 <th>Description</th>
+                                <th style="width: 240px;">Documents</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -126,10 +127,25 @@
                                     <td>{{ $chapter->chapter_no }}</td>
                                     <td>{{ $chapter->chapter_title }}</td>
                                     <td>{{ $chapter->chapter_description ?? '—' }}</td>
+                                    <td>
+                                        @php $docs = $chapter->documents ?? []; @endphp
+                                        @if (!empty($docs))
+                                            @foreach ($docs as $doc)
+                                                <div>
+                                                    <a href="{{ asset($doc) }}" target="_blank">
+                                                        <i class="fa fa-file"></i>
+                                                        {{ basename($doc) }}
+                                                    </a>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            —
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="text-center">No chapters added yet.</td>
+                                    <td colspan="4" class="text-center">No chapters added yet.</td>
                                 </tr>
                             @endforelse
                         </tbody>

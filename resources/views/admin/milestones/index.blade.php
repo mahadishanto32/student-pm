@@ -45,9 +45,9 @@
                         <form action="{{ route('admin.milestones.index') }}" method="GET">
                             <select name="project_id" class="form-control" onchange="this.form.submit()">
                                 <option value="">— All Projects —</option>
-                                @foreach ($projects as $project)
-                                    <option value="{{ $project->id }}" @selected(request('project_id') == $project->id)>
-                                        Group {{ $project->group_number }} — {{ $project->project_name }}
+                                @foreach ($allProjects as $p)
+                                    <option value="{{ $p->id }}" @selected(request('project_id') == $p->id)>
+                                        Group {{ $p->group_number }} — {{ $p->project_name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -71,8 +71,7 @@
                     <table class="table table-bordered table-striped">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Project</th>
+                                <th style="width: 50px;">#</th>
                                 <th>Title</th>
                                 <th>Tentative Time</th>
                                 <th>Tasks</th>
@@ -84,82 +83,105 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($milestones as $milestone)
-                                <tr>
-                                    <td>{{ $loop->iteration + ($milestones->currentPage() - 1) * $milestones->perPage() }}</td>
-                                    <td>
-                                        @if ($milestone->project)
-                                            Group {{ $milestone->project->group_number }}<br>
-                                            <small class="text-muted">{{ $milestone->project->project_name }}</small>
-                                        @else
-                                            —
-                                        @endif
-                                    </td>
-                                    <td>{{ $milestone->title }}</td>
-                                    <td>{{ $milestone->tentative_time?->format('d M Y, h:i A') ?? '—' }}</td>
-                                    <td><span class="label label-default">{{ $milestone->tasks->count() }}</span></td>
-                                    <td>
-                                        @php
-                                            $badge = match($milestone->status) {
-                                                'pending'         => 'label-warning',
-                                                'need_correction' => 'label-info',
-                                                'completed'       => 'label-success',
-                                                'rejected'        => 'label-danger',
-                                                default           => 'label-default',
-                                            };
-                                        @endphp
-                                        <span class="label {{ $badge }}">
-                                            {{ ucwords(str_replace('_', ' ', $milestone->status)) }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        @if ($milestone->status === 'completed')
-                                            @php
-                                                $summary = $marksSummary[$milestone->project_id] ?? null;
-                                                $total   = $milestone->project?->teamMembers->count() ?? 0;
-                                            @endphp
-                                            @if ($summary && $summary['marked'] > 0)
-                                                <strong>{{ $summary['avg'] }}</strong> / {{ \App\Models\ProjectMark::MARKS_PER_TOPIC }}
-                                                <br>
-                                                <small class="text-muted">avg · {{ $summary['marked'] }}/{{ $total }} marked</small>
-                                            @else
-                                                <span class="label label-default">Not marked</span>
-                                            @endif
-                                        @else
-                                            <span class="text-muted">—</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ $milestone->doneBy->name ?? '—' }}</td>
-                                    <td>
-                                        @if ($milestone->supervisor_note)
-                                            {{ \Illuminate\Support\Str::limit($milestone->supervisor_note, 60) }}
-                                        @else
-                                            <span class="text-muted">—</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('admin.milestones.show', $milestone->id) }}"
-                                           class="btn btn-sm btn-default" title="View">
-                                            <i class="fa fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('admin.milestones.edit', $milestone->id) }}"
-                                           class="btn btn-sm btn-primary" title="Edit">
-                                            <i class="fa fa-pencil"></i>
-                                        </a>
-                                        <form action="{{ route('admin.milestones.destroy', $milestone->id) }}"
-                                              method="POST" style="display:inline-block"
-                                              onsubmit="return confirm('Delete this milestone and all its tasks?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="btn btn-sm btn-danger" title="Delete">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </form>
+                            @forelse ($projects as $project)
+                                @php
+                                    $milestones   = $milestonesByProject[$project->id] ?? collect();
+                                    $summary      = $marksSummary[$project->id] ?? null;
+                                    $totalStu     = $project->teamMembers->where('role', 'student')->count();
+                                    $milestoneMax = \App\Models\MarksDistribution::TOPIC_MAX['Milestones'];
+                                @endphp
+
+                                <tr class="active" style="background: #f4f6f8;">
+                                    <td colspan="9">
+                                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                                            <div>
+                                                <strong>Group {{ $project->group_number ?? '—' }}</strong>
+                                                — {{ $project->project_name ?? 'Untitled Project' }}
+                                                @if ($project->project_topic)
+                                                    <br><small class="text-muted">{{ $project->project_topic }}</small>
+                                                @endif
+                                            </div>
+                                            <div class="text-right">
+                                                @if ($summary && $summary['marked'] > 0)
+                                                    <span class="label label-success">
+                                                        Milestones avg: {{ $summary['avg'] }} / {{ $milestoneMax }}
+                                                    </span>
+                                                    <small class="text-muted">
+                                                        ({{ $summary['marked'] }}/{{ $totalStu }} marked)
+                                                    </small>
+                                                @else
+                                                    <span class="label label-default">Milestones: Not marked</span>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
+
+                                @forelse ($milestones as $milestone)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $milestone->title }}</td>
+                                        <td>{{ $milestone->tentative_time?->format('d M Y, h:i A') ?? '—' }}</td>
+                                        <td><span class="label label-default">{{ $milestone->tasks->count() }}</span></td>
+                                        <td>
+                                            @php
+                                                $badge = match($milestone->status) {
+                                                    'pending'         => 'label-warning',
+                                                    'need_correction' => 'label-info',
+                                                    'completed'       => 'label-success',
+                                                    'rejected'        => 'label-danger',
+                                                    default           => 'label-default',
+                                                };
+                                            @endphp
+                                            <span class="label {{ $badge }}">
+                                                {{ ucwords(str_replace('_', ' ', $milestone->status)) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if ($milestone->status === 'completed')
+                                                <span class="text-success"><i class="fa fa-check"></i> Counted</span>
+                                            @else
+                                                <span class="text-muted">—</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ $milestone->doneBy->name ?? '—' }}</td>
+                                        <td>
+                                            @if ($milestone->supervisor_note)
+                                                {{ \Illuminate\Support\Str::limit($milestone->supervisor_note, 60) }}
+                                            @else
+                                                <span class="text-muted">—</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('admin.milestones.show', $milestone->id) }}"
+                                               class="btn btn-sm btn-default" title="View">
+                                                <i class="fa fa-eye"></i>
+                                            </a>
+                                            <a href="{{ route('admin.milestones.edit', $milestone->id) }}"
+                                               class="btn btn-sm btn-primary" title="Edit">
+                                                <i class="fa fa-pencil"></i>
+                                            </a>
+                                            <form action="{{ route('admin.milestones.destroy', $milestone->id) }}"
+                                                  method="POST" style="display:inline-block"
+                                                  onsubmit="return confirm('Delete this milestone and all its tasks?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-sm btn-danger" title="Delete">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted">
+                                            No milestones yet for this project.
+                                        </td>
+                                    </tr>
+                                @endforelse
                             @empty
                                 <tr>
-                                    <td colspan="10" class="text-center">No milestones found.</td>
+                                    <td colspan="9" class="text-center">No projects found.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -167,7 +189,7 @@
                 </div>
 
                 <div style="padding: 0 15px 15px 15px;">
-                    {{ $milestones->appends(request()->query())->links() }}
+                    {{ $projects->appends(request()->query())->links() }}
                 </div>
 
             </div>

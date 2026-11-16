@@ -67,9 +67,6 @@
                     <li class="{{ request()->routeIs('admin.project-books.index') ? 'active' : '' }}">
                         <a href="{{ route('admin.project-books.index') }}">&gt; <span>All Project Books</span></a>
                     </li>
-                    <li class="{{ request()->routeIs('admin.project-books.create') ? 'active' : '' }}">
-                        <a href="{{ route('admin.project-books.create') }}">&gt; <span>Add New Project Book</span></a>
-                    </li>
                 </ul>
             </li>
 
