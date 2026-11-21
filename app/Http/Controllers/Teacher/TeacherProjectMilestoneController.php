@@ -167,6 +167,131 @@ class TeacherProjectMilestoneController extends Controller
     }
 
     /**
+     * Bulk create form: one milestone for ALL assigned projects.
+     */
+    public function bulkCreate()
+    {
+        $projects = Project::whereIn('id', $this->assignedProjectIds())
+            ->orderBy('group_number')
+            ->get();
+
+        if ($projects->isEmpty()) {
+            return redirect()
+                ->route('teachers.milestones.index')
+                ->with('error', 'You are not assigned to any project.');
+        }
+
+        return view('teachers.milestones.bulk-create', compact('projects'));
+    }
+
+    /**
+     * Create the same milestone (+ tasks) in every assigned project.
+     */
+    public function bulkStore(Request $request)
+    {
+        $validated = $request->validate([
+            'title'               => ['required', 'string', 'max:255'],
+            'tentative_time'      => ['nullable', 'date'],
+            'supervisor_note'     => ['nullable', 'string', 'max:5000'],
+
+            'tasks'               => ['required', 'array', 'min:1'],
+            'tasks.*.key_points'  => ['required', 'string', 'max:1000'],
+            'tasks.*.description' => ['nullable', 'string', 'max:5000'],
+            'tasks.*.document'    => ['nullable', 'file', 'mimes:' . implode(',', $this->allowedMimes), 'max:5120'],
+        ]);
+
+        $projectIds = $this->assignedProjectIds();
+
+        if (empty($projectIds)) {
+            return redirect()
+                ->route('teachers.milestones.index')
+                ->with('error', 'You are not assigned to any project.');
+        }
+
+        // Upload each task document ONCE (master copy). Every milestone gets its
+        // own physical copy, because deleting one milestone deletes its files and
+        // must not break the other projects' milestones.
+        $rows   = $request->input('tasks', []);
+        $files  = $request->file('tasks', []);
+        $master = [];
+
+        foreach ($rows as $index => $row) {
+            $path = null;
+
+            if (isset($files[$index]['document']) && $files[$index]['document'] instanceof UploadedFile) {
+                $path = $this->uploadDocument($files[$index]['document']);
+            }
+
+            $master[] = [
+                'key_points'  => $row['key_points'],
+                'description' => $row['description'] ?? null,
+                'document'    => $path,
+            ];
+        }
+
+        $createdFiles = [];
+        $milestones   = [];
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($projectIds as $projectId) {
+                $milestone = ProjectMilestone::create([
+                    'project_id'      => $projectId,
+                    'title'           => $validated['title'],
+                    'tentative_time'  => $validated['tentative_time'] ?? null,
+                    'status'          => ProjectMilestone::STATUS_PENDING,
+                    'supervisor_note' => $validated['supervisor_note'] ?? null,
+                    'done_by'         => Auth::id(),
+                ]);
+
+                foreach ($master as $task) {
+                    $docPath = null;
+
+                    if ($task['document']) {
+                        $docPath = $this->copyDocument($task['document']);
+                        $createdFiles[] = $docPath;
+                    }
+
+                    $milestone->tasks()->create([
+                        'key_points'  => $task['key_points'],
+                        'description' => $task['description'],
+                        'document'    => $docPath,
+                    ]);
+                }
+
+                $milestones[] = $milestone;
+            }
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            foreach ($createdFiles as $file) {
+                $this->deleteDocument($file);
+            }
+            foreach ($master as $task) {
+                $this->deleteDocument($task['document']);
+            }
+
+            return back()->withInput()->with('error', 'Failed to create milestones: ' . $e->getMessage());
+        }
+
+        // Master copies are no longer needed
+        foreach ($master as $task) {
+            $this->deleteDocument($task['document']);
+        }
+
+        foreach ($milestones as $milestone) {
+            $this->notifyStudents($milestone);
+        }
+
+        return redirect()
+            ->route('teachers.milestones.index')
+            ->with('success', 'Milestone created in ' . count($milestones) . ' project(s).');
+    }
+
+    /**
      * Show a milestone belonging to one of the teacher's projects.
      */
     public function show(string $id)
@@ -380,6 +505,22 @@ class TeacherProjectMilestoneController extends Controller
 
         $name = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
         $file->move($folder, $name);
+
+        return 'uploads/tasks/' . $name;
+    }
+
+    protected function copyDocument(string $relativePath): string
+    {
+        $folder = public_path('uploads/tasks');
+
+        if (!File::isDirectory($folder)) {
+            File::makeDirectory($folder, 0755, true, true);
+        }
+
+        $ext  = pathinfo($relativePath, PATHINFO_EXTENSION);
+        $name = time() . '_' . uniqid() . '.' . $ext;
+
+        File::copy(public_path($relativePath), $folder . DIRECTORY_SEPARATOR . $name);
 
         return 'uploads/tasks/' . $name;
     }

@@ -28,8 +28,11 @@
                     </div>
                     <div class="col-md-6 col-sm-6 col-xs-12 text-right">
                         @if ($allProjects->isNotEmpty())
+                            <a href="{{ route('teachers.milestones.bulk-create') }}" class="btn btn-warning">
+                                <i class="fa fa-clone"></i> Bulk Create
+                            </a>
                             <a href="{{ route('teachers.milestones.create', request()->filled('project_id') ? ['project_id' => request('project_id')] : []) }}"
-                               class="btn btn-success">
+                            class="btn btn-success">
                                 <i class="fa fa-plus"></i> New Milestone
                             </a>
                         @else
